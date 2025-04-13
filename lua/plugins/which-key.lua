@@ -1,4 +1,4 @@
-return {
+local M = {
   "folke/which-key.nvim",
   event = "VeryLazy",
   init = function()
@@ -24,17 +24,11 @@ return {
       },
     },
     triggers = { "<leader>" },
-    defer = { gc = "Comments" },
-    replace = {
-      ["<space>"] = "SPC",
-      ["<cr>"] = "RET",
-      ["<tab>"] = "TAB",
-    },
     win = {
-      border = "single",
+      border = "rounded",
       position = "bottom",
       margin = { 1, 0, 1, 0 },
-      padding = { 1, 2, 1, 2 },
+      padding = { 2, 2, 2, 2 },
       winblend = 0,
     },
     layout = {
@@ -47,89 +41,112 @@ return {
   config = function(_, opts)
     local wk = require("which-key")
     wk.setup(opts)
-    
-    -- Register key mappings using the new format
+
+    -- Register mappings using the new specification format
     wk.register({
-      -- Find mappings
-      ["<leader>f"] = { name = "Find" },
-      ["<leader>ff"] = { "<cmd>Telescope find_files<cr>", desc = "Find files" },
-      ["<leader>fg"] = { "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
-      ["<leader>fb"] = { "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
-      ["<leader>fh"] = { "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
-      ["<leader>fr"] = { "<cmd>Telescope oldfiles<cr>", desc = "Recent files" },
-      ["<leader>fc"] = { "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Find in buffer" },
-      ["<leader>fs"] = { "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
-      ["<leader>fS"] = { "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
-      ["<leader>ft"] = { "<cmd>Telescope treesitter<cr>", desc = "Treesitter symbols" },
-      ["<leader>fd"] = { "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
-      ["<leader>fB"] = { "<cmd>Telescope file_browser<cr>", desc = "File browser" },
+      ["<leader>"] = {
+        D = { name = "Docker" },
+        d = { name = "Debug" },
+        e = { name = "Error" },
+        f = { name = "Find" },
+        g = { name = "Git" },
+        h = { name = "Harpoon" },
+        l = { name = "LSP" },
+        w = { name = "Window" },
+      },
+    })
 
-      -- Debug mappings
-      ["<leader>d"] = { name = "Debug" },
-      ["<leader>db"] = { "<cmd>lua require('dap').toggle_breakpoint()<cr>", desc = "Toggle breakpoint" },
-      ["<leader>dc"] = { "<cmd>lua require('dap').continue()<cr>", desc = "Continue" },
-      ["<leader>di"] = { "<cmd>lua require('dap').step_into()<cr>", desc = "Step into" },
-      ["<leader>do"] = { "<cmd>lua require('dap').step_over()<cr>", desc = "Step over" },
-      ["<leader>dO"] = { "<cmd>lua require('dap').step_out()<cr>", desc = "Step out" },
-      ["<leader>dr"] = { "<cmd>lua require('dap').repl.open()<cr>", desc = "Open REPL" },
-      ["<leader>dt"] = { "<cmd>lua require('dapui').toggle()<cr>", desc = "Toggle UI" },
-      ["<leader>dB"] = { "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>", desc = "Conditional breakpoint" },
-      ["<leader>dl"] = { "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics list" },
-      ["<leader>da"] = { "<cmd>DBUI<cr>", desc = "Add DB Connection" },
+    -- Docker commands
+    wk.register({
+      ["<leader>Dc"] = { "<cmd>!docker-compose up -d<CR>", "Docker-compose up" },
+      ["<leader>Dd"] = { "<cmd>!docker-compose down<CR>", "Docker-compose down" },
+      ["<leader>Dl"] = { "<cmd>!docker ps<CR>", "List containers" },
+    })
 
-      -- Git mappings
-      ["<leader>g"] = { name = "Git" },
-      ["<leader>gg"] = { "<cmd>Git<cr>", desc = "Git status" },
-      ["<leader>gb"] = { "<cmd>Git blame<cr>", desc = "Git blame" },
-      ["<leader>gd"] = { "<cmd>Git diff<cr>", desc = "Git diff" },
-      ["<leader>gc"] = { "<cmd>Git commit<cr>", desc = "Git commit" },
+    -- Debug commands
+    wk.register({
+      ["<leader>dB"] = { "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>", "Conditional breakpoint" },
+      ["<leader>dO"] = { "<cmd>lua require('dap').step_out()<cr>", "Step out" },
+      ["<leader>da"] = { "<cmd>DBUI<cr>", "Add DB Connection" },
+      ["<leader>db"] = { "<cmd>lua require('dap').toggle_breakpoint()<cr>", "Toggle breakpoint" },
+      ["<leader>dc"] = { "<cmd>lua require('dap').continue()<cr>", "Continue" },
+      ["<leader>di"] = { "<cmd>lua require('dap').step_into()<cr>", "Step into" },
+      ["<leader>dl"] = { "<cmd>Telescope diagnostics<cr>", "Diagnostics list" },
+      ["<leader>do"] = { "<cmd>lua require('dap').step_over()<cr>", "Step over" },
+      ["<leader>dr"] = { "<cmd>lua require('dap').repl.open()<cr>", "Open REPL" },
+      ["<leader>dt"] = { "<cmd>lua require('dapui').toggle()<cr>", "Toggle UI" },
+    })
 
-      -- Harpoon mappings
-      ["<leader>h"] = { name = "Harpoon" },
-      ["<leader>ha"] = { "<cmd>lua require('harpoon.mark').add_file()<cr>", desc = "Add file" },
-      ["<leader>hh"] = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>", desc = "Harpoon menu" },
+    -- Error handling
+    wk.register({
+      ["<leader>ee"] = { "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", "Return error" },
+      ["<leader>ef"] = { 'oif err != nil {<CR>}<Esc>Olog.Fatalf("error: %s\\n", err.Error())<Esc>', "Fatal error" },
+    })
 
-      -- LSP mappings
-      ["<leader>l"] = { name = "LSP" },
-      ["<leader>la"] = { vim.lsp.buf.code_action, desc = "Code action" },
-      ["<leader>ld"] = { vim.lsp.buf.definition, desc = "Go to definition" },
-      ["<leader>lf"] = { vim.lsp.buf.format, desc = "Format" },
-      ["<leader>li"] = { "<cmd>LspInfo<cr>", desc = "LSP info" },
-      ["<leader>ln"] = { vim.lsp.buf.rename, desc = "Rename" },
-      ["<leader>lr"] = { "<cmd>LspRestart<cr>", desc = "Restart LSP" },
-      ["<leader>ls"] = { "<cmd>LspStart<cr>", desc = "Start LSP" },
-      ["<leader>lS"] = { "<cmd>LspStop<cr>", desc = "Stop LSP" },
-      ["<leader>lh"] = { vim.lsp.buf.hover, desc = "Hover documentation" },
-      ["<leader>lk"] = { vim.lsp.buf.signature_help, desc = "Signature help" },
-      ["<leader>lt"] = { vim.lsp.buf.type_definition, desc = "Type definition" },
+    -- Find commands
+    wk.register({
+      ["<leader>fB"] = { "<cmd>Telescope file_browser<cr>", "File browser" },
+      ["<leader>fS"] = { "<cmd>Telescope lsp_workspace_symbols<cr>", "Workspace symbols" },
+      ["<leader>fb"] = { "<cmd>Telescope buffers<cr>", "Find buffers" },
+      ["<leader>fc"] = { "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Find in buffer" },
+      ["<leader>fd"] = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
+      ["<leader>ff"] = { "<cmd>Telescope find_files<cr>", "Find files" },
+      ["<leader>fg"] = { "<cmd>Telescope live_grep<cr>", "Live grep" },
+      ["<leader>fh"] = { "<cmd>Telescope help_tags<cr>", "Help tags" },
+      ["<leader>fr"] = { "<cmd>Telescope oldfiles<cr>", "Recent files" },
+      ["<leader>fs"] = { "<cmd>Telescope lsp_document_symbols<cr>", "Document symbols" },
+      ["<leader>ft"] = { "<cmd>Telescope treesitter<cr>", "Treesitter symbols" },
+    })
 
-      -- Error handling mappings
-      ["<leader>e"] = { name = "Error" },
-      ["<leader>ee"] = { "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", desc = "Return error" },
-      ["<leader>ef"] = { 'oif err != nil {<CR>}<Esc>Olog.Fatalf("error: %s\\n", err.Error())<Esc>', desc = "Fatal error" },
+    -- Git commands
+    wk.register({
+      ["<leader>gb"] = { "<cmd>Git blame<cr>", "Git blame" },
+      ["<leader>gc"] = { "<cmd>Git commit<cr>", "Git commit" },
+      ["<leader>gd"] = { "<cmd>Git diff<cr>", "Git diff" },
+      ["<leader>gg"] = { "<cmd>Git<cr>", "Git status" },
+    })
 
-      -- Docker mappings
-      ["<leader>D"] = { name = "Docker" },
-      ["<leader>Dc"] = { "<cmd>!docker-compose up -d<CR>", desc = "Docker-compose up" },
-      ["<leader>Dd"] = { "<cmd>!docker-compose down<CR>", desc = "Docker-compose down" },
-      ["<leader>Dl"] = { "<cmd>!docker ps<CR>", desc = "List containers" },
+    -- Harpoon commands
+    wk.register({
+      ["<leader>ha"] = { "<cmd>lua require('harpoon.mark').add_file()<cr>", "Add file" },
+      ["<leader>hh"] = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>", "Harpoon menu" },
+    })
 
-      -- SQL formatting
-      ["<leader>sq"] = { "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", desc = "Format SQL" },
+    -- LSP commands
+    wk.register({
+      ["<leader>lS"] = { "<cmd>LspStop<cr>", "Stop LSP" },
+      ["<leader>la"] = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code action" },
+      ["<leader>ld"] = { "<cmd>lua vim.lsp.buf.definition()<cr>", "Go to definition" },
+      ["<leader>lf"] = { "<cmd>lua vim.lsp.buf.format()<cr>", "Format" },
+      ["<leader>lh"] = { "<cmd>lua vim.lsp.buf.hover()<cr>", "Hover documentation" },
+      ["<leader>li"] = { "<cmd>LspInfo<cr>", "LSP info" },
+      ["<leader>lk"] = { "<cmd>lua vim.lsp.buf.signature_help()<cr>", "Signature help" },
+      ["<leader>ln"] = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+      ["<leader>lr"] = { "<cmd>LspRestart<cr>", "Restart LSP" },
+      ["<leader>ls"] = { "<cmd>LspStart<cr>", "Start LSP" },
+      ["<leader>lt"] = { "<cmd>lua vim.lsp.buf.type_definition()<cr>", "Type definition" },
+    })
 
-      -- Window mappings
-      ["<leader>w"] = { name = "Window" },
-      ["<leader>ww"] = { "<cmd>w<CR>", desc = "Save" },
-      ["<leader>wq"] = { "<cmd>wq<CR>", desc = "Save and quit" },
+    -- Window commands
+    wk.register({
+      ["<leader>wq"] = { "<cmd>wq<CR>", "Save and quit" },
+      ["<leader>ww"] = { "<cmd>w<CR>", "Save" },
+    })
 
-      -- Comment mappings
-      ["gc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment" },
-      ["gcc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment line" },
+    -- SQL formatting
+    wk.register({
+      ["<leader>sq"] = { "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", "Format SQL" },
+    })
+
+    -- Comment mappings
+    wk.register({
+      ["gc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", "Comment" },
     }, { mode = "n" })
 
-    -- Register visual mode mappings
     wk.register({
-      ["gc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment" },
+      ["gc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", "Comment" },
     }, { mode = "v" })
   end,
-} 
+}
+
+return M 

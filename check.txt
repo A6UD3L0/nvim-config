@@ -1,0 +1,1064 @@
+==============================================================================
+lazy:                                           require("lazy.health").check()
+
+lazy.nvim ~
+- {lazy.nvim} version `11.17.1`
+- OK {git} `version 2.49.0`
+- OK no existing packages found by other package managers
+- OK packer_compiled.lua not found
+- ERROR Issues were reported when loading your specs:
+- ERROR Invalid plugin spec {
+- ERROR setup_health_compat = <function 1>
+- ERROR }
+
+luarocks ~
+- OK luarocks disabled
+
+==============================================================================
+lspconfig:                                 require("lspconfig.health").check()
+
+- Skipped. This healthcheck is redundant with `:checkhealth vim.lsp`.
+
+==============================================================================
+lspsaga:                                     require("lspsaga.health").check()
+
+Lspsaga.nvim report ~
+- OK `tree-sitter` found 
+- OK tree-sitter `markdown` parser found
+- OK tree-sitter `markdown_inline` parser found
+
+==============================================================================
+luasnip:                                     require("luasnip.health").check()
+
+luasnip ~
+- OK jsregexp is installed
+
+==============================================================================
+mason:                                         require("mason.health").check()
+
+mason.nvim ~
+- OK mason.nvim version v1.11.0
+- OK PATH: prepend
+- OK Providers: 
+    mason.providers.registry-api
+    mason.providers.client
+- OK neovim version >= 0.7.0
+
+mason.nvim [Registries] ~
+- OK Registry `github.com/mason-org/mason-registry version: 2025-04-13-aqua-freon` is installed.
+
+mason.nvim [Core utils] ~
+- OK unzip: `UnZip 6.00 of 20 April 2009, by Info-ZIP.  Maintained by C. Spieler.  Send`
+- OK wget: `GNU Wget 1.25.0 built on darwin24.1.0.`
+- OK curl: `curl 8.7.1 (x86_64-apple-darwin24.0) libcurl/8.7.1 (SecureTransport) LibreSSL/3.3.6 zlib/1.2.12 nghttp2/1.63.0`
+- OK gzip: `Apple gzip 448.80.1`
+- OK tar: `bsdtar 3.5.3 - libarchive 3.5.3 zlib/1.2.12 liblzma/5.4.3 bz2lib/1.0.8 `
+- OK bash: `GNU bash, version 3.2.57(1)-release (arm64-apple-darwin24)`
+- OK sh: `Ok`
+
+mason.nvim [Languages] ~
+- WARNING cargo: not available
+  - ADVICE:
+    - spawn: cargo failed with exit code - and signal -. cargo is not executable
+- WARNING Composer: not available
+  - ADVICE:
+    - spawn: composer failed with exit code - and signal -. composer is not executable
+- WARNING PHP: not available
+  - ADVICE:
+    - spawn: php failed with exit code - and signal -. php is not executable
+- WARNING luarocks: not available
+  - ADVICE:
+    - spawn: luarocks failed with exit code - and signal -. luarocks is not executable
+- OK node: `v23.11.0`
+- OK Ruby: `ruby 2.6.10p210 (2022-04-12 revision 67958) [universal.arm64e-darwin24]`
+- OK Go: `go version go1.24.2 darwin/arm64`
+- WARNING julia: not available
+  - ADVICE:
+    - spawn: julia failed with exit code - and signal -. julia is not executable
+- OK python: `Python 3.13.3`
+- OK npm: `11.3.0`
+- OK RubyGem: `3.0.3.1`
+- OK pip: `pip 25.0.1 from /Users/juan/.venvs/neovim/lib/python3.13/site-packages/pip (python 3.13)`
+- OK python venv: `Ok`
+- OK java: `openjdk version "23.0.2" 2025-01-21`
+- OK javac: `javac 23.0.2`
+
+mason.nvim [GitHub] ~
+- OK GitHub API rate limit. Used: 0. Remaining: 60. Limit: 60. Reset: Sun 13 Apr 05:31:06 2025.
+  Install and authenticate via gh-cli to increase rate limit.
+
+==============================================================================
+nvim-treesitter:                     require("nvim-treesitter.health").check()
+
+Installation ~
+- OK `tree-sitter` found 0.25.3 (parser generator, only needed for :TSInstallFromGrammar)
+- OK `node` found v23.11.0 (only needed for :TSInstallFromGrammar)
+- OK `git` executable found.
+- OK `cc` executable found. Selected from { vim.NIL, "cc", "gcc", "clang", "cl", "zig" }
+  Version: Apple clang version 16.0.0 (clang-1600.0.26.6)
+- OK Neovim was compiled with tree-sitter runtime ABI version 15 (required >=13). Parsers must be compatible with runtime ABI.
+
+OS Info:
+{
+  machine = "arm64",
+  release = "24.3.0",
+  sysname = "Darwin",
+  version = "Darwin Kernel Version 24.3.0: Thu Jan  2 20:24:06 PST 2025; root:xnu-11215.81.4~3/RELEASE_ARM64_T8103"
+} ~
+
+Parser/Features         H L F I J
+  - bash                ✓ ✓ ✓ . ✓
+  - c                   ✓ ✓ ✓ ✓ ✓
+  - css                 ✓ . ✓ ✓ ✓
+  - dockerfile          ✓ . . . ✓
+  - gitignore           ✓ . . . ✓
+  - go                  ✓ ✓ ✓ ✓ ✓
+  - html                ✓ ✓ ✓ ✓ ✓
+  - javascript          ✓ ✓ ✓ ✓ ✓
+  - json                ✓ ✓ ✓ ✓ .
+  - lua                 ✓ ✓ ✓ ✓ ✓
+  - make                ✓ . ✓ . ✓
+  - markdown            ✓ . ✓ ✓ ✓
+  - markdown_inline     ✓ . . . ✓
+  - python              ✓ ✓ ✓ ✓ ✓
+  - query               ✓ ✓ ✓ ✓ ✓
+  - sql                 ✓ . ✓ ✓ ✓
+  - toml                ✓ ✓ ✓ ✓ ✓
+  - vim                 ✓ ✓ ✓ . ✓
+  - vimdoc              ✓ . . . ✓
+  - yaml                ✓ ✓ ✓ ✓ ✓
+
+  Legend: H[ighlight], L[ocals], F[olds], I[ndents], In[j]ections
+         +) multiple parsers found, only one will be used
+         x) errors found in the query, try to run :TSUpdate {lang} ~
+
+==============================================================================
+telescope:                                 require("telescope.health").check()
+
+Checking for required plugins ~
+- OK plenary installed.
+- OK nvim-treesitter installed.
+
+Checking external dependencies ~
+- OK rg: found ripgrep 14.1.1
+- OK fd: found fd 10.2.0
+
+===== Installed extensions ===== ~
+
+Telescope Extension: `file_browser` ~
+- No healthcheck provided
+
+Telescope Extension: `fzf` ~
+- OK lib working as expected
+- OK file_sorter correctly configured
+- OK generic_sorter correctly configured
+
+==============================================================================
+vim.deprecated:                       require("vim.deprecated.health").check()
+
+ ~
+- WARNING client.is_stopped is deprecated. Feature will be removed in Nvim 0.13
+  - ADVICE:
+    - use client:is_stopped instead.
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:20
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/init.lua:112
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:20
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/init.lua:123
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:20
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:102
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:330
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:20
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:102
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:346
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:20
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:102
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:291
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:20
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:102
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:291
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+
+ ~
+- WARNING client.request is deprecated. Feature will be removed in Nvim 0.13
+  - ADVICE:
+    - use client:request instead.
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/lspsaga.nvim/lua/lspsaga/symbol/head.lua:89
+        /Users/juan/.local/share/nvim/lazy/lspsaga.nvim/lua/lspsaga/symbol/head.lua:177
+        [C]:-1
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:1017
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:578
+        vim/_editor.lua:0
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/lspsaga.nvim/lua/lspsaga/symbol/head.lua:89
+        /Users/juan/.local/share/nvim/lazy/lspsaga.nvim/lua/lspsaga/symbol/head.lua:57
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:139
+        /Users/juan/.local/share/nvim/lazy/cmp-nvim-lsp/lua/cmp_nvim_lsp/source.lua:71
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:342
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+
+ ~
+- WARNING client.stop is deprecated. Feature will be removed in Nvim 0.13
+  - ADVICE:
+    - use client:stop instead.
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/nvim-lspconfig/lua/lspconfig/configs.lua:166
+        /Users/juan/.local/share/nvim/lazy/mason-lspconfig.nvim/lua/mason-lspconfig/lspconfig_hook.lua:96
+        vim/_editor.lua:0
+
+ ~
+- WARNING client.supports_method is deprecated. Feature will be removed in Nvim 0.13
+  - ADVICE:
+    - use client:supports_method instead.
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/lspsaga.nvim/lua/lspsaga/symbol/head.lua:173
+        [C]:-1
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:1017
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:578
+        vim/_editor.lua:0
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/lspsaga.nvim/lua/lspsaga/symbol/head.lua:173
+        [C]:-1
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:1017
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:578
+        vim/_editor.lua:0
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/mason.nvim/lua/mason-core/async/init.lua:127
+        /Users/juan/.local/share/nvim/lazy/mason.nvim/lua/mason/health.lua:315
+        equire("mason.health").check():1
+        [C]:-1
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/health.lua:409
+        nvim>:1
+
+ ~
+- WARNING vim.highlight is deprecated. Feature will be removed in Nvim 2.0.0
+  - ADVICE:
+    - use vim.hl instead.
+    - stack traceback:
+        /Users/juan/.config/nvim/init.lua:101
+
+ ~
+- WARNING vim.str_byteindex is deprecated. Feature will be removed in Nvim 1.0
+  - ADVICE:
+    - use vim.str_byteindex(s, encoding, index, strict_indexing) instead.
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/types/lsp.lua:68
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/entry.lua:619
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/entry.lua:86
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/entry.lua:62
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:367
+        vim/_editor.lua:0
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/types/lsp.lua:68
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/entry.lua:620
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/entry.lua:86
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/entry.lua:62
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:367
+        vim/_editor.lua:0
+
+ ~
+- WARNING vim.validate is deprecated. Feature will be removed in Nvim 1.0
+  - ADVICE:
+    - use vim.validate(name, value, validator, optional_or_msg) instead.
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/util.lua:8
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/util.lua:67
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/from_vscode.lua:293
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/from_vscode.lua:533
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/from_vscode.lua:571
+        /Users/juan/.config/nvim/lua/plugins/completion.lua:30
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:380
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/event.lua:85
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/util.lua:8
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/util.lua:68
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/from_vscode.lua:293
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/from_vscode.lua:533
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/from_vscode.lua:571
+        /Users/juan/.config/nvim/lua/plugins/completion.lua:30
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:380
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/event.lua:85
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/from_vscode.lua:575
+        /Users/juan/.config/nvim/lua/plugins/completion.lua:30
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:380
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/event.lua:85
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-path/lua/cmp_path/init.lua:197
+        /Users/juan/.local/share/nvim/lazy/cmp-path/lua/cmp_path/init.lua:39
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:342
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/async.lua:165
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/init.lua:136
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/plugin/luasnip.lua:87
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/async.lua:242
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/async.lua:186
+        vim/_editor.lua:0
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/init.lua:136
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/plugin/luasnip.lua:87
+        [C]:-1
+        vim/_editor.lua:0
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/health.lua:379
+        nvim>:1
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/init.lua:136
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/plugin/luasnip.lua:87
+        [C]:-1
+        /opt/homebrew/opt/neovim/share/nvim/runtime/lua/vim/health.lua:386
+        nvim>:1
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:9
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:10
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:13
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:14
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:15
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:18
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:21
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:24
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:38
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:41
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:44
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/utils.lua:352
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:62
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/legacy.lua:91
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree.lua:701
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:387
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/util.lua:135
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:395
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:362
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/loader.lua:197
+        /Users/juan/.local/share/nvim/lazy/lazy.nvim/lua/lazy/core/handler/keys.lua:131
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/init.lua:136
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/plugin/luasnip.lua:87
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/view.lua:108
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/view.lua:292
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/lib.lua:35
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/lib.lua:130
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/actions/tree/toggle.lua:48
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/commands.lua:36
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/init.lua:136
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/plugin/luasnip.lua:87
+        [C]:-1
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/view.lua:152
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/view.lua:194
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/view.lua:293
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/lib.lua:35
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/lib.lua:130
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/actions/tree/toggle.lua:48
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/commands.lua:36
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/init.lua:136
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/plugin/luasnip.lua:87
+        [C]:-1
+        /opt/homebrew/Cellar/neovim/0.11.0/share/nvim/runtime/filetype.lua:36
+        [C]:-1
+        vim/shared.lua:0
+        [C]:-1
+        /opt/homebrew/Cellar/neovim/0.11.0/share/nvim/runtime/filetype.lua:35
+        [C]:-1
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/actions/node/open-file.lua:362
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/actions/node/open-file.lua:415
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/api.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/api.lua:273
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/loaders/init.lua:136
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/plugin/luasnip.lua:87
+        [C]:-1
+        [C]:-1
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/actions/node/open-file.lua:362
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/actions/node/open-file.lua:415
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/api.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-tree.lua/lua/nvim-tree/api.lua:273
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:34
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:45
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:239
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:283
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-path/lua/cmp_path/init.lua:197
+        /Users/juan/.local/share/nvim/lazy/cmp-path/lua/cmp_path/init.lua:39
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:342
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp_luasnip/lua/cmp_luasnip/init.lua:15
+        /Users/juan/.local/share/nvim/lazy/cmp_luasnip/lua/cmp_luasnip/init.lua:65
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:342
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/LuaSnip/lua/luasnip/util/util.lua:350
+        /Users/juan/.local/share/nvim/lazy/cmp_luasnip/lua/cmp_luasnip/init.lua:67
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:342
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:34
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:45
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:239
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:283
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:34
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:45
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:239
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:173
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:338
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:34
+        /Users/juan/.local/share/nvim/lazy/cmp-buffer/lua/cmp_buffer/source.lua:50
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:342
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+    - stack traceback:
+        /Users/juan/.local/share/nvim/lazy/cmp-path/lua/cmp_path/init.lua:197
+        /Users/juan/.local/share/nvim/lazy/cmp-path/lua/cmp_path/init.lua:39
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/source.lua:342
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:308
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:178
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:238
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/core.lua:170
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/init.lua:372
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:53
+        /Users/juan/.local/share/nvim/lazy/nvim-cmp/lua/cmp/utils/autocmd.lua:14
+
+==============================================================================
+vim.health:                               require("vim.health.health").check()
+
+Configuration ~
+- OK no issues found
+
+Runtime ~
+- OK $VIMRUNTIME: /opt/homebrew/opt/neovim/share/nvim/runtime
+
+Performance ~
+- OK Build type: Release
+
+Remote Plugins ~
+- OK Up to date
+
+terminal ~
+- key_backspace (kbs) terminfo entry: `key_backspace=^H`
+- key_dc (kdch1) terminfo entry: `key_dc=\E[3~`
+- $TERM_PROGRAM="iTerm.app"
+- $COLORTERM="truecolor"
+
+External Tools ~
+- OK ripgrep 14.1.1 (/opt/homebrew/bin/rg)
+
+==============================================================================
+vim.lsp:                                     require("vim.lsp.health").check()
+
+- LSP log level : WARN
+- Log path: /Users/juan/.local/state/nvim/lsp.log
+- Log size: 4 KB
+
+vim.lsp: Active Clients ~
+- pyright (id: 1)
+  - Version: ? (no serverInfo.version response)
+  - Root directory: ~/CascadeProjects/Muta_disc
+  - Command: { "/Users/juan/.local/share/nvim/mason/bin/pyright-langserver", "--stdio" }
+  - Settings: {
+      python = {
+        analysis = {
+          autoImportCompletions = true,
+          autoSearchPaths = true,
+          diagnosticMode = "workspace",
+          inlayHints = {
+            functionReturnTypes = true,
+            variableTypes = true
+          },
+          typeCheckingMode = "basic",
+          useLibraryCodeForTypes = true
+        }
+      }
+    }
+  - Attached buffers: 6
+- ruff (id: 6)
+  - Version: 0.11.5
+  - Root directory: ~
+  - Command: { "/Users/juan/.venvs/neovim/bin/ruff", "server" }
+  - Settings: {}
+  - Attached buffers: 6
+- jedi_language_server (id: 8)
+  - Version: 0.19.2
+  - Root directory: ~/CascadeProjects/Muta_disc
+  - Command: { "/Users/juan/.local/share/nvim/mason/bin/jedi-language-server" }
+  - Settings: vim.empty_dict()
+  - Attached buffers: 6
+- GitHub Copilot (id: 10)
+  - Version: 1.302.0
+  - Root directory: nil
+  - Command: { "node", "/Users/juan/.local/share/nvim/lazy/copilot.vim/dist/language-server.js", "--stdio" }
+  - Settings: {
+      ["github-enterprise"] = {
+        uri = vim.NIL
+      },
+      http = {
+        proxy = vim.NIL,
+        proxyStrictSSL = vim.NIL
+      }
+    }
+  - Attached buffers: 13
+- copilot (id: 9)
+  - Version: 1.302.0
+  - Root directory: ~
+  - Command: { "node", "/Users/juan/.local/share/nvim/lazy/copilot.lua/copilot/js/language-server.js", "--stdio" }
+  - Settings: {
+      telemetry = {
+        telemetryLevel = "all"
+      }
+    }
+  - Attached buffers: 6
+
+vim.lsp: Enabled Configurations ~
+
+vim.lsp: File Watcher ~
+- File watch backend: libuv-watch
+
+vim.lsp: Position Encodings ~
+- WARNING Found buffers attached to multiple clients with different position encodings.
+  - Buffer 6: UTF-8 (client id(s): 6), UTF-16 (client id(s): 1, 8, 9)
+  - ADVICE:
+    - Use the positionEncodings client capability to ensure all clients use the same position encoding
+
+==============================================================================
+vim.provider:                           require("vim.provider.health").check()
+
+Clipboard (optional) ~
+- OK Clipboard tool found: pbcopy
+
+Node.js provider (optional) ~
+- Disabled (loaded_node_provider=0).
+
+Perl provider (optional) ~
+- Disabled (loaded_perl_provider=0).
+
+Python 3 provider (optional) ~
+- Disabled (loaded_python3_provider=0).
+
+Ruby provider (optional) ~
+- Disabled (loaded_ruby_provider=0).
+
+==============================================================================
+vim.treesitter:                       require("vim.treesitter.health").check()
+
+Treesitter features ~
+- Treesitter ABI support: min 13, max 15
+- WASM parser support: false
+
+Treesitter parsers ~
+- OK Parser: bash                 ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/bash.so
+- OK Parser: c                    ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/c.so
+- OK Parser: c                    ABI: 14, path: /opt/homebrew/Cellar/neovim/0.11.0/lib/nvim/parser/c.so
+- OK Parser: css                  ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/css.so
+- OK Parser: dockerfile           ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/dockerfile.so
+- OK Parser: gitignore            ABI: 13, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/gitignore.so
+- OK Parser: go                   ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/go.so
+- OK Parser: html                 ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/html.so
+- OK Parser: javascript           ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/javascript.so
+- OK Parser: json                 ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/json.so
+- OK Parser: lua                  ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/lua.so
+- OK Parser: lua                  ABI: 14, path: /opt/homebrew/Cellar/neovim/0.11.0/lib/nvim/parser/lua.so
+- OK Parser: make                 ABI: 13, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/make.so
+- OK Parser: markdown             ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/markdown.so
+- OK Parser: markdown             ABI: 14, path: /opt/homebrew/Cellar/neovim/0.11.0/lib/nvim/parser/markdown.so
+- OK Parser: markdown_inline      ABI: 14, path: /opt/homebrew/Cellar/neovim/0.11.0/lib/nvim/parser/markdown_inline.so
+- OK Parser: python               ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/python.so
+- OK Parser: query                ABI: 14, path: /opt/homebrew/Cellar/neovim/0.11.0/lib/nvim/parser/query.so
+- OK Parser: sql                  ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/sql.so
+- OK Parser: toml                 ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/toml.so
+- OK Parser: vim                  ABI: 14, path: /opt/homebrew/Cellar/neovim/0.11.0/lib/nvim/parser/vim.so
+- OK Parser: vimdoc               ABI: 14, path: /opt/homebrew/Cellar/neovim/0.11.0/lib/nvim/parser/vimdoc.so
+- OK Parser: yaml                 ABI: 14, path: /Users/juan/.local/share/nvim/lazy/nvim-treesitter/parser/yaml.so
+
+==============================================================================
+which-key:                                 require("which-key.health").check()
+
+- OK Most of these checks are for informational purposes only.
+  WARNINGS should be treated as a warning, and don't necessarily indicate a problem with your config.
+  Please |DON'T| report these warnings as an issue.
+
+Checking your config ~
+- OK |mini.icons| is installed
+- OK |nvim-web-devicons| is installed
+
+Checking for issues with your mappings ~
+- ERROR Invalid field `<leader>`: >
+  {
+    ["<leader>"] = {
+      registers = true
+    },
+    i = {},
+    v = {}
+  }
+- ERROR Invalid field `i`: >
+  {
+    ["<leader>"] = {
+      registers = true
+    },
+    i = {},
+    v = {}
+  }
+- ERROR Invalid field `v`: >
+  {
+    ["<leader>"] = {
+      registers = true
+    },
+    i = {},
+    v = {}
+  }
+- WARNING You're using an old version of the which-key spec.
+  Your mappings will work, but it's recommended to update them to the new version.
+  Please check the docs and suggested spec below for more info.
+  Mappings: >
+  {
+    ["<leader>D"] = {
+      name = "+docker/db"
+    },
+    ["<leader>a"] = {
+      name = "+harpoon"
+    },
+    ["<leader>b"] = {
+      name = "+buffer"
+    },
+    ["<leader>c"] = {
+      name = "+code"
+    },
+    ["<leader>ca"] = { <function 1>, "Code actions" },
+    ["<leader>cf"] = { <function 2>, "Format code" },
+    ["<leader>cr"] = { <function 3>, "Rename symbol" },
+    ["<leader>d"] = {
+      name = "+debug"
+    },
+    ["<leader>db"] = { "<cmd>lua require('dap').toggle_breakpoint()<cr>", "Toggle breakpoint" },
+    ["<leader>dc"] = { "<cmd>lua require('dap').continue()<cr>", "Continue" },
+    ["<leader>ds"] = { "<cmd>lua require('dap').step_over()<cr>", "Step over" },
+    ["<leader>e"] = {
+      name = "+explorer/errors"
+    },
+    ["<leader>f"] = {
+      name = "+find/files"
+    },
+    ["<leader>fb"] = { "<cmd>Telescope buffers<cr>", "Find buffers" },
+    ["<leader>ff"] = { "<cmd>Telescope find_files<cr>", "Find files" },
+    ["<leader>fg"] = { "<cmd>Telescope live_grep<cr>", "Find text" },
+    ["<leader>fh"] = { "<cmd>Telescope help_tags<cr>", "Help tags" },
+    ["<leader>g"] = {
+      name = "+git"
+    },
+    ["<leader>gb"] = { "<cmd>Telescope git_branches<cr>", "Git branches" },
+    ["<leader>gc"] = { "<cmd>Telescope git_commits<cr>", "Git commits" },
+    ["<leader>gs"] = { "<cmd>Telescope git_status<cr>", "Git status" },
+    ["<leader>h"] = {
+      name = "+help/harpoon"
+    },
+    ["<leader>t"] = {
+      name = "+terminal"
+    },
+    ["<leader>w"] = {
+      name = "+window"
+    },
+    ["["] = {
+      name = "+prev"
+    },
+    ["]"] = {
+      name = "+next"
+    },
+    g = {
+      name = "+goto"
+    },
+    gD = { <function 4>, "Go to declaration" },
+    gd = { <function 5>, "Go to definition" },
+    gi = { <function 6>, "Go to implementation" },
+    gr = { <function 7>, "Go to references" }
+  }
+
+  -- Suggested Spec:
+  {
+    { "<leader>D", group = "docker/db" },
+    { "<leader>a", group = "harpoon" },
+    { "<leader>b", group = "buffer" },
+    { "<leader>c", group = "code" },
+    { "<leader>ca", <function 1>, desc = "Code actions" },
+    { "<leader>cf", <function 1>, desc = "Format code" },
+    { "<leader>cr", <function 1>, desc = "Rename symbol" },
+    { "<leader>d", group = "debug" },
+    { "<leader>db", "<cmd>lua require('dap').toggle_breakpoint()<cr>", desc = "Toggle breakpoint" },
+    { "<leader>dc", "<cmd>lua require('dap').continue()<cr>", desc = "Continue" },
+    { "<leader>ds", "<cmd>lua require('dap').step_over()<cr>", desc = "Step over" },
+    { "<leader>e", group = "explorer/errors" },
+    { "<leader>f", group = "find/files" },
+    { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
+    { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+    { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Find text" },
+    { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
+    { "<leader>g", group = "git" },
+    { "<leader>gb", "<cmd>Telescope git_branches<cr>", desc = "Git branches" },
+    { "<leader>gc", "<cmd>Telescope git_commits<cr>", desc = "Git commits" },
+    { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "Git status" },
+    { "<leader>h", group = "help/harpoon" },
+    { "<leader>t", group = "terminal" },
+    { "<leader>w", group = "window" },
+    { "[", group = "prev" },
+    { "]", group = "next" },
+    { "g", group = "goto" },
+    { "gD", <function 1>, desc = "Go to declaration" },
+    { "gd", <function 1>, desc = "Go to definition" },
+    { "gi", <function 1>, desc = "Go to implementation" },
+    { "gr", <function 1>, desc = "Go to references" },
+  }
+
+checking for overlapping keymaps ~
+- WARNING In mode `n`, <<Space>e> overlaps with <<Space>ee>, <<Space>ef>:
+  - <<Space>e>: Error handling
+  - <<Space>ee>: Go error snippet: return
+  - <<Space>ef>: Go error snippet: fatal
+- WARNING In mode `n`, <<Space>d> overlaps with <<Space>di>, <<Space>dO>, <<Space>da>, <<Space>dr>, <<Space>dt>, <<Space>dB>, <<Space>ds>, <<Space>dd>, <<Space>dl>, <<Space>dc>, <<Space>db>, <<Space>do>:
+  - <<Space>d>: Delete without yanking
+  - <<Space>di>: Step into
+  - <<Space>dO>: Debug Step Out
+  - <<Space>da>: Add DB Connection
+  - <<Space>dr>: REPL
+  - <<Space>dt>: Toggle UI
+  - <<Space>dB>: Conditional Breakpoint
+  - <<Space>ds>: Step over
+  - <<Space>dd>: Generate Documentation
+  - <<Space>dl>: Diagnostics list
+  - <<Space>dc>: Continue
+  - <<Space>db>: Toggle breakpoint
+  - <<Space>do>: Step over
+- WARNING In mode `n`, <<Space>D> overlaps with <<Space>Dl>, <<Space>Dd>, <<Space>Dc>:
+  - <<Space>D>: Docker
+  - <<Space>Dl>: List Docker containers
+  - <<Space>Dd>: Docker-compose down
+  - <<Space>Dc>: Docker-compose up
+- WARNING In mode `n`, <gc> overlaps with <gcc>:
+  - <gc>: Comment toggle linewise
+  - <gcc>: Comment toggle current line
+- WARNING In mode `n`, <gr> overlaps with <grn>, <gri>, <gra>, <grr>:
+  - <gr>: Go to references
+  - <grn>: vim.lsp.buf.rename()
+  - <gri>: vim.lsp.buf.implementation()
+  - <gra>: vim.lsp.buf.code_action()
+  - <grr>: vim.lsp.buf.references()
+- WARNING In mode `n`, <<Space>f> overlaps with <<Space>fd>, <<Space>fi>, <<Space>fB>, <<Space>fr>, <<Space>ft>, <<Space>fh>, <<Space>fs>, <<Space>ff>, <<Space>fc>, <<Space>fb>, <<Space>fg>:
+  - <<Space>f>: Find
+  - <<Space>fd>: Diagnostics
+  - <<Space>fi>: File Browser
+  - <<Space>fB>: File browser
+  - <<Space>fr>: Recent files
+  - <<Space>ft>: Treesitter symbols
+  - <<Space>fh>: Help tags
+  - <<Space>fs>: Document symbols
+  - <<Space>ff>: Find files
+  - <<Space>fc>: Find in buffer
+  - <<Space>fb>: Find buffers
+  - <<Space>fg>: Live grep
+- WARNING In mode `n`, <gb> overlaps with <gbc>:
+  - <gb>: Comment toggle blockwise
+  - <gbc>: Comment toggle current block
+- OK Overlapping keymaps are only reported for informational purposes.
+  This doesn't necessarily mean there is a problem with your config.
+
+Checking for duplicate mappings ~
+- WARNING Duplicates for <<leader>b> in mode `n`:
+  * buffer: `{ group = true }`
+  * Buffer: `{ group = true }`
+- WARNING Duplicates for <<leader>d> in mode `n`:
+  * Delete without yanking: `{ rhs = '"_d', silent = true }`
+  * Debug: `{ group = true }`
+  * debug: `{ group = true }`
+- WARNING Duplicates for <<leader>db> in mode `n`:
+  * Toggle breakpoint: `{ rhs = "<cmd>lua require('dap').toggle_breakpoint()<cr>", silent = true }`
+  * Toggle breakpoint: `{ rhs = "<cmd>lua require('dap').toggle_breakpoint()<cr>", silent = true }`
+- WARNING Duplicates for <<leader>dc> in mode `n`:
+  * Continue: `{ rhs = "<cmd>lua require('dap').continue()<cr>", silent = true }`
+  * Continue: `{ rhs = "<cmd>lua require('dap').continue()<cr>", silent = true }`
+- WARNING Duplicates for <<leader>f> in mode `n`:
+  * find/files: `{ group = true }`
+  * Find: `{ group = true }`
+- WARNING Duplicates for <<leader>fb> in mode `n`:
+  * Find buffers: `{ rhs = "<cmd>Telescope buffers<cr>", silent = true }`
+  * Find buffers: `{ rhs = "<cmd>Telescope buffers<cr>", silent = true }`
+- WARNING Duplicates for <<leader>ff> in mode `n`:
+  * Find files: `{ rhs = "<cmd>Telescope find_files<cr>", silent = true }`
+  * Find files: `{ rhs = "<cmd>Telescope find_files<cr>", silent = true }`
+- WARNING Duplicates for <<leader>fg> in mode `n`:
+  * Find text: `{ rhs = "<cmd>Telescope live_grep<cr>", silent = true }`
+  * Live grep: `{ rhs = "<cmd>Telescope live_grep<cr>", silent = true }`
+- WARNING Duplicates for <<leader>fh> in mode `n`:
+  * Help tags: `{ rhs = "<cmd>Telescope help_tags<cr>", silent = true }`
+  * Help tags: `{ rhs = "<cmd>Telescope help_tags<cr>", silent = true }`
+- WARNING Duplicates for <<leader>g> in mode `n`:
+  * git: `{ group = true }`
+  * Git: `{ group = true }`
+- WARNING Duplicates for <<leader>gb> in mode `n`:
+  * Git branches: `{ rhs = "<cmd>Telescope git_branches<cr>", silent = true }`
+  * Blame: `{ rhs = "<cmd>Git blame<cr>", silent = true }`
+- WARNING Duplicates for <<leader>gc> in mode `n`:
+  * Git commits: `{ rhs = "<cmd>Telescope git_commits<cr>", silent = true }`
+  * Commit: `{ rhs = "<cmd>Git commit<cr>", silent = true }`
+- WARNING Duplicates for <<leader>h> in mode `n`:
+  * help/harpoon: `{ group = true }`
+  * Harpoon: `{ group = true }`
+- WARNING Duplicates for <<leader>e> in mode `n`:
+  * explorer/errors: `{ group = true }`
+  * Error handling: `{ group = true }`
+- WARNING Duplicates for <<leader>D> in mode `n`:
+  * docker/db: `{ group = true }`
+  * Docker: `{ group = true }`
+- WARNING Duplicates for <<leader>t> in mode `n`:
+  * terminal: `{ group = true }`
+  * Terminal/Toggle: `{ group = true }`
+- OK Duplicate mappings are only reported for informational purposes.
+  This doesn't necessarily mean there is a problem with your config.
+https://github.com/folke/which-key.nvim Error detected while processing LspAttach Autocommands for "*":
+Error executing lua callback: ...l/share/nvim/lazy/copilot-cmp/lua/copilot_cmp/source.lu
+a:23: attempt to call a boolean value
+stack traceback:
+        ...l/share/nvim/lazy/copilot-cmp/lua/copilot_cmp/source.lua:23: in function 'is_
+available'
+        ...cal/share/nvim/lazy/copilot-cmp/lua/copilot_cmp/init.lua:41: in function '_on
+_insert_enter'
+        ...cal/share/nvim/lazy/copilot-cmp/lua/copilot_cmp/init.lua:56: in function <...
+cal/share/nvim/lazy/copilot-cmp/lua/copilot_cmp/init.lua:55>
+        [C]: in function 'nvim_exec_autocmds'
+        ...rew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:1017: in function 'o
+n_attach'
+        ...rew/opt/neovim/share/nvim/runtime/lua/vim/lsp/client.lua:578: in function ''
+        vim/_editor.lua: in function <vim/_editor.lua:0>
+Press ENTER or type command to continue:

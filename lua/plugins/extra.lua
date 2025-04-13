@@ -100,9 +100,7 @@ return {
     config = function() require("harpoon").setup({}) end,
   },
   { "numToStr/Comment.nvim", config = function() require("Comment").setup() end },
-  
-  end,
-},
+
   ----------------------------------------------------------------------
   -- Optional and Lazy-loaded Plugins:
   ----------------------------------------------------------------------

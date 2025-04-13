@@ -102,7 +102,10 @@ vim.opt.updatetime = 200
 -- Apply patches for deprecated APIs
 vim.schedule(function()
   -- Apply patches for copilot-cmp and other plugins with deprecated warnings
-  pcall(require, "configs.copilot_patches").setup()
+  local success, copilot_patches = pcall(require, "configs.copilot_patches")
+  if success and copilot_patches then
+    copilot_patches.setup()
+  end
 end)
 
 -- Set colorscheme

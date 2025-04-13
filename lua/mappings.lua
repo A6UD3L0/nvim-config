@@ -11,13 +11,17 @@ local map = vim.keymap.set
 local function setup_which_key(wk)
   wk.setup {
     plugins = { spelling = true },
-    triggers = "<leader>",
-    triggers_blacklist = {
-      n = { "v", "s" },
-      i = { "j", "k" },
-      v = { "j", "k" },
+    triggers = {
+      mode = { "n", "v", "i" },
+      ["<leader>"] = { -- Specify which keys will trigger which-key for which modes
+        n = true, -- normal mode
+        v = true, -- visual mode
+        -- not including insert mode by default
+      },
+      ["g"] = { n = true },
+      ["z"] = { n = true },
     },
-    window = {
+    win = {
       border = "rounded",
       winblend = 0,
     },
@@ -31,99 +35,121 @@ local function setup_which_key(wk)
   --------------------------
   -- Register all leader commands in which-key using the new format
   wk.register({
-    mode = { "n", "v" },
     -- Buffer management
-    { "b", group = "Buffer" },
-    { "bb", "<cmd>Telescope buffers<cr>", desc = "Buffer list" },
-    { "bd", "<cmd>bdelete<cr>", desc = "Delete buffer" },
-    { "bn", "<cmd>bnext<cr>", desc = "Next buffer" },
-    { "bp", "<cmd>bprevious<cr>", desc = "Previous buffer" },
+    b = {
+      name = "Buffer",
+      b = { "<cmd>Telescope buffers<cr>", "Buffer list" },
+      d = { "<cmd>bdelete<cr>", "Delete buffer" },
+      n = { "<cmd>bnext<cr>", "Next buffer" },
+      p = { "<cmd>bprevious<cr>", "Previous buffer" },
+    },
     
     -- Debug
-    { "d", group = "Debug" },
-    { "db", "<cmd>lua require('dap').toggle_breakpoint()<cr>", desc = "Toggle breakpoint" },
-    { "dc", "<cmd>lua require('dap').continue()<cr>", desc = "Continue" },
-    { "di", "<cmd>lua require('dap').step_into()<cr>", desc = "Step into" },
-    { "do", "<cmd>lua require('dap').step_over()<cr>", desc = "Step over" },
-    { "dr", "<cmd>lua require('dap').repl.open()<cr>", desc = "REPL" },
-    { "dt", "<cmd>lua require('dapui').toggle()<cr>", desc = "Toggle UI" },
+    d = {
+      name = "Debug",
+      b = { "<cmd>lua require('dap').toggle_breakpoint()<cr>", "Toggle breakpoint" },
+      c = { "<cmd>lua require('dap').continue()<cr>", "Continue" },
+      i = { "<cmd>lua require('dap').step_into()<cr>", "Step into" },
+      o = { "<cmd>lua require('dap').step_over()<cr>", "Step over" },
+      r = { "<cmd>lua require('dap').repl.open()<cr>", "REPL" },
+      t = { "<cmd>lua require('dapui').toggle()<cr>", "Toggle UI" },
+    },
     
     -- Find (Telescope)
-    { "f", group = "Find" },
-    { "fb", "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
-    { "fc", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Find in buffer" },
-    { "fd", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
-    { "ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-    { "fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
-    { "fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
-    { "fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent files" },
-    { "fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
-    { "ft", "<cmd>Telescope treesitter<cr>", desc = "Treesitter symbols" },
-    { "fB", "<cmd>Telescope file_browser<cr>", desc = "File browser" },
+    f = {
+      name = "Find",
+      b = { "<cmd>Telescope buffers<cr>", "Find buffers" },
+      c = { "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Find in buffer" },
+      d = { "<cmd>Telescope diagnostics<cr>", "Diagnostics" },
+      f = { "<cmd>Telescope find_files<cr>", "Find files" },
+      g = { "<cmd>Telescope live_grep<cr>", "Live grep" },
+      h = { "<cmd>Telescope help_tags<cr>", "Help tags" },
+      r = { "<cmd>Telescope oldfiles<cr>", "Recent files" },
+      s = { "<cmd>Telescope lsp_document_symbols<cr>", "Document symbols" },
+      t = { "<cmd>Telescope treesitter<cr>", "Treesitter symbols" },
+      B = { "<cmd>Telescope file_browser<cr>", "File browser" },
+    },
     
     -- Git
-    { "g", group = "Git" },
-    { "gb", "<cmd>Git blame<cr>", desc = "Blame" },
-    { "gc", "<cmd>Git commit<cr>", desc = "Commit" },
-    { "gd", "<cmd>Gdiffsplit<cr>", desc = "Diff" },
-    { "gg", "<cmd>Git<cr>", desc = "Status" },
-    { "gl", "<cmd>Git pull<cr>", desc = "Pull" },
-    { "gp", "<cmd>Git push<cr>", desc = "Push" },
+    g = {
+      name = "Git",
+      b = { "<cmd>Git blame<cr>", "Blame" },
+      c = { "<cmd>Git commit<cr>", "Commit" },
+      d = { "<cmd>Gdiffsplit<cr>", "Diff" },
+      g = { "<cmd>Git<cr>", "Status" },
+      l = { "<cmd>Git pull<cr>", "Pull" },
+      p = { "<cmd>Git push<cr>", "Push" },
+    },
     
     -- Harpoon
-    { "h", group = "Harpoon" },
-    { "ha", function() require("harpoon.mark").add_file() end, desc = "Add file" },
-    { "hh", function() require("harpoon.ui").toggle_quick_menu() end, desc = "Menu" },
+    h = {
+      name = "Harpoon",
+      a = { function() require("harpoon.mark").add_file() end, "Add file" },
+      h = { function() require("harpoon.ui").toggle_quick_menu() end, "Menu" },
+    },
     
     -- LSP
-    { "l", group = "LSP" },
-    { "lS", "<cmd>LspStop<cr>", desc = "Stop LSP" },
-    { "la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code action" },
-    { "ld", "<cmd>lua vim.lsp.buf.definition()<cr>", desc = "Go to definition" },
-    { "lf", "<cmd>lua vim.lsp.buf.format()<cr>", desc = "Format" },
-    { "li", "<cmd>LspInfo<cr>", desc = "LSP info" },
-    { "ln", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "Rename" },
-    { "lr", "<cmd>LspRestart<cr>", desc = "Restart LSP" },
-    { "ls", "<cmd>LspStart<cr>", desc = "Start LSP" },
+    l = {
+      name = "LSP",
+      S = { "<cmd>LspStop<cr>", "Stop LSP" },
+      a = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code action" },
+      d = { "<cmd>lua vim.lsp.buf.definition()<cr>", "Go to definition" },
+      f = { "<cmd>lua vim.lsp.buf.format()<cr>", "Format" },
+      i = { "<cmd>LspInfo<cr>", "LSP info" },
+      n = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+      r = { "<cmd>LspRestart<cr>", "Restart LSP" },
+      s = { "<cmd>LspStart<cr>", "Start LSP" },
+    },
     
     -- Python/Project
-    { "p", group = "Python/Project" },
-    { "pi", "<cmd>!pip install -r requirements.txt<cr>", desc = "Install requirements" },
-    { "pT", "<cmd>!python %<cr>", desc = "Run file" },
-    { "pt", "<cmd>!pytest %<cr>", desc = "Run tests" },
-    { "pv", "<cmd>!python -m venv .venv<cr>", desc = "Create venv" },
+    p = {
+      name = "Python/Project",
+      i = { "<cmd>!pip install -r requirements.txt<cr>", "Install requirements" },
+      T = { "<cmd>!python %<cr>", "Run file" },
+      t = { "<cmd>!pytest %<cr>", "Run tests" },
+      v = { "<cmd>!python -m venv .venv<cr>", "Create venv" },
+      v = { vim.cmd.Ex, "Open netrw file explorer" },
+    },
     
     -- Go specific
-    { "gr", "<cmd>!go run %<CR>", desc = "Run current Go file" },
-    { "gt", "<cmd>!go test ./...<CR>", desc = "Run Go tests" },
-    { "gb", "<cmd>!go build<CR>", desc = "Build Go project" },
-    { "gi", "<cmd>!go mod tidy<CR>", desc = "Go mod tidy" },
+    g = {
+      r = { "<cmd>!go run %<CR>", "Run current Go file" },
+      t = { "<cmd>!go test ./...<CR>", "Run Go tests" },
+      b = { "<cmd>!go build<CR>", "Build Go project" },
+      i = { "<cmd>!go mod tidy<CR>", "Go mod tidy" },
+    },
     
     -- REPL
-    { "r", group = "REPL" },
-    { "rs", function() vim.cmd("so") end, desc = "Source current file" },
+    r = {
+      name = "REPL",
+      s = { function() vim.cmd("so") end, "Source current file" },
+    },
     
     -- Terminal/Toggle
-    { "t", group = "Terminal/Toggle" },
-    { "tn", "<cmd>NvimTreeToggle<cr>", desc = "NvimTree" },
-    { "tt", "<cmd>terminal<cr>", desc = "Terminal" },
-    { "tu", "<cmd>UndotreeToggle<cr>", desc = "Undotree" },
+    t = {
+      name = "Terminal/Toggle",
+      n = { "<cmd>NvimTreeToggle<cr>", "NvimTree" },
+      t = { "<cmd>terminal<cr>", "Terminal" },
+      u = { "<cmd>UndotreeToggle<cr>", "Undotree" },
+    },
     
     -- Docker commands
-    { "dc", "<cmd>!docker-compose up -d<CR>", desc = "Docker-compose up" },
-    { "dd", "<cmd>!docker-compose down<CR>", desc = "Docker-compose down" },
-    { "dl", "<cmd>!docker ps<CR>", desc = "List Docker containers" },
+    dc = { "<cmd>!docker-compose up -d<CR>", "Docker-compose up" },
+    dd = { "<cmd>!docker-compose down<CR>", "Docker-compose down" },
+    dl = { "<cmd>!docker ps<CR>", "List Docker containers" },
     
     -- SQL
-    { "sq", "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", desc = "Format SQL" },
+    sq = { "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", "Format SQL" },
     
     -- Keep ThePrimeagen's mappings
-    { "y", [["+y]], desc = "Yank to system clipboard" },
-    { "Y", [["+Y]], desc = "Yank line to system clipboard" },
-    { "d", [["_d]], desc = "Delete without yanking" },
-    { "p", [["_dP]], desc = "Paste without yanking selection", mode = "x" },
-    { "s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], desc = "Search & replace word under cursor" },
-    { "x", "<cmd>!chmod +x %<CR>", desc = "Make file executable" },
+    y = { [["+y]], "Yank to system clipboard" },
+    Y = { [["+Y]], "Yank line to system clipboard" },
+    d = { [["_d]], "Delete without yanking" },
+    
+    -- Visual mode mappings
+    p = { [["_dP]], "Paste without yanking selection", mode = "x" },
+    s = { [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Search & replace word under cursor" },
+    x = { "<cmd>!chmod +x %<CR>", "Make file executable" },
   }, { prefix = "<leader>" })
 end
 

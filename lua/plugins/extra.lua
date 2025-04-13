@@ -101,31 +101,6 @@ return {
   },
   { "numToStr/Comment.nvim", config = function() require("Comment").setup() end },
   
-{
-  "lukas-reineke/indent-blankline.nvim",
-  config = function()
-    require("indent_blankline").setup {
-      -- Indentation character
-      char = "┊",
-
-      -- If you want to fill blanklines with a space (optional)
-      space_char_blankline = " ",
-
-      -- Exclude some filetypes and buffer types
-      filetype_exclude = { "help", "packer", "NvimTree" },
-      buftype_exclude = { "terminal", "nofile" },
-
-      -- Hide indent guides on trailing blank lines
-      show_trailing_blankline_indent = false,
-
-      -- Highlight the current context using tree-sitter integration
-      use_treesitter = true,
-      show_current_context = true,
-      show_current_context_start = false,
-
-      -- (Optional) Specify custom highlight groups for context; you can define these
-      context_highlight_list = { "IndentBlanklineContext" },
-    }
   end,
 },
   ----------------------------------------------------------------------

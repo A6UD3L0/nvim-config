@@ -5,14 +5,8 @@ function M.setup()
   local telescope = require("telescope")
   local actions = require("telescope.actions")
 
-  -- Create proper autocmd for TelescopeFindPre (will be triggered by Telescope internally)
-  vim.api.nvim_create_autocmd("User", {
-    pattern = "TelescopeFindPre",
-    callback = function()
-      -- This event is triggered before Telescope creates the floating windows
-      -- We don't need to do anything here, just registering it properly
-    end,
-  })
+  -- NOTE: Removed invalid TelescopeFindPre autocmd that was causing errors
+  -- The event 'User TelescopeFindPre' is not supported in current Telescope versions
   
   -- Setup Telescope with recommended configuration
   telescope.setup({

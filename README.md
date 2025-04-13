@@ -44,6 +44,115 @@ On first launch:
 2. Run `:MasonInstallAll` to set up language servers and tools
 3. Press `Space+Space` to explore keybindings
 
+## 📋 Comprehensive Installation Guide
+
+### Step 1: Uninstall Previous Neovim Configuration
+
+Before installing this configuration, it's best to remove or backup your existing setup:
+
+#### For macOS/Linux:
+
+```bash
+# Stop any running Neovim instances
+pkill -f nvim
+
+# Backup your existing Neovim config
+mv ~/.config/nvim ~/.config/nvim.bak.$(date +%Y%m%d)
+
+# Backup Neovim state and cache directories
+mv ~/.local/share/nvim ~/.local/share/nvim.bak.$(date +%Y%m%d)
+mv ~/.local/state/nvim ~/.local/state/nvim.bak.$(date +%Y%m%d)
+mv ~/.cache/nvim ~/.cache/nvim.bak.$(date +%Y%m%d)
+```
+
+#### For Windows:
+
+```powershell
+# Backup your existing Neovim config
+Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName $env:LOCALAPPDATA\nvim.bak.$(Get-Date -Format "yyyyMMdd")
+
+# Backup Neovim state and cache directories
+Rename-Item -Path $env:LOCALAPPDATA\nvim-data -NewName $env:LOCALAPPDATA\nvim-data.bak.$(Get-Date -Format "yyyyMMdd")
+```
+
+### Step 2: Install Required Dependencies
+
+#### Font Installation:
+
+1. Download [JetBrainsMono Nerd Font](https://www.nerdfonts.com/font-downloads)
+2. Install it on your system
+3. Configure your terminal to use the font
+
+#### For macOS:
+
+```bash
+# Install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install required packages
+brew install neovim ripgrep fd node python
+pip3 install pynvim
+
+# Optional tools for enhanced functionality
+brew install lazygit fzf bat
+```
+
+#### For Ubuntu/Debian:
+
+```bash
+# Update package lists
+sudo apt update
+
+# Install required packages
+sudo apt install -y git curl unzip
+sudo apt install -y python3 python3-pip nodejs npm
+pip3 install pynvim
+
+# Install Ripgrep and fd-find
+sudo apt install -y ripgrep fd-find
+
+# Install Neovim (latest version)
+# Check https://github.com/neovim/neovim/releases for the latest version
+wget https://github.com/neovim/neovim/releases/download/v0.9.0/nvim-linux64.tar.gz
+tar xzvf nvim-linux64.tar.gz
+sudo cp -r nvim-linux64/* /usr/local/
+```
+
+#### For Arch Linux:
+
+```bash
+sudo pacman -S neovim git ripgrep fd nodejs npm python python-pip
+pip install pynvim
+```
+
+### Step 3: Clone This Repository
+
+```bash
+# Clone the repository
+git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim
+```
+
+### Step 4: GitHub Copilot Setup (Optional)
+
+If you want to use GitHub Copilot:
+
+1. Make sure you have a GitHub account with Copilot access
+2. Start Neovim and run `:Copilot setup`
+3. Follow the authentication instructions
+
+### Step 5: First Launch and Plugin Installation
+
+```bash
+# Start Neovim
+nvim
+```
+
+On first launch:
+1. Plugins will be automatically installed with Lazy.nvim
+2. Wait for the installation to complete (this may take a few minutes)
+3. Run `:MasonInstallAll` to set up language servers and tools
+4. Restart Neovim to activate all features
+
 ## ⌨️ Essential Keybindings
 
 ### Navigation
@@ -144,6 +253,92 @@ On first launch:
 - Commit staging and navigation
 - Branch management
 
+## 🧑‍💻 Plugin List & Features
+
+This configuration includes carefully selected plugins for the optimal backend development experience:
+
+### Core Features
+- **lazy.nvim**: Modern plugin manager with lazy-loading
+- **which-key.nvim**: Keybinding discovery and management
+- **telescope.nvim**: Fuzzy finder for files, code, and more
+- **nvim-tree.lua**: File explorer
+- **bufferline.nvim**: Buffer and tab management
+- **lualine.nvim**: Status line
+- **catppuccin.nvim**: Beautiful theme with syntax highlighting
+
+### Code Intelligence
+- **nvim-lspconfig**: Configuration for Language Server Protocol
+- **mason.nvim**: Language server and tool manager
+- **nvim-cmp**: Completion engine with LSP integration
+- **LuaSnip**: Snippet engine for faster coding
+- **nvim-treesitter**: Advanced syntax highlighting and code parsing
+
+### Git Integration
+- **gitsigns.nvim**: Show git diff in the sign column
+- **vim-fugitive**: Full git integration within Neovim
+
+### Editing Enhancements
+- **nvim-autopairs**: Auto-close brackets and quotes
+- **Comment.nvim**: Easy code commenting
+- **nvim-surround**: Manage surrounding pairs
+- **undotree**: Visual history browser
+- **conform.nvim**: Formatter
+
+### Navigation
+- **harpoon**: Quick file marking and navigation
+- **leap.nvim**: Fast motion within the buffer
+
+### Debugging
+- **nvim-dap**: Debug Adapter Protocol support
+- **nvim-dap-ui**: UI for debugging
+- **nvim-dap-python**: Python debugging integration
+
+### AI Assistance
+- **copilot.lua**: GitHub Copilot integration
+- **copilot-cmp**: Copilot completion source for nvim-cmp
+
+## 🔧 Troubleshooting
+
+### Health Check
+
+Run `:checkhealth` to diagnose issues with your setup. This will help identify missing dependencies or misconfigurations.
+
+### Common Issues
+
+1. **Plugins failing to load**: 
+   - Run `:Lazy sync` to reinstall plugins
+   - Check external dependencies like ripgrep, node.js
+
+2. **LSP not working**:
+   - Run `:LspInfo` to see the status
+   - Run `:Mason` to install missing language servers
+   - Check language server logs with `:LspLog`
+
+3. **Copilot not connecting**:
+   - Ensure your GitHub account has Copilot access
+   - Run `:Copilot status` to check connection status
+
+4. **Font icons missing**:
+   - Make sure you've installed and configured a Nerd Font
+
+5. **Performance issues**:
+   - Run `:Lazy profile` to identify slow plugins
+   - Consider disabling heavy plugins you don't use
+
+### Resetting Configuration
+
+If things go wrong and you need to start fresh:
+
+```bash
+# Remove the configuration directory
+rm -rf ~/.config/nvim
+rm -rf ~/.local/share/nvim
+rm -rf ~/.local/state/nvim
+rm -rf ~/.cache/nvim
+
+# Then reinstall following the installation steps above
+```
+
 ## 🎨 Customization
 
 ### Changing Theme
@@ -157,33 +352,62 @@ M.ui = {
 
 Available themes include: catppuccin, tokyonight, gruvbox, onedark, and more.
 
-### Plugin Management
-Use Lazy.nvim for managing plugins:
+### Adding Custom Plugins
 
+To add your own plugins, create or edit `lua/plugins/custom.lua`:
+
+```lua
+return {
+  -- Add new plugins here
+  {
+    "username/plugin-name",
+    config = function()
+      -- Your plugin configuration
+    end,
+  },
+}
 ```
-:Lazy check     # Check for updates
-:Lazy update    # Update plugins
-:Lazy sync      # Sync plugins (install/clean)
-:Lazy profile   # View startup profile
+
+Then add it to the import list in `init.lua`:
+
+```lua
+require("lazy").setup({
+  -- Other imports
+  { import = "plugins.custom" },
+}, lazy_config)
 ```
 
-## 🔄 Learning Resources
+### Customizing Keybindings
 
-- Press `Space+Space` to explore available commands
-- Use Leap for quick navigation (press `s` to activate)
-- Try the more advanced LSP features like code actions
-- Learn Git workflow with the dedicated Git keybindings
+Edit `lua/mappings.lua` to change keybindings:
 
-## 📋 Troubleshooting
+```lua
+wk.register({
+  mode = { "n", "v" },
+  -- Add or modify keybindings
+  { "your-key", "your-command", desc = "Your description" },
+}, { prefix = "<leader>" })
+```
 
-### LSP Not Working
-Run `:LspInfo` to check the status, then `:Mason` to install missing servers.
+## 🔄 Updating
 
-### Missing Dependencies
-Run `:checkhealth` to see what dependencies need to be installed.
+To update the configuration and plugins:
 
-### Keybinding Conflicts
-Check for conflicts with `:WhichKey`
+```bash
+# Update the configuration
+cd ~/.config/nvim
+git pull
+
+# Update plugins
+nvim -c "Lazy sync"
+```
+
+## 🎓 Learning Resources
+
+- **Neovim Documentation**: `:help nvim`
+- **Plugin Documentation**: `:help [plugin-name]`
+- **Integrated Learning**: Press `Space+Space` to explore keybindings
+- **GitHub Repository**: Check for new updates and features
 
 ---
 

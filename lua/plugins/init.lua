@@ -359,12 +359,7 @@ return {
       
       -- Create autocmd group for Telescope events
       local telescope_group = vim.api.nvim_create_augroup("TelescopeEvents", { clear = true })
-      -- Register the TelescopeFindPre event
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "TelescopeFindPre",
-        group = telescope_group,
-        callback = function() end,  -- Empty callback just to register the event
-      })
+      -- We'll add custom Telescope events here if needed in the future
       
       telescope.setup({
         defaults = {

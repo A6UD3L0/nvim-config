@@ -18,7 +18,7 @@ return {
           "lua-language-server", -- Lua
           "jdtls",               -- Java
           "ols",                 -- Odin
-          "hls",                 -- Haskell
+          -- "hls",              -- Haskell (removed - requires ghcup)
         },
       })
     end,
@@ -107,5 +107,3 @@ return {
   { "stevearc/conform.nvim", lazy = true },
   { "eandrju/cellular-automaton.nvim", lazy = true },
 }
-
-

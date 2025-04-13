@@ -17,7 +17,26 @@ return {
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
+      {
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        init = function()
+          -- PERF: no need to load the plugin, if we only need its queries for mini.ai
+          local plugin = require("lazy.core.config").spec.plugins["nvim-treesitter-textobjects"]
+          local opts = require("lazy.core.plugin").values(plugin, "opts", false)
+          local enabled = false
+          if opts then
+            for _, mod in ipairs({ "textobjects.select", "textobjects.move", "textobjects.swap", "textobjects.lsp_interop" }) do
+              if opts[mod] and opts[mod].enable then
+                enabled = true
+                break
+              end
+            end
+          end
+          if not enabled then
+            require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
+          end
+        end,
+      },
     },
     config = function()
       require("nvim-treesitter.configs").setup({
@@ -38,6 +57,26 @@ return {
               ["if"] = "@function.inner",
               ["ac"] = "@class.outer",
               ["ic"] = "@class.inner",
+            },
+          },
+          move = {
+            enable = true,
+            set_jumps = true,
+            goto_next_start = {
+              ["]m"] = "@function.outer",
+              ["]]"] = "@class.outer",
+            },
+            goto_next_end = {
+              ["]M"] = "@function.outer",
+              ["]["] = "@class.outer",
+            },
+            goto_previous_start = {
+              ["[m"] = "@function.outer",
+              ["[["] = "@class.outer",
+            },
+            goto_previous_end = {
+              ["[M"] = "@function.outer",
+              ["[]"] = "@class.outer",
             },
           },
         },

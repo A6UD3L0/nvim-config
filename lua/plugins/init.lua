@@ -499,7 +499,7 @@ return {
         separator = "➜",
         group = "+",
       },
-      popup_mappings = {
+      keys = {
         scroll_down = "<c-d>",
         scroll_up = "<c-u>",
       },
@@ -521,54 +521,57 @@ return {
         spacing = 3,
         align = "center",
       },
-      hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
-      triggers_blacklist = {
-        i = { "j", "k" },
-        v = { "j", "k" },
+      ignore = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
+      triggers = {
+        i = { };
+        v = { };
+        ["<leader>"] = { registers = true },
       },
     },
     config = function(_, opts)
       local wk = require("which-key")
       wk.setup(opts)
       
-      -- Register key groups using the new format to avoid warnings
       wk.register({
-        -- Key groups using new format
-        { "<leader>a", group = "Add to harpoon" },
-        { "<leader>b", group = "Buffer" },
-        { "<leader>c", group = "Code" },
-        { "<leader>ca", group = "Code actions" },
-        { "<leader>cf", group = "Format code" },
-        { "<leader>cr", group = "Rename symbol" },
-        { "<leader>d", group = "Debug" }, -- Changed from "Delete without yanking" to avoid conflict
-        { "<leader>db", group = "Toggle breakpoint" },
-        { "<leader>dc", group = "Continue" },
-        { "<leader>ds", group = "Step over" },
-        { "<leader>f", group = "Find/Files" },
-        { "<leader>fb", group = "Find buffers" },
-        { "<leader>ff", group = "Find files" },
-        { "<leader>fg", group = "Find text in files" },
-        { "<leader>g", group = "Git" },
-        { "<leader>gb", group = "Git blame" },
-        { "<leader>gc", group = "Git commit" },
-        { "<leader>gs", group = "Git status" },
-        { "<leader>h", group = "Harpoon menu" },
-        { "<leader>t", group = "Terminal" },
-        { "<leader>w", group = "Window" },
-        { "[", group = "Previous" },
-        { "]", group = "Next" },
-        { "g", group = "Go to" },
-        { "gD", group = "Declaration" },
-        { "gd", group = "Definition" },
-        { "gi", group = "Implementation" },
-        { "gr", group = "References" },
+        ["<leader>f"] = { name = "+find/files" },
+        ["<leader>ff"] = { "<cmd>Telescope find_files<cr>", "Find files" },
+        ["<leader>fg"] = { "<cmd>Telescope live_grep<cr>", "Find text" },
+        ["<leader>fb"] = { "<cmd>Telescope buffers<cr>", "Find buffers" },
+        ["<leader>fh"] = { "<cmd>Telescope help_tags<cr>", "Help tags" },
         
-        -- Fix overlapping mappings with more specific group descriptions
-        { "<leader>D", group = "Docker/DB Commands" },
-        { "<leader>e", group = "Explorer/Errors" },
+        ["<leader>g"] = { name = "+git" },
+        ["<leader>gs"] = { "<cmd>Telescope git_status<cr>", "Git status" },
+        ["<leader>gb"] = { "<cmd>Telescope git_branches<cr>", "Git branches" },
+        ["<leader>gc"] = { "<cmd>Telescope git_commits<cr>", "Git commits" },
         
-        -- Special handling for comment plugin 'gc' conflict
-        { "gc", desc = "Comment toggle" }, -- Just describe, don't create a group that conflicts
+        ["<leader>b"] = { name = "+buffer" },
+        
+        ["<leader>c"] = { name = "+code" },
+        ["<leader>ca"] = { vim.lsp.buf.code_action, "Code actions" },
+        ["<leader>cf"] = { vim.lsp.buf.format, "Format code" },
+        ["<leader>cr"] = { vim.lsp.buf.rename, "Rename symbol" },
+        
+        ["<leader>d"] = { name = "+debug" },
+        ["<leader>db"] = { "<cmd>lua require('dap').toggle_breakpoint()<cr>", "Toggle breakpoint" },
+        ["<leader>dc"] = { "<cmd>lua require('dap').continue()<cr>", "Continue" },
+        ["<leader>ds"] = { "<cmd>lua require('dap').step_over()<cr>", "Step over" },
+        
+        ["<leader>D"] = { name = "+docker/db" },
+        
+        ["<leader>e"] = { name = "+explorer/errors" },
+        ["<leader>t"] = { name = "+terminal" },
+        ["<leader>w"] = { name = "+window" },
+        ["<leader>a"] = { name = "+harpoon" },
+        ["<leader>h"] = { name = "+help/harpoon" },
+        
+        ["g"] = { name = "+goto" },
+        ["gd"] = { vim.lsp.buf.definition, "Go to definition" },
+        ["gD"] = { vim.lsp.buf.declaration, "Go to declaration" },
+        ["gi"] = { vim.lsp.buf.implementation, "Go to implementation" },
+        ["gr"] = { vim.lsp.buf.references, "Go to references" },
+        
+        ["["] = { name = "+prev" },
+        ["]"] = { name = "+next" },
       })
     end,
   },

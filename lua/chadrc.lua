@@ -69,26 +69,58 @@ M.base46 = {
 --------------------------------------------------------------------------------
 M.nvdash = {
   load_on_startup = true,  -- Automatically load the dashboard on Neovim start.
+  
+  -- Stylish ASCII art header with backend development theme
   header = {
-    "                                            ",
-    "      ███╗   ██╗███████╗ ██████╗ ██╗   ██╗ ",
-    "      ████╗  ██║██╔════╝██╔═══██╗██║   ██║ ",
-    "      ██╔██╗ ██║█████╗  ██║   ██║██║   ██║ ",
-    "      ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝ ",
-    "      ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝  ",
-    "      ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝   ",
-    "                                            ",
-    "       Press SPACE + SPACE to see all keybindings",
-    "                                            ",
+    "                                                                           ",
+    "     ██████   █████                   █████                       █████    ",
+    "    ░░██████ ░░███                   ░░███                       ░░███     ",
+    "     ░███░███ ░███   ██████    ██████  ░███████    ██████   ████ ███████  ",
+    "     ░███░░███░███  ░░░░░███  ███░░███ ░███░░███  ███░░███ ░░███░░███░░███",
+    "     ░███ ░░██████   ███████ ░███ ░███ ░███ ░███ ░███████   ░███ ░███ ░███",
+    "     ░███  ░░█████  ███░░███ ░███ ░███ ░███ ░███ ░███░░░    ░███ ░███ ░███",
+    "     █████  ░░█████░░████████░░██████  ████████  ░░██████   █████░████████",
+    "    ░░░░░    ░░░░░  ░░░░░░░░  ░░░░░░  ░░░░░░░░    ░░░░░░   ░░░░░ ░░░░░░░░ ",
+    "                                                                           ",
+    "                     ⟦ Ultimate Backend Development IDE ⟧                  ",
+    "                                                                           ",
+    "                 " .. os.date("%A, %d %B %Y | %H:%M:%S") .. "             ",
+    "                                                                           ",
   },
+  
+  -- Enhanced buttons with clear categorization and better icons
   buttons = {
-    { "  Find File", "Spc f f", "Telescope find_files" },
-    { "󰈚  Recent Files", "Spc f o", "Telescope oldfiles" },
-    { "󰈭  Find Word", "Spc f w", "Telescope live_grep" },
-    { "  Bookmarks", "Spc m a", "Telescope marks" },
-    { "  Themes", "Spc t h", "Telescope themes" },
-    { "  Mappings", "Spc + SPACE", "WhichKey" },
+    -- Project section
+    { "⟡  New File", "Spc n", "enew" },
+    { "󰈞  Find File", "Spc f f", "Telescope find_files" },
+    { "󰊄  Recent Files", "Spc f r", "Telescope oldfiles" },
+    { "󰈭  Find Word", "Spc f g", "Telescope live_grep" },
+    
+    -- Development section
+    { "   File Explorer", "Spc e", "NvimTreeToggle" },
+    { "   Git Status", "Spc g s", "Telescope git_status" },
+    { "󰒲  Diagnostics", "Spc l d", "Telescope diagnostics" },
+    
+    -- Configuration and Help
+    { "   Mappings", "Spc SPACE", "WhichKey" },
+    { "   Configuration", "Spc c e", "edit ~/.config/nvim/lua/chadrc.lua" },
+    { "󰒲  Health Check", "Spc h c", "checkhealth" },
+    
+    -- Utility
+    { "   Key Trainer", "Spc k t", "KeyTrainer" },
+    { "   Update Plugins", "Spc l u", "Lazy update" },
+    { "   Quit", "Spc q q", "qa" },
   },
+  
+  -- Show key statistics about the Neovim instance and environment
+  footer = function()
+    local stats = {
+      "Neovim v" .. vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
+      tostring(#vim.tbl_keys(require("lazy").plugins())) .. " plugins loaded",
+      tostring(vim.fn.argc()) .. " files open",
+    }
+    return "   " .. table.concat(stats, "   ")
+  end,
 }
 
 --------------------------------------------------------------------------------

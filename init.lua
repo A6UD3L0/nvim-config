@@ -34,6 +34,32 @@ vim.g.loaded_netrwPlugin = 1
 require "options"
 
 ---------------------------------------------------------
+-- Ensure Telescope loads without errors
+local ensure_telescope = function()
+  -- Safely clear any user autocmds that might interfere with Telescope
+  pcall(vim.api.nvim_del_augroup_by_name, "TelescopeEvents")
+  
+  -- Preload telescope to avoid "Invalid event" errors
+  pcall(function()
+    local telescope_ok, telescope = pcall(require, "telescope")
+    if telescope_ok then
+      telescope.setup({
+        defaults = {
+          mappings = {
+            i = {
+              ["<esc>"] = require("telescope.actions").close
+            }
+          }
+        }
+      })
+    end
+  end)
+end
+
+-- Run telescope initialization early in the startup process
+vim.defer_fn(ensure_telescope, 10)
+
+---------------------------------------------------------
 -- Plugin Manager Setup (lazy.nvim)
 ---------------------------------------------------------
 local lazy_config = require "configs.lazy"

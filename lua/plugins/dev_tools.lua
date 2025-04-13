@@ -10,10 +10,10 @@ return {
     opts = {
       ensure_installed = {
         -- LSP
-        "pyright", "gopls", "clangd", "lua-language-server", "typescript-language-server",
-        "rust_analyzer", "jdtls", "ols",
+        "pyright", "gopls", "clangd", "lua_ls", "typescript-language-server",
+        "rust-analyzer", "jdtls", "ols",
         -- Data Science specific
-        "ruff-lsp", "jedi-language-server", "jupyter-lsp",
+        "ruff-lsp", "jedi-language-server", "basedpyright",
         -- Formatter
         "stylua", "black", "gofumpt", "shfmt", "isort",
         -- DAP
@@ -40,12 +40,12 @@ return {
           "pyright",             -- Python
           "gopls",               -- Go
           "clangd",              -- C/C++
-          "tsserver",            -- TypeScript
+          "ts_ls",               -- TypeScript
           "rust_analyzer",       -- Rust
           "lua_ls",              -- Lua
           "jdtls",               -- Java
           "ols",                 -- Odin
-          "ruff_lsp",            -- Python linter
+          "ruff",                -- Python linter
           "jedi_language_server" -- Python intellisense
         },
         automatic_installation = true,

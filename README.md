@@ -2,7 +2,7 @@
 
 A powerful yet clean Neovim setup that combines ThePrimeagen's efficient functionality with NvChad's simplicity and aesthetics. Specifically optimized for backend development in Python, Go, C, SQL, and Docker.
 
-![Neovim Backend IDE](https://raw.githubusercontent.com/NvChad/nvchad.github.io/src/static/img/screenshots/nvdash.webp)
+![Neovim Backend IDE](https://user-images.githubusercontent.com/292349/213446185-5e0a886c-492e-46bb-9192-cb8afb439fb2.png)
 
 ## ✨ Key Features
 

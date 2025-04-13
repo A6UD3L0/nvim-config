@@ -6,11 +6,11 @@ return {
   ----------------------------------------------------------------------
   {
     "williamboman/mason.nvim",
-    cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonUninstallAll", "MasonLog" },
+    cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonUninstallAll", "MasonLog", "MasonInstallAll" },
     opts = {
       ensure_installed = {
         -- LSP
-        "pyright", "gopls", "clangd", "lua_ls", "typescript-language-server",
+        "pyright", "gopls", "clangd", "lua-language-server", "typescript-language-server",
         "rust-analyzer", "jdtls", "ols",
         -- Data Science specific
         "ruff-lsp", "jedi-language-server", "basedpyright",
@@ -30,19 +30,23 @@ return {
         height = 0.8,
       },
     },
+    config = function(_, opts)
+      require("mason").setup(opts)
+    end,
   },
   
   {
     "williamboman/mason-lspconfig.nvim",
+    dependencies = { "williamboman/mason.nvim" },
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = {
           "pyright",             -- Python
           "gopls",               -- Go
           "clangd",              -- C/C++
-          "ts_ls",               -- TypeScript
+          "typescript-language-server", -- TypeScript
           "rust_analyzer",       -- Rust
-          "lua_ls",              -- Lua
+          "lua-language-server", -- Lua
           "jdtls",               -- Java
           "ols",                 -- Odin
           "ruff",                -- Python linter

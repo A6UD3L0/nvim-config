@@ -71,12 +71,10 @@ require("lazy").setup({
   },
 })
 
--- Load plugin configurations
-require("configs").setup()
-
--- Explicitly load LuaSnip and Copilot-cmp configurations
-require("configs.luasnip").setup()
-require("mappings") -- This will load Copilot-cmp setup
+-- Load configurations in the correct order
+require("configs.luasnip").setup()  -- Load LuaSnip first
+require("configs").setup()          -- Load all other configs
+require("mappings")                 -- Load keymappings last
 
 -- Initialize colorscheme with fallbacks
 vim.schedule(function()

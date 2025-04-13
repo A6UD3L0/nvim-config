@@ -280,33 +280,28 @@ return {
 
   -- DATA SCIENCE SPECIFIC PLUGINS
   
-  -- Jupyter Notebook integration
-  {
-    "kiyoon/jupynium.nvim",
-    enabled = false, -- Set to true after installing dependencies manually
-    build = "pip3 install --user .",
-    dependencies = {
-      "rcarriga/nvim-notify",  -- optional
-      "stevearc/dressing.nvim", -- optional, UI improvements
-    },
-    cmd = { "JupyniumStartSync", "JupyniumStartAndAttachToServer" },
-    config = true,
-  },
-  
   -- Python REPL and code sending
   {
-    "michaelb/sniprun",
-    enabled = false, -- Set to true after installing Rust toolchain
-    branch = "master", 
-    build = "sh install.sh",
-    cmd = {"SnipRun", "SnipInfo", "SnipReset", "SnipReplMemoryClean", "SnipClose"},
+    "geg2102/nvim-python-repl",
+    ft = { "python" },
     config = function()
-      require("sniprun").setup({
-        display = {
-          "Classic",
-          "VirtualTextOk",
-        },
-        live_mode_toggle = "enable"
+      require("nvim-python-repl").setup({
+        execute_on_send = true,
+        vsplit = true,
+        spawn_commands = {
+          python = {"python", "-i"},
+        }
+      })
+      
+      -- Set keymaps for REPL
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "python",
+        callback = function()
+          local opts = { noremap = true, silent = true }
+          vim.api.nvim_buf_set_keymap(0, "n", "<leader>ri", "<cmd>PythonREPLStart<CR>", opts)
+          vim.api.nvim_buf_set_keymap(0, "n", "<leader>rc", "<cmd>PythonREPLSendLine<CR>", opts)
+          vim.api.nvim_buf_set_keymap(0, "v", "<leader>rs", "<cmd>PythonREPLSendSelection<CR>", opts)
+        end,
       })
     end,
   },

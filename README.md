@@ -14,6 +14,7 @@ A powerful yet clean Neovim setup that combines ThePrimeagen's efficient functio
 - **AI Code Completion**: GitHub Copilot integration for intelligent coding assistance
 - **Keybinding Discovery**: Press `Space+Space` to explore all available commands
 - **Advanced Debugging**: Comprehensive DAP setup for all major backend languages
+- **Data Science Support**: R language integration and database clients
 
 ## 🚀 Getting Started
 
@@ -39,10 +40,49 @@ git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim
 nvim
 ```
 
-On first launch:
-1. Plugins will be automatically installed
-2. Run `:MasonInstallAll` to set up language servers and tools
-3. Press `Space+Space` to explore keybindings
+## 📂 Configuration Structure
+
+The configuration has been simplified and organized into a clean, modular structure:
+
+```
+nvim-config/
+├── init.lua                    # Main entry point
+├── lua/
+│   ├── core/                   # Core neovim settings
+│   │   ├── init.lua            # Loads all core modules
+│   │   ├── options.lua         # Vim options
+│   │   ├── keymaps.lua         # Key mappings (ThePrimeagen style)
+│   │   └── autocmds.lua        # Autocommands
+│   ├── plugins/                # Plugin definitions and configs
+│   │   ├── init.lua            # Plugin loader
+│   │   ├── coding.lua          # Development plugins (LSP, completion, etc.)
+│   │   ├── tools.lua           # Utility tools (telescope, git, etc.)
+│   │   ├── ui.lua              # UI enhancements
+│   │   └── datascience.lua     # Data science specific plugins
+│   └── utils/                  # Utility functions
+├── README.md                   # Documentation
+```
+
+## 🛠️ Backend Development Setup
+
+This configuration is specifically optimized for backend development with:
+
+### Language Support
+
+- **Python**: Full LSP support via Pyright, debugging with DAP, formatting with Black/isort
+- **Go**: Gopls integration, debugging with Delve, formatting with gofumpt
+- **C/C++**: Clangd support with debugging via LLDB
+- **SQL**: SQL Language Server with database client via vim-dadbod
+- **Docker**: Docker Language Server for Dockerfile validation
+
+### Key Tools
+
+- **Telescope**: Fuzzy finding for files, code, and more
+- **Treesitter**: Advanced syntax highlighting and code navigation
+- **LSP**: Full language server integration with UI enhancements via lspsaga
+- **GitHub Copilot**: AI code completion
+- **Debugging**: Language-specific DAP configurations with UI integration
+- **Git**: Complete git workflow with gitsigns, fugitive, and lazygit
 
 ## 📋 Comprehensive Installation Guide
 

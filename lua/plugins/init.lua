@@ -14,7 +14,7 @@ return {
   -- TreeSitter for better syntax highlighting and code understanding
   {
     "nvim-treesitter/nvim-treesitter",
-    build = function() require("nvim-treesitter.install").update({ with_sync = true }) end,
+    build = ":TSUpdate",  -- Fixed TSUpdate command format
     priority = 1000, -- Load before other plugins
     lazy = false,    -- Load at startup to avoid module not found errors
     config = function()
@@ -521,17 +521,16 @@ return {
         spacing = 3,
         align = "center",
       },
+      -- Use ignore instead of hidden (deprecated)
       ignore = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
-      triggers = {
-        i = { };
-        v = { };
-        ["<leader>"] = { registers = true },
-      },
+      -- Fixed triggers format to avoid the "Invalid field" error
+      triggers = "auto",
     },
     config = function(_, opts)
       local wk = require("which-key")
       wk.setup(opts)
       
+      -- Register groups with proper format
       wk.register({
         ["<leader>f"] = { name = "+find/files" },
         ["<leader>ff"] = { "<cmd>Telescope find_files<cr>", "Find files" },

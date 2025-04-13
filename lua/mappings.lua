@@ -10,7 +10,7 @@ local map = vim.keymap.set
 -- Function to set up which-key
 wk.setup {
   plugins = { spelling = true },
-  triggers = "<leader>kb",
+  triggers = "<leader><leader>",
   triggers_blacklist = {
     n = { "v", "s" },
     i = { "j", "k" },
@@ -22,8 +22,27 @@ wk.setup {
   },
 }
 
+-- Add specific mapping for Space+Space to show all keybindings
+map("n", "<leader><leader>", "<cmd>WhichKey <CR>", { desc = "Show all keybindings" })
+
+--------------------------
+-- WhichKey Leader Mappings (New Format)
+--------------------------
+-- Register all leader commands in which-key using the new format
+wk.add({
+  -- Buffer management
+  { "<leader>b", name = "Buffer" },
+  { "<leader>bb", "<cmd>Telescope buffers<cr>", desc = "Buffer list" },
+  { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete buffer" },
+  { "<leader>bn", "<cmd>bnext<cr>", desc = "Next buffer" },
+  { "<leader>bp", "<cmd>bprevious<cr>", desc = "Previous buffer" },
+  
+  -- Debug
+  { "<leader>d", name = "Debug" },
   -- Add specific mapping for Space+Space to show all keybindings
   map("n", "<leader><leader>", "<cmd>WhichKey <CR>", { desc = "Show all keybindings" })
+=======
+>>>>>>> 582301d (Fix which-key deprecated options and use correct format for key mappings)
 
   --------------------------
   -- WhichKey Leader Mappings (New Format)

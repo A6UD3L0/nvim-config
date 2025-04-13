@@ -1,166 +1,80 @@
--- Neovim IDE Configuration optimized for backend development
+-- Ultimate Backend Development Neovim Configuration
+-- Simplified and organized for maximum productivity
 
--- Set leader key early
-vim.g.mapleader = " "
+-- Initialize early settings
+vim.g.mapleader = " "           -- Set leader key (must be before lazy)
+vim.g.maplocalleader = ","      -- Set local leader key
 
----------------------------------------------------------
--- Bootstrap lazy.nvim (plugin manager)
----------------------------------------------------------
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-
--- Install lazy.nvim if not already installed
-if not vim.uv.fs_stat(lazypath) then
-  local repo = "https://github.com/folke/lazy.nvim.git"
-  vim.fn.system { "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath }
-end
-vim.opt.rtp:prepend(lazypath)
-
----------------------------------------------------------
--- Performance optimizations
----------------------------------------------------------
--- Disable unnecessary providers
+-- Disable unnecessary providers for performance
 vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
 
--- Disable built-in plugins not needed
+-- Disable netrw in favor of nvim-tree
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
----------------------------------------------------------
--- Basic Vim Settings (leader, encodings, basic behaviors)
----------------------------------------------------------
-require "options"
+-- Load core Neovim settings
+require("core")
 
----------------------------------------------------------
--- Ensure Telescope loads without errors
-local ensure_telescope = function()
-  -- Safely clear any user autocmds that might interfere with Telescope
-  pcall(vim.api.nvim_del_augroup_by_name, "TelescopeEvents")
-  
-  -- Preload telescope to avoid "Invalid event" errors
-  pcall(function()
-    local telescope_ok, telescope = pcall(require, "telescope")
-    if telescope_ok then
-      telescope.setup({
-        defaults = {
-          mappings = {
-            i = {
-              ["<esc>"] = require("telescope.actions").close
-            }
-          }
-        }
-      })
-    end
-  end)
+-- Bootstrap lazy.nvim (plugin manager)
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.uv.fs_stat(lazypath) then
+  local repo = "https://github.com/folke/lazy.nvim.git"
+  vim.fn.system({ "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath })
 end
+vim.opt.rtp:prepend(lazypath)
 
--- Run telescope initialization early in the startup process
-vim.defer_fn(ensure_telescope, 10)
-
----------------------------------------------------------
--- Plugin Manager Setup (lazy.nvim)
----------------------------------------------------------
-local lazy_config = require "configs.lazy"
-
+-- Load plugins with lazy.nvim
 require("lazy").setup({
-  -- Core plugins
-  { import = "plugins" },            -- Automatically loads plugins/init.lua
-  { import = "plugins.dev_tools" },  -- Development tools and LSP configurations
-  { import = "plugins.completion" }, -- Load completion plugins
-  { import = "plugins.copilot" },    -- Load GitHub Copilot integration
-  { import = "plugins.datascience" },-- Load Data Science plugins
-}, lazy_config)
-
--- Load custom commands including :MasonInstallAll
-pcall(require, "configs.commands")
-
----------------------------------------------------------
--- Core Keymaps (loaded after plugins to ensure which-key is available)
----------------------------------------------------------
-require "mappings"
-
----------------------------------------------------------
--- Autocommands (basic editor behaviors)
----------------------------------------------------------
--- Load custom autocommands (previously using NvChad)
-local autocmd = vim.api.nvim_create_autocmd
-
--- Disable autoformat for certain files
-vim.api.nvim_create_autocmd({ "FileType" }, {
-  pattern = { "javascript", "typescript", "lua", "python", "go" },
-  callback = function()
-    vim.b.autoformat = true
-  end,
+  -- Load all plugins defined in the plugins directory
+  { import = "plugins" },
+}, {
+  install = {
+    colorscheme = { "catppuccin" },
+  },
+  ui = {
+    border = "rounded",
+    icons = {
+      cmd = "⌘",
+      config = "🛠",
+      event = "📅",
+      ft = "📂",
+      init = "⚙",
+      keys = "🔑",
+      plugin = "🔌",
+      runtime = "💻",
+      require = "🌙",
+      source = "📄",
+      start = "🚀",
+      task = "📌",
+      lazy = "💤 ",
+    },
+  },
+  change_detection = {
+    notify = false,
+  },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        "matchit",
+        "matchparen",
+        "netrwPlugin",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "zipPlugin",
+      },
+    },
+  },
 })
 
--- Highlight text on yank for better UX
-autocmd("TextYankPost", {
-  callback = function()
-    vim.highlight.on_yank({ higroup = "Visual", timeout = 150 })
-  end,
-})
-
--- Format options
-autocmd("FileType", {
-  pattern = { "*" },
-  callback = function()
-    vim.opt.formatoptions = vim.opt.formatoptions
-      - "a" -- Don't autoformat
-      - "t" -- Don't auto wrap text
-      + "c" -- Auto wrap comments
-      + "q" -- Allow formatting of comments with gq
-      - "o" -- Don't continue comments with o and O
-      + "r" -- Continue comments after return
-      + "n" -- Recognize numbered lists
-      + "j" -- Remove comment leader when joining lines when possible
-      - "2" -- Don't use indent of second line for rest of paragraph
-  end,
-})
-
----------------------------------------------------------
--- Final setup and initialization
----------------------------------------------------------
--- Faster UI updates
-vim.opt.updatetime = 200
-
--- Apply patches for deprecated APIs
+-- Initialize colorscheme with fallbacks
 vim.schedule(function()
-  -- Apply patches for copilot-cmp and other plugins with deprecated warnings
-  local success, copilot_patches = pcall(require, "configs.copilot_patches")
-  if success and copilot_patches then
-    copilot_patches.setup()
-  end
-  
-  -- Apply LuaSnip fixes for deprecated vim.validate
-  local luasnip_fixes_success, luasnip_fixes = pcall(require, "configs.luasnip")
-  if luasnip_fixes_success and luasnip_fixes then
-    luasnip_fixes.setup()
-  end
-end)
-
--- Set colorscheme
-vim.schedule(function()
-  -- Try to use catppuccin first, fall back to default colorschemes if not available
   local colorscheme_ok, _ = pcall(vim.cmd, "colorscheme catppuccin")
   if not colorscheme_ok then
-    -- Try tokyonight
-    colorscheme_ok, _ = pcall(vim.cmd, "colorscheme tokyonight")
-    
-    -- If tokyonight isn't available, try another common one
-    if not colorscheme_ok then
-      pcall(vim.cmd, "colorscheme habamax") -- This is a default Neovim colorscheme
-    end
+    vim.cmd("colorscheme habamax") -- Fallback colorscheme
   end
 end)
-
--- Run any post-startup commands
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    -- Display startup time if desired
-    if vim.g.startup_time then
-      vim.notify("Neovim loaded in " .. vim.g.startup_time .. " ms", vim.log.levels.INFO)
-    end
-  end,
-})

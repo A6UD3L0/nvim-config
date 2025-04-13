@@ -157,7 +157,7 @@ autocmd("CursorHold", {
     local has_lsp = false
     
     -- Check if current buffer has active clients
-    local buf_clients = vim.lsp.get_active_clients({ bufnr = 0 })
+    local buf_clients = vim.lsp.get_clients({ bufnr = 0 })
     if buf_clients and #buf_clients > 0 then
       has_lsp = true
     end

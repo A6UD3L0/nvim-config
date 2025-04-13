@@ -493,16 +493,6 @@ return {
       plugins = { spelling = true },
       defaults = {
         mode = { "n", "v" },
-        ["<leader>f"] = { name = "+find/files" },
-        ["<leader>g"] = { name = "+git" },
-        ["<leader>b"] = { name = "+buffer" },
-        ["<leader>c"] = { name = "+code" },
-        ["<leader>d"] = { name = "+debug" },
-        ["<leader>t"] = { name = "+terminal/test" },
-        ["<leader>w"] = { name = "+window" },
-        ["g"] = { name = "+goto" },
-        ["["] = { name = "+prev" },
-        ["]"] = { name = "+next" },
       },
       icons = {
         breadcrumb = "»",
@@ -541,57 +531,44 @@ return {
       local wk = require("which-key")
       wk.setup(opts)
       
-      -- Register key groups specific to your environment
+      -- Register key groups using the new format to avoid warnings
       wk.register({
-        -- File operations
-        ["<leader>f"] = { name = "Find/Files" },
-        ["<leader>ff"] = { name = "Find files" },
-        ["<leader>fg"] = { name = "Find text in files" },
-        ["<leader>fb"] = { name = "Find buffers" },
+        -- Key groups using new format
+        { "<leader>a", group = "Add to harpoon" },
+        { "<leader>b", group = "Buffer" },
+        { "<leader>c", group = "Code" },
+        { "<leader>ca", group = "Code actions" },
+        { "<leader>cf", group = "Format code" },
+        { "<leader>cr", group = "Rename symbol" },
+        { "<leader>d", group = "Debug" }, -- Changed from "Delete without yanking" to avoid conflict
+        { "<leader>db", group = "Toggle breakpoint" },
+        { "<leader>dc", group = "Continue" },
+        { "<leader>ds", group = "Step over" },
+        { "<leader>f", group = "Find/Files" },
+        { "<leader>fb", group = "Find buffers" },
+        { "<leader>ff", group = "Find files" },
+        { "<leader>fg", group = "Find text in files" },
+        { "<leader>g", group = "Git" },
+        { "<leader>gb", group = "Git blame" },
+        { "<leader>gc", group = "Git commit" },
+        { "<leader>gs", group = "Git status" },
+        { "<leader>h", group = "Harpoon menu" },
+        { "<leader>t", group = "Terminal" },
+        { "<leader>w", group = "Window" },
+        { "[", group = "Previous" },
+        { "]", group = "Next" },
+        { "g", group = "Go to" },
+        { "gD", group = "Declaration" },
+        { "gd", group = "Definition" },
+        { "gi", group = "Implementation" },
+        { "gr", group = "References" },
         
-        -- Git operations
-        ["<leader>g"] = { name = "Git" },
-        ["<leader>gs"] = { name = "Git status" },
-        ["<leader>gb"] = { name = "Git blame" },
-        ["<leader>gc"] = { name = "Git commit" },
+        -- Fix overlapping mappings with more specific group descriptions
+        { "<leader>D", group = "Docker/DB Commands" },
+        { "<leader>e", group = "Explorer/Errors" },
         
-        -- Code operations
-        ["<leader>c"] = { name = "Code" },
-        ["<leader>ca"] = { name = "Code actions" },
-        ["<leader>cr"] = { name = "Rename symbol" },
-        ["<leader>cf"] = { name = "Format code" },
-        
-        -- Debug operations
-        ["<leader>d"] = { name = "Debug" },
-        ["<leader>db"] = { name = "Toggle breakpoint" },
-        ["<leader>dc"] = { name = "Continue" },
-        ["<leader>ds"] = { name = "Step over" },
-        
-        -- Window operations
-        ["<leader>w"] = { name = "Window" },
-        
-        -- Buffer operations
-        ["<leader>b"] = { name = "Buffer" },
-        
-        -- Terminal operations
-        ["<leader>t"] = { name = "Terminal" },
-        
-        -- LSP related
-        ["g"] = {
-          name = "Go to",
-          d = { name = "Definition" },
-          r = { name = "References" },
-          D = { name = "Declaration" },
-          i = { name = "Implementation" },
-        },
-        
-        -- Harpoon (ThePrimeagen style)
-        ["<leader>a"] = { name = "Add to harpoon" },
-        ["<leader>h"] = { name = "Harpoon menu" },
-        
-        -- Navigation
-        ["["] = { name = "Previous" },
-        ["]"] = { name = "Next" },
+        -- Special handling for comment plugin 'gc' conflict
+        { "gc", desc = "Comment toggle" }, -- Just describe, don't create a group that conflicts
       })
     end,
   },

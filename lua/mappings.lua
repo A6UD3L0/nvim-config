@@ -26,6 +26,9 @@ wk.setup {
   },
 }
 
+-- Add specific mapping for Space+Space to show all keybindings
+vim.keymap.set("n", "<leader><leader>", "<cmd>WhichKey <CR>", { desc = "Show all keybindings" })
+
 --------------------------
 -- WhichKey Leader Mappings (New Format)
 --------------------------

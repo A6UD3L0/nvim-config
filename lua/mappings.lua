@@ -7,26 +7,8 @@ vim.g.mapleader = " "
 -- Create a local mapping function to use whether or not which-key is available
 local map = vim.keymap.set
 
--- Safely require which-key so we avoid an error if it's not loaded yet
-local wk_status, wk = pcall(require, "which-key")
-if not wk_status then
-  vim.defer_fn(function()
-    -- Try requiring which-key again after a short delay
-    wk_status, wk = pcall(require, "which-key")
-    if wk_status then
-      -- Configure which-key if it's loaded after the delay
-      setup_which_key(wk)
-    else
-      vim.notify("which-key plugin not found. Basic keybindings will still work.", vim.log.levels.WARN)
-    end
-  end, 500) -- 500ms delay to allow lazy.nvim to load which-key
-else
-  -- If which-key loaded successfully, set it up
-  setup_which_key(wk)
-end
-
 -- Function to set up which-key
-function setup_which_key(wk)
+local function setup_which_key(wk)
   wk.setup {
     plugins = { spelling = true },
     triggers = "<leader>",
@@ -143,6 +125,24 @@ function setup_which_key(wk)
     { "s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], desc = "Search & replace word under cursor" },
     { "x", "<cmd>!chmod +x %<CR>", desc = "Make file executable" },
   }, { prefix = "<leader>" })
+end
+
+-- Safely require which-key so we avoid an error if it's not loaded yet
+local wk_status, wk = pcall(require, "which-key")
+if not wk_status then
+  vim.defer_fn(function()
+    -- Try requiring which-key again after a short delay
+    wk_status, wk = pcall(require, "which-key")
+    if wk_status then
+      -- Configure which-key if it's loaded after the delay
+      setup_which_key(wk)
+    else
+      vim.notify("which-key plugin not found. Basic keybindings will still work.", vim.log.levels.WARN)
+    end
+  end, 500) -- 500ms delay to allow lazy.nvim to load which-key
+else
+  -- If which-key loaded successfully, set it up
+  setup_which_key(wk)
 end
 
 --------------------------

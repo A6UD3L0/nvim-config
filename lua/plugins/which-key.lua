@@ -102,6 +102,34 @@ return {
       ["<leader>lh"] = { vim.lsp.buf.hover, desc = "Hover documentation" },
       ["<leader>lk"] = { vim.lsp.buf.signature_help, desc = "Signature help" },
       ["<leader>lt"] = { vim.lsp.buf.type_definition, desc = "Type definition" },
+
+      -- Error handling mappings
+      ["<leader>e"] = { name = "Error" },
+      ["<leader>ee"] = { "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", desc = "Return error" },
+      ["<leader>ef"] = { 'oif err != nil {<CR>}<Esc>Olog.Fatalf("error: %s\\n", err.Error())<Esc>', desc = "Fatal error" },
+
+      -- Docker mappings
+      ["<leader>D"] = { name = "Docker" },
+      ["<leader>Dc"] = { "<cmd>!docker-compose up -d<CR>", desc = "Docker-compose up" },
+      ["<leader>Dd"] = { "<cmd>!docker-compose down<CR>", desc = "Docker-compose down" },
+      ["<leader>Dl"] = { "<cmd>!docker ps<CR>", desc = "List containers" },
+
+      -- SQL formatting
+      ["<leader>sq"] = { "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", desc = "Format SQL" },
+
+      -- Window mappings
+      ["<leader>w"] = { name = "Window" },
+      ["<leader>ww"] = { "<cmd>w<CR>", desc = "Save" },
+      ["<leader>wq"] = { "<cmd>wq<CR>", desc = "Save and quit" },
+
+      -- Comment mappings
+      ["gc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment" },
+      ["gcc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment line" },
     }, { mode = "n" })
+
+    -- Register visual mode mappings
+    wk.register({
+      ["gc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment" },
+    }, { mode = "v" })
   end,
 } 

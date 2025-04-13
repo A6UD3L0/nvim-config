@@ -1,18 +1,48 @@
 -- Seamless Neovim keybindings for backend development
 -- Combines ThePrimeagen's mappings with NvChad simplicity
 
--- Map leader key to space
+-- Set leader key to space
 vim.g.mapleader = " "
+
+-- Safely require which-key so we avoid an error if it's not loaded yet
+local wk_status, wk = pcall(require, "which-key")
+if not wk_status then
+  vim.notify("which-key plugin not found. Please install it to use keybinding helpers.", vim.log.levels.ERROR)
+  return
+end
+
+-- Configure which-key to show on space press
+wk.setup {
+  plugins = { spelling = true },
+  triggers = "<leader>",
+  triggers_blacklist = {
+    n = { "v", "s" },
+    i = { "j", "k" },
+    v = { "j", "k" },
+  },
+  window = {
+    border = "rounded",
+    winblend = 0,
+  },
+}
+
+-- Register space as leader in which-key
+wk.register({
+  [" "] = { name = "+root" },
+}, { prefix = "<leader>" })
+
+-- Map space+space to show all keybindings
+vim.keymap.set("n", "<leader><leader>", "<cmd>WhichKey<cr>", { desc = "Show all keybindings" })
 
 local map = vim.keymap.set
 
 --------------------------
 -- General Keybindings
 --------------------------
-map("n", ";", ":", { desc = "CMD enter command mode" })
+map("n", ";", ":", { desc = "CMD: Enter command mode" })
 map("i", "jk", "<ESC>", { desc = "Exit insert mode" })
-map("i", "<C-c>", "<Esc>", { desc = "Alternative exit from insert mode" })
-map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>", { desc = "Save file" })
+map("i", "<C-c>", "<ESC>", { desc = "Alternative exit insert mode" })
+map({ "n", "i", "v" }, "<C-s>", "<cmd>w<cr>", { desc = "Save file" })
 
 -- Disable Ex mode (avoid accidental entry)
 map("n", "Q", "<nop>", { desc = "Disabled Ex mode" })
@@ -40,7 +70,7 @@ map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selected text down" })
 map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selected text up" })
 
 -- Join line without cursor movement
-map("n", "J", "mzJ`z", { desc = "Join line & keep cursor position" })
+map("n", "J", "mzJ`z", { desc = "Join line and keep cursor position" })
 
 -- Better copy/paste management
 map("x", "<leader>p", [["_dP]], { desc = "Paste without yanking selection" })
@@ -135,8 +165,8 @@ map("n", "<leader>hh", function()
     if harpoon_ui then harpoon_ui.toggle_quick_menu() end
 end, { desc = "Harpoon toggle menu" })
 
--- Reload config
-map("n", "<leader><leader>", function()
+-- Reload config (mapped now to <leader>rs to avoid conflicting with WhichKey)
+map("n", "<leader>rs", function()
     vim.cmd("so")
 end, { desc = "Source current file" })
 

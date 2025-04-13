@@ -194,6 +194,7 @@ return {
   -- Jupyter Notebook integration
   {
     "kiyoon/jupynium.nvim",
+    enabled = false, -- Set to true after installing dependencies manually
     build = "pip3 install --user .",
     dependencies = {
       "rcarriga/nvim-notify",  -- optional
@@ -206,6 +207,7 @@ return {
   -- Python REPL and code sending
   {
     "michaelb/sniprun",
+    enabled = false, -- Set to true after installing Rust toolchain
     branch = "master", 
     build = "sh install.sh",
     cmd = {"SnipRun", "SnipInfo", "SnipReset", "SnipReplMemoryClean", "SnipClose"},

@@ -218,3 +218,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ThePrimeagen for the keybinding philosophy
 - NvChad for the UI inspiration
 - The Neovim community for all the amazing plugins
+
+## 🧹 Uninstallation
+
+If you need to completely remove this configuration:
+
+### Linux / MacOS (unix)
+```bash
+rm -rf ~/.config/nvim
+rm -rf ~/.local/state/nvim
+rm -rf ~/.local/share/nvim
+```
+
+### Windows (PowerShell)
+```powershell
+Remove-Item -Recurse -Force ~\AppData\Local\nvim
+Remove-Item -Recurse -Force ~\AppData\Local\nvim-data

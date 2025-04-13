@@ -49,12 +49,72 @@ return {
     event = "VeryLazy",
     opts = {
       options = {
-        theme = "auto",
+        theme = "catppuccin",
         globalstatus = true,
         component_separators = { left = "│", right = "│" },
         section_separators = { left = "", right = "" },
       },
     },
+  },
+
+  -- Mini.icons for better icon support
+  {
+    "echasnovski/mini.icons",
+    version = false,
+    event = "VeryLazy",
+  },
+
+  -- Modern looking theme
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000, -- Load before other start plugins
+    config = function()
+      require("catppuccin").setup({
+        flavour = "mocha", -- latte, frappe, macchiato, mocha
+        background = { 
+          light = "latte", 
+          dark = "mocha", 
+        },
+        transparent_background = false,
+        term_colors = true,
+        dim_inactive = {
+          enabled = false, 
+          shade = "dark",
+          percentage = 0.15,
+        },
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          telescope = true,
+          treesitter = true,
+          which_key = true,
+          lsp_saga = true,
+          mason = true,
+          native_lsp = {
+            enabled = true,
+            virtual_text = {
+              errors = { "italic" },
+              hints = { "italic" },
+              warnings = { "italic" },
+              information = { "italic" },
+            },
+            underlines = {
+              errors = { "underline" },
+              hints = { "underline" },
+              warnings = { "underline" },
+              information = { "underline" },
+            },
+            inlay_hints = {
+              background = true,
+            },
+          },
+          -- For more plugins integrations see https://github.com/catppuccin/nvim#integrations
+        },
+      })
+      vim.cmd.colorscheme "catppuccin"
+    end,
   },
 
   {
@@ -327,13 +387,13 @@ return {
       defaults = {
         {
           mode = { "n", "v" },
-          { "<leader>b", group = "buffer" },
-          { "<leader>d", group = "debug" },
-          { "<leader>f", group = "find/files" },
-          { "<leader>g", group = "git" },
-          { "<leader>h", group = "harpoon" },
-          { "<leader>r", group = "repl" },
-          { "<leader>t", group = "terminal" },
+          ["b"] = { name = "Buffer" },
+          ["d"] = { name = "Debug" },
+          ["f"] = { name = "Find" },
+          ["g"] = { name = "Git" },
+          ["h"] = { name = "Harpoon" },
+          ["r"] = { name = "Repl" },
+          ["t"] = { name = "Terminal" },
         },
       },
       win = {

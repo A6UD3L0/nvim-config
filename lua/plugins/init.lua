@@ -319,17 +319,22 @@ return {
     end,
     opts = {
       plugins = { spelling = true },
+      key_labels = {
+        ["<space>"] = "SPC",
+        ["<cr>"] = "RET",
+        ["<tab>"] = "TAB",
+      },
       defaults = {
         mode = { "n", "v" },
-        ["<leader>f"] = { name = "+find/files" },
-        ["<leader>g"] = { name = "+git" },
-        ["<leader>d"] = { name = "+debug" },
-        ["<leader>h"] = { name = "+harpoon" },
-        ["<leader>t"] = { name = "+terminal" },
-        ["<leader>r"] = { name = "+repl" },
-        ["<leader>b"] = { name = "+buffer" },
+        ["<leader>b"] = { group = "buffer" },
+        ["<leader>d"] = { group = "debug" },
+        ["<leader>f"] = { group = "find/files" },
+        ["<leader>g"] = { group = "git" },
+        ["<leader>h"] = { group = "harpoon" },
+        ["<leader>r"] = { group = "repl" },
+        ["<leader>t"] = { group = "terminal" },
       },
-      window = {
+      win = {
         border = "rounded",
         position = "bottom",
         margin = { 1, 0, 1, 0 },
@@ -342,6 +347,7 @@ return {
         spacing = 3,
         align = "center",
       },
+      ignore_missing = true, -- Ignore undefined keymaps
     },
     config = function(_, opts)
       local wk = require("which-key")

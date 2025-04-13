@@ -357,10 +357,6 @@ return {
       local telescope = require("telescope")
       local actions = require("telescope.actions")
       
-      -- Create autocmd group for Telescope events
-      local telescope_group = vim.api.nvim_create_augroup("TelescopeEvents", { clear = true })
-      -- We'll add custom Telescope events here if needed in the future
-      
       telescope.setup({
         defaults = {
           prompt_prefix = " ",
@@ -452,7 +448,7 @@ return {
         ["<cr>"] = "RET",
         ["<tab>"] = "TAB",
       },
-      window = {
+      win = {
         border = "rounded",
         position = "bottom",
         margin = { 1, 0, 1, 0 },

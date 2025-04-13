@@ -8,15 +8,19 @@ vim.g.mapleader = " "
 local map = vim.keymap.set
 
 -- Function to set up which-key
-local function setup_which_key(wk)
-  wk.setup {
-    plugins = { spelling = true },
-    triggers = { "<leader>", "g", "z" },
-    win = {
-      border = "rounded",
-      winblend = 0,
-    },
-  }
+wk.setup {
+  plugins = { spelling = true },
+  triggers = "<leader>kb",
+  triggers_blacklist = {
+    n = { "v", "s" },
+    i = { "j", "k" },
+    v = { "j", "k" },
+  },
+  window = {
+    border = "rounded",
+    winblend = 0,
+  },
+}
 
   -- Add specific mapping for Space+Space to show all keybindings
   map("n", "<leader><leader>", "<cmd>WhichKey <CR>", { desc = "Show all keybindings" })

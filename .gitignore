@@ -1,0 +1,37 @@
+# Neovim specific files
+*.swp
+*.swo
+.netrwhist
+
+# Compiled Lua sources
+luac.out
+
+# Lua language server
+.luarc.json
+
+# Plugin directories
+plugin/packer_compiled.lua
+/plugin/packer_compiled.vim
+lazy-lock.json
+
+# Cache and temp files
+.cache/
+.temp/
+.DS_Store
+
+# Base46 cache and compiled themes
+/lua/core/default_config.lua
+*.cache
+
+# Compiled language support files
+parser/
+
+# Local dev files
+/dev/
+local.vim
+.vscode/
+.idea/
+/sessions/
+
+# Log files
+*.log

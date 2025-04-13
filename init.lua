@@ -106,6 +106,12 @@ vim.schedule(function()
   if success and copilot_patches then
     copilot_patches.setup()
   end
+  
+  -- Apply LuaSnip fixes for deprecated vim.validate
+  local luasnip_fixes_success, luasnip_fixes = pcall(require, "configs.luasnip")
+  if luasnip_fixes_success and luasnip_fixes then
+    luasnip_fixes.setup()
+  end
 end)
 
 -- Set colorscheme

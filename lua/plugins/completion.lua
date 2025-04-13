@@ -14,7 +14,11 @@ return {
       "hrsh7th/cmp-cmdline",
       
       -- Snippets
-      "L3MON4D3/LuaSnip",
+      {
+        "L3MON4D3/LuaSnip",
+        build = "make install_jsregexp",
+        version = "v2.*",
+      },
       "saadparwaiz1/cmp_luasnip",
       "rafamadriz/friendly-snippets",
     },

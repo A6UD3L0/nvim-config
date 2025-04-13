@@ -53,11 +53,4 @@ dap.listeners.before.event_terminated["dapui_config"] = function()
 end
 dap.listeners.before.event_exited["dapui_config"] = function()
   dapui.close()
-end
-
--- Define some visual signs for breakpoints and debugging
-vim.fn.sign_define('DapBreakpoint', {text='🔴', texthl='', linehl='', numhl=''})
-vim.fn.sign_define('DapBreakpointCondition', {text='🟠', texthl='', linehl='', numhl=''})
-vim.fn.sign_define('DapLogPoint', {text='📝', texthl='', linehl='', numhl=''})
-vim.fn.sign_define('DapStopped', {text='👉', texthl='', linehl='DapStoppedLine', numhl=''})
-vim.fn.sign_define('DapBreakpointRejected', {text='⛔', texthl='', linehl='', numhl=''}) 
+end 

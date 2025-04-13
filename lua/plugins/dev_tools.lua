@@ -17,7 +17,7 @@ return {
         -- Formatter
         "stylua", "black", "gofumpt", "shfmt", "isort",
         -- DAP
-        "debugpy", "delve",
+        "debugpy", "delve", "lldb-vscode",
       },
       ui = {
         icons = {
@@ -80,6 +80,7 @@ return {
   ----------------------------------------------------------------------
   {
     "mfussenegger/nvim-dap",
+    dependencies = { "nvim-neotest/nvim-nio" },
     config = function()
       require("configs.dap")
     end,

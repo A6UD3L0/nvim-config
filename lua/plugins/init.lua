@@ -446,70 +446,7 @@ return {
         ["<cr>"] = "RET",
         ["<tab>"] = "TAB",
       },
-      defaults = {
-        {
-          mode = { "n", "v" },
-          -- New format using flat structure with groups and descriptions
-          { "b", group = "Buffer" },
-          { "bb", "<cmd>Telescope buffers<cr>", desc = "Buffer list" },
-          { "bd", "<cmd>bdelete<cr>", desc = "Delete buffer" },
-          { "bn", "<cmd>bnext<cr>", desc = "Next buffer" },
-          { "bp", "<cmd>bprevious<cr>", desc = "Previous buffer" },
-          
-          { "d", group = "Debug" },
-          { "db", "<cmd>lua require('dap').toggle_breakpoint()<cr>", desc = "Toggle breakpoint" },
-          { "dc", "<cmd>lua require('dap').continue()<cr>", desc = "Continue" },
-          { "di", "<cmd>lua require('dap').step_into()<cr>", desc = "Step into" },
-          { "do", "<cmd>lua require('dap').step_over()<cr>", desc = "Step over" },
-          { "dr", "<cmd>lua require('dap').repl.open()<cr>", desc = "REPL" },
-          { "dt", "<cmd>lua require('dapui').toggle()<cr>", desc = "Toggle UI" },
-          
-          { "f", group = "Find" },
-          { "ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-          { "fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
-          { "fb", "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
-          { "fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
-          { "fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent files" },
-          { "fc", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Find in buffer" },
-          { "fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
-          
-          { "g", group = "Git" },
-          { "gs", "<cmd>Git<cr>", desc = "Status" },
-          { "gb", "<cmd>Git blame<cr>", desc = "Blame" },
-          { "gd", "<cmd>Gdiffsplit<cr>", desc = "Diff" },
-          { "gc", "<cmd>Git commit<cr>", desc = "Commit" },
-          { "gp", "<cmd>Git push<cr>", desc = "Push" },
-          { "gl", "<cmd>Git pull<cr>", desc = "Pull" },
-          
-          { "h", group = "Harpoon" },
-          { "ha", function() require("harpoon"):list():append() end, desc = "Add file" },
-          { "hh", function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end, desc = "Menu" },
-          
-          { "l", group = "LSP" },
-          { "ld", "<cmd>lua vim.lsp.buf.definition()<cr>", desc = "Go to definition" },
-          { "lr", "<cmd>lua vim.lsp.buf.references()<cr>", desc = "References" },
-          { "ln", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "Rename" },
-          { "la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code action" },
-          { "lf", "<cmd>lua vim.lsp.buf.format()<cr>", desc = "Format" },
-          { "li", "<cmd>LspInfo<cr>", desc = "LSP info" },
-          { "ls", "<cmd>LspStart<cr>", desc = "Start LSP" },
-          { "lS", "<cmd>LspStop<cr>", desc = "Stop LSP" },
-          
-          { "p", group = "Python/Project" },
-          { "pt", "<cmd>!pytest %<cr>", desc = "Run tests" },
-          { "pr", "<cmd>!python %<cr>", desc = "Run file" },
-          { "pi", "<cmd>!pip install -r requirements.txt<cr>", desc = "Install requirements" },
-          { "pv", "<cmd>!python -m venv .venv<cr>", desc = "Create venv" },
-          
-          { "r", group = "REPL" },
-          
-          { "t", group = "Terminal/Toggle" },
-          { "tt", "<cmd>terminal<cr>", desc = "Terminal" },
-          { "tn", "<cmd>NvimTreeToggle<cr>", desc = "NvimTree" },
-          { "tu", "<cmd>UndotreeToggle<cr>", desc = "Undotree" },
-        },
-      },
-      win = {
+      window = {
         border = "rounded",
         position = "bottom",
         margin = { 1, 0, 1, 0 },
@@ -530,7 +467,7 @@ return {
     config = function(_, opts)
       local wk = require("which-key")
       wk.setup(opts)
-      wk.register(opts.defaults)
+      -- Do not register defaults here, they're handled in mappings.lua
     end,
   },
   

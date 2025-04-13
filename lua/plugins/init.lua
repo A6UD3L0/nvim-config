@@ -19,28 +19,30 @@ return {
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
-    opts = {
-      ensure_installed = {
-        "bash", "c", "cpp", "css", "go", "html", "javascript",
-        "json", "lua", "markdown", "python", "rust", "tsx",
-        "typescript", "yaml", "vim", "vimdoc", "query", "sql",
-        "dockerfile", "gitignore", "make", "r", "toml", "julia",
-      },
-      highlight = { enable = true },
-      indent = { enable = true },
-      textobjects = {
-        select = {
-          enable = true,
-          lookahead = true,
-          keymaps = {
-            ["af"] = "@function.outer",
-            ["if"] = "@function.inner",
-            ["ac"] = "@class.outer",
-            ["ic"] = "@class.inner",
+    config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = {
+          "bash", "c", "cpp", "css", "go", "html", "javascript",
+          "json", "lua", "markdown", "python", "rust", "tsx",
+          "typescript", "yaml", "vim", "vimdoc", "query", "sql",
+          "dockerfile", "gitignore", "make", "r", "toml", "julia",
+        },
+        highlight = { enable = true },
+        indent = { enable = true },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              ["ic"] = "@class.inner",
+            },
           },
         },
-      },
-    },
+      })
+    end,
   },
 
   -- UI Enhancements
@@ -356,7 +358,11 @@ return {
     },
     config = function()
       -- Set up health check compatibility layer for Neovim 0.11.0+
-      require("plugins.health_compat").setup_health_compat()
+      -- Load health compatibility layer
+      local health_compat = require("plugins.health_compat")
+      health_compat.setup_health_compat()
+      
+      -- Setup telescope
       require("plugins.overrides.telescope").setup()
     end,
   },

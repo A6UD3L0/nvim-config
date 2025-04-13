@@ -6,17 +6,17 @@ A powerful yet clean Neovim setup that combines ThePrimeagen's efficient functio
 
 ## ✨ Key Features
 
-- **ThePrimeagen + NvChad Philosophy**: Powerful features with a clean, accessible interface
-- **Backend Development Focus**: Full support for Python, Go, C, SQL, Docker, and more
+- **Modern Development Environment**: Clean, efficient, and powerful setup
+- **Backend Development Focus**: Full support for Python, Go, C, SQL, Docker
 - **Super Fast Navigation**: Harpoon, Telescope, and Leap for quick file and code navigation
-- **Git Mastery**: Enhanced Git integration with Fugitive and Gitsigns
+- **Git Integration**: Enhanced Git workflow with Fugitive and Gitsigns
 - **Beautiful UI**: Modern Catppuccin theme with customized highlights
-- **AI Code Completion**: GitHub Copilot integration for intelligent coding assistance
-- **Keybinding Discovery**: Press `Space+Space` to explore all available commands
+- **AI Code Completion**: GitHub Copilot integration
+- **Keybinding Discovery**: Press `Space+Space` to explore all commands
 - **Advanced Debugging**: Comprehensive DAP setup for all major backend languages
 - **Data Science Support**: R language integration and database clients
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -42,426 +42,81 @@ nvim
 
 ## 📂 Configuration Structure
 
-The configuration has been simplified and organized into a clean, modular structure:
-
 ```
 nvim-config/
 ├── init.lua                    # Main entry point
 ├── lua/
 │   ├── core/                   # Core neovim settings
-│   │   ├── init.lua            # Loads all core modules
-│   │   ├── options.lua         # Vim options
-│   │   ├── keymaps.lua         # Key mappings (ThePrimeagen style)
-│   │   └── autocmds.lua        # Autocommands
 │   ├── plugins/                # Plugin definitions and configs
-│   │   ├── init.lua            # Plugin loader
-│   │   ├── coding.lua          # Development plugins (LSP, completion, etc.)
-│   │   ├── tools.lua           # Utility tools (telescope, git, etc.)
+│   │   ├── dev_tools.lua       # Development tools (LSP, DAP, etc.)
+│   │   ├── completion.lua      # Completion setup
 │   │   ├── ui.lua              # UI enhancements
-│   │   └── datascience.lua     # Data science specific plugins
-│   └── utils/                  # Utility functions
-├── README.md                   # Documentation
+│   │   └── which-key.lua       # Keybinding management
+│   └── configs/                # Plugin configurations
+│       ├── dap.lua             # Debug adapter setup
+│       ├── dapui.lua           # Debug UI configuration
+│       ├── lspconfig.lua       # Language server setup
+│       └── init.lua            # Configuration initialization
 ```
 
-## 🛠️ Backend Development Setup
-
-This configuration is specifically optimized for backend development with:
+## 🛠️ Development Features
 
 ### Language Support
 
-- **Python**: Full LSP support via Pyright, debugging with DAP, formatting with Black/isort
+- **Python**: Pyright LSP, debugging with DAP, formatting with Black/isort
 - **Go**: Gopls integration, debugging with Delve, formatting with gofumpt
-- **C/C++**: Clangd support with debugging via LLDB
-- **SQL**: SQL Language Server with database client via vim-dadbod
-- **Docker**: Docker Language Server for Dockerfile validation
+- **C/C++**: Clangd support with LLDB debugging
+- **SQL**: SQL Language Server with database client
+- **Docker**: Docker Language Server
 
 ### Key Tools
 
 - **Telescope**: Fuzzy finding for files, code, and more
-- **Treesitter**: Advanced syntax highlighting and code navigation
-- **LSP**: Full language server integration with UI enhancements via lspsaga
+- **Treesitter**: Advanced syntax highlighting
+- **LSP**: Full language server integration
 - **GitHub Copilot**: AI code completion
-- **Debugging**: Language-specific DAP configurations with UI integration
-- **Git**: Complete git workflow with gitsigns, fugitive, and lazygit
-
-## 📋 Comprehensive Installation Guide
-
-### Step 1: Uninstall Previous Neovim Configuration
-
-Before installing this configuration, it's best to remove or backup your existing setup:
-
-#### For macOS/Linux:
-
-```bash
-# Stop any running Neovim instances
-pkill -f nvim
-
-# Backup your existing Neovim config
-mv ~/.config/nvim ~/.config/nvim.bak.$(date +%Y%m%d)
-
-# Backup Neovim state and cache directories
-mv ~/.local/share/nvim ~/.local/share/nvim.bak.$(date +%Y%m%d)
-mv ~/.local/state/nvim ~/.local/state/nvim.bak.$(date +%Y%m%d)
-mv ~/.cache/nvim ~/.cache/nvim.bak.$(date +%Y%m%d)
-```
-
-#### For Windows:
-
-```powershell
-# Backup your existing Neovim config
-Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName $env:LOCALAPPDATA\nvim.bak.$(Get-Date -Format "yyyyMMdd")
-
-# Backup Neovim state and cache directories
-Rename-Item -Path $env:LOCALAPPDATA\nvim-data -NewName $env:LOCALAPPDATA\nvim-data.bak.$(Get-Date -Format "yyyyMMdd")
-```
-
-### Step 2: Install Required Dependencies
-
-#### Font Installation:
-
-1. Download [JetBrainsMono Nerd Font](https://www.nerdfonts.com/font-downloads)
-2. Install it on your system
-3. Configure your terminal to use the font
-
-#### For macOS:
-
-```bash
-# Install Homebrew if not already installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install required packages
-brew install neovim ripgrep fd node python
-pip3 install pynvim
-
-# Optional tools for enhanced functionality
-brew install lazygit fzf bat
-```
-
-#### For Ubuntu/Debian:
-
-```bash
-# Update package lists
-sudo apt update
-
-# Install required packages
-sudo apt install -y git curl unzip
-sudo apt install -y python3 python3-pip nodejs npm
-pip3 install pynvim
-
-# Install Ripgrep and fd-find
-sudo apt install -y ripgrep fd-find
-
-# Install Neovim (latest version)
-# Check https://github.com/neovim/neovim/releases for the latest version
-wget https://github.com/neovim/neovim/releases/download/v0.9.0/nvim-linux64.tar.gz
-tar xzvf nvim-linux64.tar.gz
-sudo cp -r nvim-linux64/* /usr/local/
-```
-
-#### For Arch Linux:
-
-```bash
-sudo pacman -S neovim git ripgrep fd nodejs npm python python-pip
-pip install pynvim
-```
-
-### Step 3: Clone This Repository
-
-```bash
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim
-```
-
-### Step 4: GitHub Copilot Setup (Optional)
-
-If you want to use GitHub Copilot:
-
-1. Make sure you have a GitHub account with Copilot access
-2. Start Neovim and run `:Copilot setup`
-3. Follow the authentication instructions
-
-### Step 5: First Launch and Plugin Installation
-
-```bash
-# Start Neovim
-nvim
-```
-
-On first launch:
-1. Plugins will be automatically installed with Lazy.nvim
-2. Wait for the installation to complete (this may take a few minutes)
-3. Run `:MasonInstallAll` to set up language servers and tools
-4. Restart Neovim to activate all features
+- **Debugging**: Language-specific DAP configurations
+- **Git**: Complete git workflow
 
 ## ⌨️ Essential Keybindings
 
 ### Navigation
 | Keybinding | Description |
 |------------|-------------|
-| `Space+Space` | Show all keybindings |
-| `jk` | Exit insert mode |
-| `;` | Enter command mode |
-| `<C-h/j/k/l>` | Navigate between windows |
-| `<C-d>/<C-u>` | Half-page down/up (centered) |
+| `<Space>f` | Find files and more |
+| `<Space>g` | Git operations |
+| `<Space>l` | LSP operations |
+| `<Space>d` | Debug operations |
+| `<Space>t` | Terminal/Toggle features |
 
-### Files & Search
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>ff` | Find files |
-| `<leader>fg` | Find text in files |
-| `<leader>fr` | Recent files |
-| `<leader>fb` | Browse buffers |
-| `<leader>fc` | Find in current buffer |
-| `<leader>fB` | File browser |
-
-### Code Navigation & LSP
+### Development
 | Keybinding | Description |
 |------------|-------------|
 | `gd` | Go to definition |
 | `gr` | Find references |
 | `K` | Show documentation |
-| `<leader>ca` | Code actions |
-| `<leader>rn` | Rename symbol |
-| `<leader>f` | Format code |
-| `<leader>D` | Type definition |
+| `<Space>ca` | Code actions |
+| `<Space>rn` | Rename symbol |
 
 ### Git
 | Keybinding | Description |
 |------------|-------------|
-| `<leader>gs` | Git status |
-| `<leader>gb` | Git blame |
-| `<leader>gd` | Git diff |
-| `<leader>gp` | Git push |
-| `<leader>gl` | Git pull |
-| `<leader>gc` | Git commit |
+| `<Space>gg` | Git status |
+| `<Space>gb` | Git blame |
+| `<Space>gd` | Git diff |
+| `<Space>gc` | Git commit |
 
-### Harpoon
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>ha` | Add file to Harpoon |
-| `<leader>hh` | Harpoon menu |
-| `<C-h/j/k/l>` | Jump to Harpoon marks 1-4 |
+## 🔧 Post-Installation
 
-### Debugging (DAP)
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>db` | Toggle breakpoint |
-| `<leader>dc` | Start/continue debugging |
-| `<leader>dt` | Toggle debugging UI |
-| `<leader>di` | Step into |
-| `<leader>do` | Step over |
-| `<leader>dO` | Step out |
+After installation:
+1. Run `:MasonInstallAll` to set up language servers and tools
+2. Configure your preferred language servers in `lua/configs/lspconfig.lua`
+3. Customize keybindings in `lua/plugins/which-key.lua`
 
-### Language-Specific
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>pt` | Run pytest on current file |
-| `<leader>pT` | Run Python file |
-| `<leader>gr` | Run Go file |
-| `<leader>gt` | Run Go tests |
-| `<leader>dc` | Docker-compose up |
-| `<leader>dd` | Docker-compose down |
+## 🤝 Contributing
 
-## 🛠️ Backend Development Tools
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Python
-- Complete LSP support via Pyright and Jedi
-- Advanced linting with Ruff
-- Integrated test running with Pytest
-- Virtual environment management
-- Debugging with DAP and debugpy
+## 📝 License
 
-### Go
-- Full LSP support with gopls
-- Code formatting with gofumpt
-- Quick test running
-- Debug integration with Delve
-
-### SQL
-- SQL language server for completion
-- Formatting and linting
-- Database connections (with external tools)
-
-### Docker
-- Dockerfile and docker-compose syntax
-- Integrated container management commands
-- YAML validation for configuration files
-
-### Git
-- Beautiful diff view
-- Blame integration
-- Commit staging and navigation
-- Branch management
-
-## 🧑‍💻 Plugin List & Features
-
-This configuration includes carefully selected plugins for the optimal backend development experience:
-
-### Core Features
-- **lazy.nvim**: Modern plugin manager with lazy-loading
-- **which-key.nvim**: Keybinding discovery and management
-- **telescope.nvim**: Fuzzy finder for files, code, and more
-- **nvim-tree.lua**: File explorer
-- **bufferline.nvim**: Buffer and tab management
-- **lualine.nvim**: Status line
-- **catppuccin.nvim**: Beautiful theme with syntax highlighting
-
-### Code Intelligence
-- **nvim-lspconfig**: Configuration for Language Server Protocol
-- **mason.nvim**: Language server and tool manager
-- **nvim-cmp**: Completion engine with LSP integration
-- **LuaSnip**: Snippet engine for faster coding
-- **nvim-treesitter**: Advanced syntax highlighting and code parsing
-
-### Git Integration
-- **gitsigns.nvim**: Show git diff in the sign column
-- **vim-fugitive**: Full git integration within Neovim
-
-### Editing Enhancements
-- **nvim-autopairs**: Auto-close brackets and quotes
-- **Comment.nvim**: Easy code commenting
-- **nvim-surround**: Manage surrounding pairs
-- **undotree**: Visual history browser
-- **conform.nvim**: Formatter
-
-### Navigation
-- **harpoon**: Quick file marking and navigation
-- **leap.nvim**: Fast motion within the buffer
-
-### Debugging
-- **nvim-dap**: Debug Adapter Protocol support
-- **nvim-dap-ui**: UI for debugging
-- **nvim-dap-python**: Python debugging integration
-
-### AI Assistance
-- **copilot.lua**: GitHub Copilot integration
-- **copilot-cmp**: Copilot completion source for nvim-cmp
-
-## 🔧 Troubleshooting
-
-### Health Check
-
-Run `:checkhealth` to diagnose issues with your setup. This will help identify missing dependencies or misconfigurations.
-
-### Common Issues
-
-1. **Plugins failing to load**: 
-   - Run `:Lazy sync` to reinstall plugins
-   - Check external dependencies like ripgrep, node.js
-
-2. **LSP not working**:
-   - Run `:LspInfo` to see the status
-   - Run `:Mason` to install missing language servers
-   - Check language server logs with `:LspLog`
-
-3. **Copilot not connecting**:
-   - Ensure your GitHub account has Copilot access
-   - Run `:Copilot status` to check connection status
-
-4. **Font icons missing**:
-   - Make sure you've installed and configured a Nerd Font
-
-5. **Performance issues**:
-   - Run `:Lazy profile` to identify slow plugins
-   - Consider disabling heavy plugins you don't use
-
-### Resetting Configuration
-
-If things go wrong and you need to start fresh:
-
-```bash
-# Remove the configuration directory
-rm -rf ~/.config/nvim
-rm -rf ~/.local/share/nvim
-rm -rf ~/.local/state/nvim
-rm -rf ~/.cache/nvim
-
-# Then reinstall following the installation steps above
-```
-
-## 🔧 Recent Fixes
-
-### April 2025 Updates
-
-- **Fixed Telescope Error**: Resolved issue with invalid 'User TelescopeFindPre' event that was causing Telescope to crash when trying to use file finding features
-- **Updated Which-Key Configuration**: Replaced deprecated 'window' option with modern 'win' option in the which-key setup to fix health check warnings
-- **Improved Overall Stability**: Addressed several minor issues detected in the Neovim health check to ensure smoother operation
-
-To apply these fixes:
-1. Pull the latest changes from the repository
-2. Restart Neovim
-3. Run `:checkhealth` to verify the fixes
-
-## 🎨 Customization
-
-### Changing Theme
-Edit `lua/chadrc.lua` to change the theme:
-
-```lua
-M.ui = {
-  theme = "catppuccin", -- Change to another theme
-}
-```
-
-Available themes include: catppuccin, tokyonight, gruvbox, onedark, and more.
-
-### Adding Custom Plugins
-
-To add your own plugins, create or edit `lua/plugins/custom.lua`:
-
-```lua
-return {
-  -- Add new plugins here
-  {
-    "username/plugin-name",
-    config = function()
-      -- Your plugin configuration
-    end,
-  },
-}
-```
-
-Then add it to the import list in `init.lua`:
-
-```lua
-require("lazy").setup({
-  -- Other imports
-  { import = "plugins.custom" },
-}, lazy_config)
-```
-
-### Customizing Keybindings
-
-Edit `lua/mappings.lua` to change keybindings:
-
-```lua
-wk.register({
-  mode = { "n", "v" },
-  -- Add or modify keybindings
-  { "your-key", "your-command", desc = "Your description" },
-}, { prefix = "<leader>" })
-```
-
-## 🔄 Updating
-
-To update the configuration and plugins:
-
-```bash
-# Update the configuration
-cd ~/.config/nvim
-git pull
-
-# Update plugins
-nvim -c "Lazy sync"
-```
-
-## 🎓 Learning Resources
-
-- **Neovim Documentation**: `:help nvim`
-- **Plugin Documentation**: `:help [plugin-name]`
-- **Integrated Learning**: Press `Space+Space` to explore keybindings
-- **GitHub Repository**: Check for new updates and features
-
----
-
-*This configuration is maintained with ❤️ for backend developers who want power and simplicity.*
+This project is licensed under the MIT License - see the LICENSE file for details.

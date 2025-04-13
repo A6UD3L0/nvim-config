@@ -1,3 +1,4 @@
+local dap = require("dap")
 local dapui = require("dapui")
 
 -- Configure DAP UI
@@ -42,6 +43,17 @@ dapui.setup({
     },
   },
 })
+
+-- Automatically open/close DAP UI when debugging starts/ends
+dap.listeners.after.event_initialized["dapui_config"] = function()
+  dapui.open()
+end
+dap.listeners.before.event_terminated["dapui_config"] = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited["dapui_config"] = function()
+  dapui.close()
+end
 
 -- Define some visual signs for breakpoints and debugging
 vim.fn.sign_define('DapBreakpoint', {text='🔴', texthl='', linehl='', numhl=''})

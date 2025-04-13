@@ -1,53 +1,14 @@
 return {
+  -- Core plugins and configurations
+  { import = "plugins.dev_tools" },  -- LSP, Mason, and development tools
+  { import = "plugins.copilot" },    -- GitHub Copilot integration
+  { import = "plugins.datascience" }, -- Data science specific plugins
+
   -- Formatter
   {
     "stevearc/conform.nvim",
     event = "BufWritePre", -- Format on save 
     opts = require "configs.conform",
-  },
-
-  -- LSP Configuration
-  {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
-      {
-        "nvimdev/lspsaga.nvim",
-        opts = {
-          lightbulb = { enable = false },
-          symbol_in_winbar = { enable = false },
-        },
-      },
-    },
-    config = function()
-      require "configs.lspconfig"
-    end,
-  },
-
-  -- Mason for LSP, DAP, Linter, Formatter installation
-  {
-    "williamboman/mason.nvim",
-    cmd = { "Mason", "MasonInstall", "MasonUninstall", "MasonUninstallAll", "MasonLog" },
-    opts = {
-      ensure_installed = {
-        -- LSP
-        "pyright", "gopls", "clangd", "lua-language-server", "typescript-language-server",
-        -- Data Science specific
-        "ruff-lsp", "jedi-language-server", "jupyter-lsp",
-        -- Formatter
-        "stylua", "black", "gofumpt", "shfmt", "isort",
-        -- DAP
-        "debugpy", "delve",
-      },
-      ui = {
-        icons = {
-          package_installed = "✓",
-          package_pending = "➜",
-          package_uninstalled = "✗",
-        },
-      },
-    },
   },
 
   -- TreeSitter for better syntax highlighting and code understanding
@@ -82,6 +43,112 @@ return {
     },
   },
 
+  -- UI Enhancements
+  {
+    "nvim-lualine/lualine.nvim",
+    event = "VeryLazy",
+    opts = {
+      options = {
+        theme = "auto",
+        globalstatus = true,
+        component_separators = { left = "│", right = "│" },
+        section_separators = { left = "", right = "" },
+      },
+    },
+  },
+
+  {
+    "akinsho/bufferline.nvim",
+    event = "VeryLazy",
+    opts = {
+      options = {
+        diagnostics = "nvim_lsp",
+        always_show_bufferline = false,
+        separator_style = "slant",
+        show_buffer_close_icons = true,
+        show_close_icon = false,
+      },
+    },
+  },
+
+  -- File explorer
+  {
+    "nvim-tree/nvim-tree.lua",
+    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+    keys = {
+      { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle NvimTree" },
+      { "<leader>o", "<cmd>NvimTreeFocus<CR>", desc = "Focus NvimTree" },
+    },
+    opts = {
+      filters = {
+        dotfiles = false,
+      },
+      disable_netrw = true,
+      hijack_netrw = true,
+      hijack_cursor = true,
+      hijack_unnamed_buffer_when_opening = false,
+      sync_root_with_cwd = true,
+      update_focused_file = {
+        enable = true,
+        update_root = false,
+      },
+      view = {
+        adaptive_size = false,
+        side = "left",
+        width = 30,
+        preserve_window_proportions = true,
+      },
+      git = {
+        enable = true,
+        ignore = false,
+      },
+      actions = {
+        open_file = {
+          resize_window = true,
+        },
+      },
+      renderer = {
+        root_folder_label = false,
+        highlight_git = true,
+        highlight_opened_files = "none",
+        indent_markers = {
+          enable = true,
+        },
+        icons = {
+          show = {
+            file = true,
+            folder = true,
+            folder_arrow = true,
+            git = true,
+          },
+          glyphs = {
+            default = "",
+            symlink = "",
+            folder = {
+              default = "",
+              empty = "",
+              empty_open = "",
+              open = "",
+              symlink = "",
+              symlink_open = "",
+              arrow_open = "",
+              arrow_closed = "",
+            },
+            git = {
+              unstaged = "✗",
+              staged = "✓",
+              unmerged = "",
+              renamed = "➜",
+              untracked = "★",
+              deleted = "",
+              ignored = "◌",
+            },
+          },
+        },
+      },
+    },
+  },
+
   -- ThePrimeagen's Harpoon for quick file navigation
   {
     "ThePrimeagen/harpoon",
@@ -90,6 +157,14 @@ return {
     config = function()
       require("harpoon"):setup({})
     end,
+    keys = {
+      { "<leader>ha", function() require("harpoon"):list():append() end, desc = "Harpoon Add File" },
+      { "<leader>hh", function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end, desc = "Harpoon Menu" },
+      { "<C-h>", function() require("harpoon"):list():select(1) end, desc = "Harpoon File 1" },
+      { "<C-j>", function() require("harpoon"):list():select(2) end, desc = "Harpoon File 2" },
+      { "<C-k>", function() require("harpoon"):list():select(3) end, desc = "Harpoon File 3" },
+      { "<C-l>", function() require("harpoon"):list():select(4) end, desc = "Harpoon File 4" },
+    },
   },
 
   -- UndoTree visualizes your vim undo history
@@ -101,7 +176,7 @@ return {
     },
   },
 
-  -- Git integration - enhance built-in Git commands
+  -- Git integration
   {
     "tpope/vim-fugitive",
     cmd = { "Git", "G" },
@@ -112,7 +187,6 @@ return {
     },
   },
   
-  -- Git signs in the gutter for added, modified, and deleted lines
   {
     "lewis6991/gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
@@ -161,7 +235,6 @@ return {
     },
   },
   
-  -- Git diffview for branch and file differences
   {
     "sindrets/diffview.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -180,7 +253,6 @@ return {
     },
   },
   
-  -- Lazygit integration
   {
     "kdheepak/lazygit.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -199,163 +271,132 @@ return {
     },
     cmd = "Telescope",
     keys = {
-      { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-      { "<leader>fw", "<cmd>Telescope live_grep<cr>", desc = "Find word" },
-      { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
-      { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Find help" },
-      { "<leader>fo", "<cmd>Telescope oldfiles<cr>", desc = "Find recent files" },
-      { "<leader>fg", "<cmd>Telescope git_files<cr>", desc = "Find git files" },
+      { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find Files" },
+      { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live Grep" },
+      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Buffers" },
+      { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
+      { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent Files" },
+      { "<leader>fc", "<cmd>Telescope git_commits<CR>", desc = "Git Commits" },
+      { "<leader>fs", "<cmd>Telescope git_status<CR>", desc = "Git Status" },
+      { "<leader>fp", "<cmd>Telescope projects<CR>", desc = "Projects" },
     },
-    opts = function()
-      return require "configs.telescope"
-    end,
-    config = function(_, opts)
-      -- Telescope setup
-      local telescope = require("telescope")
-      telescope.setup(opts)
-      
-      -- Load telescope extensions if they exist
-      pcall(function() telescope.load_extension("fzf") end)
+    config = function()
+      require "configs.telescope"
     end,
   },
-
-  -- Debugging capability
+  
+  -- Debugger
   {
     "mfussenegger/nvim-dap",
     dependencies = {
-      "rcarriga/nvim-dap-ui",
-      "theHamsta/nvim-dap-virtual-text",
+      {
+        "rcarriga/nvim-dap-ui",
+        config = function()
+          require("configs.dap")
+        end,
+      },
+      { "theHamsta/nvim-dap-virtual-text", config = true },
+      { "LiadOz/nvim-dap-repl-highlights", config = true },
     },
-    cmd = { "DapToggleBreakpoint", "DapContinue" },
-    config = function()
-      require("configs.dap")
+    keys = {
+      { "<leader>dc", function() require("dap").continue() end, desc = "Debug Continue" },
+      { "<leader>do", function() require("dap").step_over() end, desc = "Debug Step Over" },
+      { "<leader>di", function() require("dap").step_into() end, desc = "Debug Step Into" },
+      { "<leader>dO", function() require("dap").step_out() end, desc = "Debug Step Out" },
+      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
+      { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, desc = "Conditional Breakpoint" },
+      { "<leader>dr", function() require("dap").repl.open() end, desc = "Debug REPL" },
+    },
+  },
+  
+  -- Which key for keybinding discovery
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {
+      plugins = { spelling = true },
+      defaults = {
+        mode = { "n", "v" },
+        ["<leader>f"] = { name = "+find" },
+        ["<leader>g"] = { name = "+git" },
+        ["<leader>d"] = { name = "+debug" },
+        ["<leader>h"] = { name = "+harpoon" },
+      },
+    },
+    config = function(_, opts)
+      local wk = require("which-key")
+      wk.setup(opts)
+      wk.register(opts.defaults)
     end,
   },
-
-  -- Add auto pair completion
+  
+  -- Additional Utilities
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
-    opts = {},
+    opts = {
+      check_ts = true,
+      ts_config = {
+        lua = { "string", "source" },
+        javascript = { "string", "template_string" },
+        java = false,
+      },
+      fast_wrap = {
+        map = "<M-e>",
+        chars = { "{", "[", "(", '"', "'" },
+        pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], "%s+", ""),
+        offset = 0,
+        end_key = "$",
+        keys = "qwertyuiopzxcvbnmasdfghjkl",
+        check_comma = true,
+        highlight = "PmenuSel",
+        highlight_grey = "LineNr",
+      },
+    },
   },
-
-  -- Better commenting
+  
   {
     "numToStr/Comment.nvim",
-    keys = {
-      { "gc", mode = {"n", "v"} },
-      { "gb", mode = {"n", "v"} },
-    },
-    opts = {},
-  },
-  
-  -- Highlight and search for todo comments
-  {
-    "folke/todo-comments.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
     event = "BufReadPost",
-    opts = {},
+    config = true,
   },
   
-  -- Custom KeyTrainer plugin to learn keybindings
+  -- Terminal integration with toggleterm
   {
-    dir = vim.fn.stdpath("config") .. "/lua/keytrainer",
-    name = "keytrainer",
-    cmd = {
-      "KeyMap",
-      "KeyTrainer",
-      "HarpoonTrainer",
-      "MotionsTrainer",
-      "TextObjectsTrainer",
-      "GitTrainer",
-      "UndoTrainer"
+    "akinsho/toggleterm.nvim",
+    keys = {
+      { "<C-\\>", "<cmd>ToggleTerm<CR>", desc = "Toggle Terminal" },
+      { "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", desc = "Float Terminal" },
+      { "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", desc = "Horizontal Terminal" },
+      { "<leader>tv", "<cmd>ToggleTerm direction=vertical size=80<CR>", desc = "Vertical Terminal" },
     },
-    config = function()
-      -- Only setup once, avoiding conflicts with initialization
-      if not package.loaded["keytrainer"] then 
-        require("keytrainer")
-      end
-    end,
-  },
-
-  -- DATA SCIENCE SPECIFIC PLUGINS
-  
-  -- Python REPL and code sending
-  {
-    "geg2102/nvim-python-repl",
-    ft = { "python" },
-    config = function()
-      require("nvim-python-repl").setup({
-        execute_on_send = true,
-        vsplit = true,
-        spawn_commands = {
-          python = {"python", "-i"},
-        }
-      })
-      
-      -- Set keymaps for REPL
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "python",
-        callback = function()
-          local opts = { noremap = true, silent = true }
-          vim.api.nvim_buf_set_keymap(0, "n", "<leader>ri", "<cmd>PythonREPLStart<CR>", opts)
-          vim.api.nvim_buf_set_keymap(0, "n", "<leader>rc", "<cmd>PythonREPLSendLine<CR>", opts)
-          vim.api.nvim_buf_set_keymap(0, "v", "<leader>rs", "<cmd>PythonREPLSendSelection<CR>", opts)
-        end,
-      })
-    end,
-  },
-  
-  -- Interactive code evaluation for Python, R, and other data science languages
-  {
-    "jalvesaq/vimcmdline",
-    ft = {"python", "r", "julia", "sql"},
-    config = function()
-      vim.g.cmdline_app = {
-        python = "ipython",
-        r = "R",
-        julia = "julia",
-        sql = "sqlite3",
-      }
-      vim.g.cmdline_vsplit = 1
-      vim.g.cmdline_term_width = 80
-      vim.g.cmdline_term_height = 24
-    end,
-  },
-  
-  -- Python docstring generator
-  {
-    "danymat/neogen",
-    dependencies = "nvim-treesitter/nvim-treesitter",
-    keys = { "<leader>dd" },
-    config = function()
-      require("neogen").setup({
-        enabled = true,
-        languages = {
-          python = {
-            template = {
-              annotation_convention = "numpydoc",
-            },
-          },
+    opts = {
+      size = function(term)
+        if term.direction == "horizontal" then
+          return 15
+        elseif term.direction == "vertical" then
+          return vim.o.columns * 0.4
+        end
+      end,
+      open_mapping = [[<C-\>]],
+      hide_numbers = true,
+      shade_filetypes = {},
+      shade_terminals = true,
+      shading_factor = 2,
+      start_in_insert = true,
+      insert_mappings = true,
+      persist_size = true,
+      direction = "float",
+      close_on_exit = true,
+      shell = vim.o.shell,
+      float_opts = {
+        border = "curved",
+        winblend = 0,
+        highlights = {
+          border = "Normal",
+          background = "Normal",
         },
-      })
-      vim.keymap.set("n", "<leader>dd", function()
-        require("neogen").generate()
-      end, { desc = "Generate docstring" })
-    end,
-  },
-
-  -- Database client
-  {
-    "kristijanhusak/vim-dadbod-ui",
-    dependencies = {
-      "tpope/vim-dadbod",
-      "kristijanhusak/vim-dadbod-completion",
+      },
     },
-    cmd = {"DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer"},
-    config = function()
-      vim.g.db_ui_save_location = vim.fn.stdpath("config") .. "/db_ui"
-      vim.g.db_ui_use_nerd_fonts = 1
-    end,
   },
 }

@@ -9,11 +9,11 @@ vim.g.mapleader = " "
 ---------------------------------------------------------
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
+-- Install lazy.nvim if not already installed
 if not vim.uv.fs_stat(lazypath) then
   local repo = "https://github.com/folke/lazy.nvim.git"
   vim.fn.system { "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath }
 end
-
 vim.opt.rtp:prepend(lazypath)
 
 ---------------------------------------------------------
@@ -51,17 +51,20 @@ end)
 require "nvchad.autocmds"
 
 ---------------------------------------------------------
--- Load plugins with lazy.nvim
+-- Plugin Manager Setup (lazy.nvim)
 ---------------------------------------------------------
 local lazy_config = require "configs.lazy"
 
 require("lazy").setup({
   -- Core plugins
-  { import = "plugins" },           -- Automatically loads plugins/init.lua
-  { import = "plugins.extra" },     -- Load extra plugins
-  { import = "plugins.copilot" },   -- Load GitHub Copilot integration
-  { import = "plugins.datascience" },  -- Load Data Science plugins
+  { import = "plugins" },            -- Automatically loads plugins/init.lua
+  { import = "plugins.dev_tools" },  -- Development tools and LSP configurations
+  { import = "plugins.copilot" },    -- Load GitHub Copilot integration
+  { import = "plugins.datascience" },-- Load Data Science plugins
 }, lazy_config)
+
+-- Load custom commands including :MasonInstallAll
+pcall(require, "configs.commands")
 
 ---------------------------------------------------------
 -- Final setup and initialization

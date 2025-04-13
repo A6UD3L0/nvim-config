@@ -3,7 +3,7 @@ return {
   -- TreeSitter for better syntax highlighting and code understanding
   {
     "nvim-treesitter/nvim-treesitter",
-    build = function() require("nvim-treesitter.install").update({ with_sync = true }) end,
+    build = ":TSUpdate",
     priority = 1000, -- Load before other plugins
     lazy = false,    -- Load at startup to avoid module not found errors
     config = function()
@@ -136,7 +136,9 @@ return {
     "williamboman/mason.nvim",
     cmd = "Mason",
     keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
-    build = ":MasonUpdate",
+    build = function()
+      pcall(vim.cmd, "MasonUpdate")
+    end,
     opts = {
       ensure_installed = {
         -- LSP servers for Boot.dev curriculum

@@ -72,25 +72,24 @@ M.base46 = {
 M.nvdash = {
   load_on_startup = true,  -- Automatically load the dashboard on Neovim start.
   header = {
-    "██████╗  █████╗  ██████╗██╗  ██╗███████╗███╗   ██╗██████╗ ",
-    "██╔══██╗██╔══██╗██╔════╝██║ ██╔╝██╔════╝████╗  ██║██╔══██╗",
-    "██████╔╝███████║██║     █████╔╝ █████╗  ██╔██╗ ██║██║  ██║",
-    "██╔══██╗██╔══██║██║     ██╔═██╗ ██╔══╝  ██║╚██╗██║██║  ██║",
-    "██████╔╝██║  ██║╚██████╗██║  ██╗███████╗██║ ╚████║██████╔╝",
-    "╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚═════╝ ",
-    " & DATA SCIENCE        Optimized for Development        ",
+    "                                            ",
+    "      ███╗   ██╗███████╗ ██████╗ ██╗   ██╗ ",
+    "      ████╗  ██║██╔════╝██╔═══██╗██║   ██║ ",
+    "      ██╔██╗ ██║█████╗  ██║   ██║██║   ██║ ",
+    "      ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝ ",
+    "      ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝  ",
+    "      ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝   ",
+    "                                            ",
+    "       Press SPACE + SPACE to see all keybindings",
+    "                                            ",
   },
-  
   buttons = {
     { "  Find File", "Spc f f", "Telescope find_files" },
     { "󰈚  Recent Files", "Spc f o", "Telescope oldfiles" },
     { "󰈭  Find Word", "Spc f w", "Telescope live_grep" },
     { "  Bookmarks", "Spc m a", "Telescope marks" },
-    { "  Learn Keys", "Spc k m", "KeyMap" },
-    { "  Train Harpoon", "HT", "HarpoonTrainer" },
-    { "  Git Master", "GT", "GitTrainer" },
-    { "󰃢  Undo Master", "UT", "UndoTrainer" },
-    { "  Mason", "Mason", "Mason" },
+    { "  Themes", "Spc t h", "Telescope themes" },
+    { "  Mappings", "Spc + SPACE", "WhichKey" },
   },
 }
 
@@ -103,9 +102,45 @@ M.ui = {
   
   -- Status line config
   statusline = {
-    theme = "default",
-    separator_style = "block",
-    overriden_modules = nil,
+    theme = "catppuccin",   -- Match with main theme
+    separator_style = "round",
+    overriden_modules = function()
+      return {
+        mode = function()
+          local modes = {
+            ["n"] = { "NORMAL", "St_NormalMode" },
+            ["niI"] = { "NORMAL i", "St_NormalMode" },
+            ["niR"] = { "NORMAL r", "St_NormalMode" },
+            ["niV"] = { "NORMAL v", "St_NormalMode" },
+            ["no"] = { "N-PENDING", "St_NormalMode" },
+            ["i"] = { "INSERT", "St_InsertMode" },
+            ["ic"] = { "INSERT", "St_InsertMode" },
+            ["ix"] = { "INSERT", "St_InsertMode" },
+            ["t"] = { "TERMINAL", "St_TerminalMode" },
+            ["nt"] = { "NTERMINAL", "St_NTerminalMode" },
+            ["v"] = { "VISUAL", "St_VisualMode" },
+            ["V"] = { "V-LINE", "St_VisualMode" },
+            ["Vs"] = { "V-LINE", "St_VisualMode" },
+            [""] = { "V-BLOCK", "St_VisualMode" },
+            ["R"] = { "REPLACE", "St_ReplaceMode" },
+            ["Rv"] = { "V-REPLACE", "St_ReplaceMode" },
+            ["s"] = { "SELECT", "St_SelectMode" },
+            ["S"] = { "S-LINE", "St_SelectMode" },
+            [""] = { "S-BLOCK", "St_SelectMode" },
+            ["c"] = { "COMMAND", "St_CommandMode" },
+            ["cv"] = { "COMMAND", "St_CommandMode" },
+            ["ce"] = { "COMMAND", "St_CommandMode" },
+            ["r"] = { "PROMPT", "St_ConfirmMode" },
+            ["rm"] = { "MORE", "St_ConfirmMode" },
+            ["r?"] = { "CONFIRM", "St_ConfirmMode" },
+            ["!"] = { "SHELL", "St_TerminalMode" },
+          }
+
+          local m = vim.api.nvim_get_mode().mode
+          return " %#" .. modes[m][2] .. "# " .. modes[m][1] .. " %#St_EmptySpace#"
+        end,
+      }
+    end,
   },
   
   -- Tab configuration
@@ -150,6 +185,37 @@ M.ui = {
     enabled = true,
     border = "rounded",
     minimal = false,
+  },
+  
+  -- Theme settings
+  theme = {
+    name = "catppuccin",  -- Use catppuccin as the primary theme
+    style = "mocha",      -- Choose mocha style (options: latte, frappe, macchiato, mocha)
+    transparency = false, -- Set to true for transparent background
+    
+    -- Override specific theme properties
+    custom = {
+      -- Override specific colors if desired
+      bg = "#1E1E2E", -- Dark background
+      
+      -- Override specific highlights for elements
+      highlights = {
+        -- Example: make current line number stand out more
+        CursorLineNr = { fg = "#89B4FA" },
+        
+        -- Make which-key look better
+        WhichKeyFloat = { bg = "#1E1E2E" },
+        
+        -- Make comments more visible
+        Comment = { fg = "#9399B2", italic = true },
+        
+        -- Better diagnostic highlights
+        DiagnosticError = { fg = "#F38BA8" },
+        DiagnosticWarn = { fg = "#FAB387" },
+        DiagnosticInfo = { fg = "#89B4FA" },
+        DiagnosticHint = { fg = "#A6E3A1" },
+      },
+    },
   },
 }
 
@@ -200,6 +266,28 @@ M.plugins = {
   -- LSP configuration
   lspconfig = {
     border = "rounded",
+  },
+  
+  -- Which-key specific settings
+  which_key = {
+    window = {
+      border = "rounded",
+      position = "bottom",
+      margin = { 1, 0, 1, 0 },
+      padding = { 1, 2, 1, 2 },
+      winblend = 0,
+    },
+    layout = {
+      height = { min = 4, max = 25 },
+      width = { min = 20, max = 50 },
+      spacing = 3,
+      align = "center",
+    },
+    icons = {
+      breadcrumb = "»", 
+      separator = "➜",
+      group = "+",
+    },
   },
 }
 

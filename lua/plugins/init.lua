@@ -377,6 +377,9 @@ return {
       vim.o.timeout = true
       vim.o.timeoutlen = 300
     end,
+    keys = {
+      { "<leader><leader>", "<cmd>WhichKey<cr>", desc = "Show all keybindings" },
+    },
     opts = {
       plugins = { spelling = true },
       replace = {

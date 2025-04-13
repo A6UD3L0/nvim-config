@@ -378,7 +378,7 @@ M.backend_focus = {
   {
     description = "Toggle database client UI",
     keybinding = ":DBUI<CR>",
-    hint = "Command for database UI",
+    hint = "Command to toggle database UI",
   },
   {
     description = "Switch to insert mode at the beginning of the line",
@@ -522,6 +522,139 @@ M.workflow = {
     description = "Run Python code snippet under cursor",
     keybinding = "<Plug>SnipRun",
     hint = "SnipRun execution key",
+  },
+}
+
+-- Git mastery challenges for enhanced workflow
+M.git_tools = {
+  {
+    description = "Open main fugitive Git interface",
+    keybinding = "<leader>gs",
+    hint = "Leader + gs for 'git status'",
+  },
+  {
+    description = "Show Git blame for current file",
+    keybinding = "<leader>gb",
+    hint = "Leader + gb for 'git blame'",
+  },
+  {
+    description = "Open Git diff split",
+    keybinding = "<leader>gd",
+    hint = "Leader + gd for 'git diff'",
+  },
+  {
+    description = "Open LazyGit terminal interface",
+    keybinding = "<leader>gg",
+    hint = "Leader + gg for 'git GUI'",
+  },
+  {
+    description = "Preview Git hunk under cursor",
+    keybinding = "<leader>gh",
+    hint = "Leader + gh for 'git hunk'",
+  },
+  {
+    description = "Stage current Git hunk",
+    keybinding = "<leader>gs",
+    hint = "Leader + gs for 'git stage'",
+  },
+  {
+    description = "Reset (unstage) current Git hunk",
+    keybinding = "<leader>gr",
+    hint = "Leader + gr for 'git reset'",
+  },
+  {
+    description = "Reset all changes in current buffer",
+    keybinding = "<leader>gR",
+    hint = "Capital R version of reset command",
+  },
+  {
+    description = "Stage entire buffer",
+    keybinding = "<leader>gS",
+    hint = "Capital S version of stage command",
+  },
+  {
+    description = "Show full blame for current line",
+    keybinding = "<leader>gB",
+    hint = "Leader + g + Capital B for 'git Blame'",
+  },
+  {
+    description = "Toggle inline Git blame",
+    keybinding = "<leader>gtb",
+    hint = "Leader + gt + b for 'git toggle blame'",
+  },
+  {
+    description = "Navigate to next Git hunk",
+    keybinding = "]h",
+    hint = "Right bracket + h for 'hunk'",
+  },
+  {
+    description = "Navigate to previous Git hunk",
+    keybinding = "[h",
+    hint = "Left bracket + h for 'hunk'",
+  },
+  {
+    description = "Open Git diffview",
+    keybinding = "<leader>gv",
+    hint = "Leader + gv for 'git view'",
+  },
+  {
+    description = "View current file Git history",
+    keybinding = "<leader>gf",
+    hint = "Leader + gf for 'git file'",
+  },
+}
+
+-- Undotree and history management challenges
+M.history_management = {
+  {
+    description = "Toggle Undotree visualization",
+    keybinding = "<leader>u",
+    hint = "Leader + u for 'undo'",
+  },
+  {
+    description = "Jump to older text state in undotree",
+    keybinding = "g-",
+    hint = "g followed by minus sign",
+  },
+  {
+    description = "Jump to newer text state in undotree",
+    keybinding = "g+",
+    hint = "g followed by plus sign",
+  },
+  {
+    description = "Undo last change",
+    keybinding = "u",
+    hint = "Single letter for 'undo'",
+  },
+  {
+    description = "Redo last undone change",
+    keybinding = "<C-r>",
+    hint = "Control plus a letter",
+  },
+  {
+    description = "Jump to older change position",
+    keybinding = "g;",
+    hint = "g followed by semicolon",
+  },
+  {
+    description = "Jump to newer change position",
+    keybinding = "g,",
+    hint = "g followed by comma",
+  },
+  {
+    description = "Mark buffer as 'clean' state",
+    keybinding = ":later 1f<CR>",
+    hint = "Command that advances to next file state",
+  },
+  {
+    description = "Return to previous 'clean' state",
+    keybinding = ":earlier 1f<CR>",
+    hint = "Command that goes back to previous file state",
+  },
+  {
+    description = "Show Undo history for current buffer",
+    keybinding = ":undolist<CR>",
+    hint = "Command showing numbers of changes you can undo",
   },
 }
 

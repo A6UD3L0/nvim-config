@@ -278,4 +278,16 @@ vim.api.nvim_create_user_command("TextObjectsTrainer", function()
   M.set_category("text_objects")
 end, {})
 
+-- Add git tools focused training
+vim.api.nvim_create_user_command("GitTrainer", function()
+  M.start_game()
+  M.set_category("git_tools")
+end, {})
+
+-- Add undotree and history management focused training
+vim.api.nvim_create_user_command("UndoTrainer", function()
+  M.start_game()
+  M.set_category("history_management")
+end, {})
+
 return M

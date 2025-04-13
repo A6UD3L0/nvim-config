@@ -88,6 +88,8 @@ M.nvdash = {
     { "  Bookmarks", "Spc m a", "Telescope marks" },
     { "  Learn Keys", "Spc k m", "KeyMap" },
     { "  Train Harpoon", "HT", "HarpoonTrainer" },
+    { "  Git Master", "GT", "GitTrainer" },
+    { "󰃢  Undo Master", "UT", "UndoTrainer" },
     { "  Mason", "Mason", "Mason" },
   },
 }

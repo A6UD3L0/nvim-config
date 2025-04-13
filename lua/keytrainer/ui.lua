@@ -233,6 +233,8 @@ function M.create_ui()
   vim.api.nvim_set_keymap("n", "6", ":lua require('keytrainer').set_category('text_objects')<CR>", opts)
   vim.api.nvim_set_keymap("n", "7", ":lua require('keytrainer').set_category('backend_focus')<CR>", opts)
   vim.api.nvim_set_keymap("n", "8", ":lua require('keytrainer').set_category('workflow')<CR>", opts)
+  vim.api.nvim_set_keymap("n", "9", ":lua require('keytrainer').set_category('git_tools')<CR>", opts)
+  vim.api.nvim_set_keymap("n", "0", ":lua require('keytrainer').set_category('history_management')<CR>", opts)
   
   -- Navigation
   vim.api.nvim_set_keymap("n", "n", ":lua require('keytrainer').next_challenge()<CR>", opts)
@@ -279,6 +281,7 @@ function M.redraw_ui()
   table.insert(lines, "  Categories: ")
   table.insert(lines, "    [1] Beginner   [2] Intermediate   [3] Advanced   [4] Harpoon")
   table.insert(lines, "    [5] Vim Motions   [6] Text Objects   [7] Backend Focus   [8] Workflow")
+  table.insert(lines, "    [9] Git Tools   [0] Undo History")
   table.insert(lines, "")
   
   -- Current category

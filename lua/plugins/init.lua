@@ -231,9 +231,11 @@ return {
   {
     "mbbill/undotree",
     cmd = "UndotreeToggle",
-    keys = {
-      { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
-    },
+    event = "VeryLazy", -- Ensure plugin is loaded early
+    config = function()
+      vim.g.undotree_SetFocusWhenToggle = 1 -- Auto focus when opened
+      vim.g.undotree_WindowLayout = 2 -- Set layout (2 is usually best)
+    end,
   },
 
   -- Git integration
@@ -354,6 +356,15 @@ return {
     config = function()
       local telescope = require("telescope")
       local actions = require("telescope.actions")
+      
+      -- Create autocmd group for Telescope events
+      local telescope_group = vim.api.nvim_create_augroup("TelescopeEvents", { clear = true })
+      -- Register the TelescopeFindPre event
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopeFindPre",
+        group = telescope_group,
+        callback = function() end,  -- Empty callback just to register the event
+      })
       
       telescope.setup({
         defaults = {

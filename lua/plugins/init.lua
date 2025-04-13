@@ -15,29 +15,8 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    dependencies = {
-      {
-        "nvim-treesitter/nvim-treesitter-textobjects",
-        init = function()
-          -- PERF: no need to load the plugin, if we only need its queries for mini.ai
-          local plugin = require("lazy.core.config").spec.plugins["nvim-treesitter-textobjects"]
-          local opts = require("lazy.core.plugin").values(plugin, "opts", false)
-          local enabled = false
-          if opts then
-            for _, mod in ipairs({ "textobjects.select", "textobjects.move", "textobjects.swap", "textobjects.lsp_interop" }) do
-              if opts[mod] and opts[mod].enable then
-                enabled = true
-                break
-              end
-            end
-          end
-          if not enabled then
-            require("lazy.core.loader").disable_rtp_plugin("nvim-treesitter-textobjects")
-          end
-        end,
-      },
-    },
+    priority = 1000, -- Load before other plugins
+    lazy = false,    -- Load at startup to avoid module not found errors
     config = function()
       require("nvim-treesitter.configs").setup({
         ensure_installed = {
@@ -82,6 +61,13 @@ return {
         },
       })
     end,
+  },
+  
+  -- TreeSitter TextObjects - additional text objects based on syntax trees
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    lazy = false, -- Load at startup to avoid module not found errors
   },
 
   -- UI Enhancements

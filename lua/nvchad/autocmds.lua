@@ -154,7 +154,15 @@ autocmd("CursorHold", {
   pattern = "*",
   callback = function()
     -- Use LSP hover if the filetype has an active LSP client
-    if vim.lsp.buf.server_ready() then
+    local has_lsp = false
+    
+    -- Check if current buffer has active clients
+    local buf_clients = vim.lsp.get_active_clients({ bufnr = 0 })
+    if buf_clients and #buf_clients > 0 then
+      has_lsp = true
+    end
+    
+    if has_lsp then
       -- Use lspsaga if available for prettier hover
       local ok_saga, _ = pcall(require, "lspsaga.hover")
       if ok_saga then

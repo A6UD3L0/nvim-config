@@ -37,7 +37,7 @@ end
 local servers = {
   -- Python ecosystem
   "pyright",        -- Python type checking
-  "ruff_lsp",       -- Python linter
+  "ruff",           -- Python linter (updated from ruff_lsp)
   "jedi_language_server", -- Python intellisense
   "jupyter_lsp",    -- Jupyter notebook support
   
@@ -72,7 +72,8 @@ local servers = {
 
 -- Setup handlers with standard defaults
 for _, lsp in ipairs(servers) do
-  if lspconfig[lsp] then -- Only setup if server exists
+  -- Check if the server exists in lspconfig
+  if lspconfig[lsp] and type(lspconfig[lsp].setup) == "function" then
     lspconfig[lsp].setup {
       on_attach = on_attach,
       capabilities = capabilities,
@@ -99,6 +100,22 @@ if lspconfig.pyright then
             variableTypes = true,
             functionReturnTypes = true,
           },
+        },
+      },
+    },
+  }
+end
+
+-- Ruff for Python linting (using ruff instead of deprecated ruff_lsp)
+if lspconfig.ruff then
+  lspconfig.ruff.setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    init_options = {
+      settings = {
+        -- Ruff settings
+        lint = {
+          run = "onSave",
         },
       },
     },

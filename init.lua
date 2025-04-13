@@ -1,5 +1,4 @@
 -- Neovim IDE Configuration optimized for backend development
--- Combines ThePrimeagen's functionality with NvChad simplicity
 
 -- Set leader key early
 vim.g.mapleader = " "
@@ -30,25 +29,52 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 ---------------------------------------------------------
--- Theme and UI setup
+-- Basic Vim Settings (leader, encodings, basic behaviors)
 ---------------------------------------------------------
--- Create theme cache directory
-local cache_dir = vim.fn.stdpath("data") .. "/theme_cache/"
-vim.fn.mkdir(cache_dir, "p")
-
----------------------------------------------------------
--- Load core configuration
----------------------------------------------------------
--- Load options (editor behavior)
 require "options"
 
--- Load key mappings
-vim.schedule(function()
-  require "mappings"
-end)
+---------------------------------------------------------
+-- Core Keymaps  
+---------------------------------------------------------
+require "mappings"
 
--- Load auto commands
-require "nvchad.autocmds"
+---------------------------------------------------------
+-- Autocommands (basic editor behaviors)
+---------------------------------------------------------
+-- Load custom autocommands (previously using NvChad)
+local autocmd = vim.api.nvim_create_autocmd
+
+-- Disable autoformat for certain files
+vim.api.nvim_create_autocmd({ "FileType" }, {
+  pattern = { "javascript", "typescript", "lua", "python", "go" },
+  callback = function()
+    vim.b.autoformat = true
+  end,
+})
+
+-- Highlight text on yank for better UX
+autocmd("TextYankPost", {
+  callback = function()
+    vim.highlight.on_yank({ higroup = "Visual", timeout = 150 })
+  end,
+})
+
+-- Format options
+autocmd("FileType", {
+  pattern = { "*" },
+  callback = function()
+    vim.opt.formatoptions = vim.opt.formatoptions
+      - "a" -- Don't autoformat
+      - "t" -- Don't auto wrap text
+      + "c" -- Auto wrap comments
+      + "q" -- Allow formatting of comments with gq
+      - "o" -- Don't continue comments with o and O
+      + "r" -- Continue comments after return
+      + "n" -- Recognize numbered lists
+      + "j" -- Remove comment leader when joining lines when possible
+      - "2" -- Don't use indent of second line for rest of paragraph
+  end,
+})
 
 ---------------------------------------------------------
 -- Plugin Manager Setup (lazy.nvim)
@@ -69,6 +95,9 @@ pcall(require, "configs.commands")
 ---------------------------------------------------------
 -- Final setup and initialization
 ---------------------------------------------------------
+-- Faster UI updates
+vim.opt.updatetime = 200
+
 -- Set colorscheme
 vim.schedule(function()
   -- Try to use catppuccin first, fall back to default colorschemes if not available

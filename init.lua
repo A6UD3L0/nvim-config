@@ -27,8 +27,9 @@ require("lazy").setup({
 }, lazy_config)
 
 -- Load theme and statusline setups from the base46 cache
-dofile(vim.g.base46_cache .. "defaults")
-dofile(vim.g.base46_cache .. "statusline")
+-- Note the added ".lua" extension to correctly load the files.
+dofile(vim.g.base46_cache .. "defaults.lua")
+dofile(vim.g.base46_cache .. "statusline.lua")
 
 require "options"
 require "nvchad.autocmds"
@@ -36,4 +37,3 @@ require "nvchad.autocmds"
 vim.schedule(function()
   require "mappings"
 end)
-

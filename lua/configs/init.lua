@@ -4,7 +4,8 @@ function M.setup()
   -- Load all configuration modules
   require("configs.lspconfig")
   require("configs.telescope")
-  require("configs.dap")
+  require("configs.dap")      -- Load DAP first
+  require("configs.dapui")    -- Then load DAP UI
   require("configs.conform")
   require("configs.commands")
   require("configs.lazy")

@@ -23,13 +23,13 @@ return {
         g = true,
       },
     },
-    operators = { gc = "Comments" },
-    key_labels = {
+    defer = { gc = "Comments" },
+    replace = {
       ["<space>"] = "SPC",
       ["<cr>"] = "RET",
       ["<tab>"] = "TAB",
     },
-    window = {
+    win = {
       border = "single",
       position = "bottom",
       margin = { 1, 0, 1, 0 },
@@ -47,22 +47,22 @@ return {
     local wk = require("which-key")
     wk.setup(opts)
     
-    -- Register key mappings
+    -- Register key mappings using the new format
     wk.register({
-      mode = { "n", "v" },
-      ["<leader>"] = {
-        f = { name = "Find/Files" },
-        g = { name = "Git" },
-        b = { name = "Buffers" },
-        l = { name = "LSP" },
-        d = { name = "Debug" },
-        t = { name = "Terminal/Toggle" },
-        h = { name = "Help/Harpoon" },
-        c = { name = "Code" },
-        w = { name = "Window" },
-        p = { name = "Project" },
-        s = { name = "Search" },
-        e = { name = "Explorer" },
+      {
+        mode = { "n", "v" },
+        { "<leader>f", group = "Find/Files" },
+        { "<leader>g", group = "Git" },
+        { "<leader>b", group = "Buffers" },
+        { "<leader>l", group = "LSP" },
+        { "<leader>d", group = "Debug" },
+        { "<leader>t", group = "Terminal/Toggle" },
+        { "<leader>h", group = "Help/Harpoon" },
+        { "<leader>c", group = "Code" },
+        { "<leader>w", group = "Window" },
+        { "<leader>p", group = "Project" },
+        { "<leader>s", group = "Search" },
+        { "<leader>e", group = "Explorer" },
       },
     })
   end,

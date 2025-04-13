@@ -74,4 +74,21 @@ return {
       require "configs.lspconfig"
     end,
   },
+
+  ----------------------------------------------------------------------
+  -- Debug Adapter Protocol (DAP) Plugins:
+  ----------------------------------------------------------------------
+  {
+    "mfussenegger/nvim-dap",
+    config = function()
+      require("configs.dap")
+    end,
+  },
+  {
+    "rcarriga/nvim-dap-ui",
+    dependencies = { "mfussenegger/nvim-dap" },
+    config = function()
+      require("configs.dapui")
+    end,
+  },
 }

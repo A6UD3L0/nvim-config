@@ -39,7 +39,16 @@ function M.setup(user_config)
       config[k] = v
     end
   end
+  
+  -- Register commands using the dedicated module
+  local commands_ok, commands = pcall(require, "keytrainer.commands")
+  if commands_ok then
+    commands.setup()
+  end
 end
+
+-- Automatically initialize commands when this module is required
+require("keytrainer.commands").setup()
 
 -- Active state of the game
 local game_active = false
@@ -229,65 +238,5 @@ function M.list_categories()
   
   return category_list
 end
-
--- Command to start the KeyTrainer
-vim.api.nvim_create_user_command("KeyTrainer", function()
-  M.start_game()
-end, {})
-
--- Command to toggle hint visibility
-vim.api.nvim_create_user_command("KeyTrainerToggleHint", function()
-  M.toggle_hint()
-end, {})
-
--- Command to select category
-vim.api.nvim_create_user_command("KeyTrainerCategory", function(opts)
-  if opts.args and opts.args ~= "" then
-    M.set_category(opts.args)
-  else
-    local categories = table.concat(M.list_categories(), ", ")
-    print("Available categories: " .. categories)
-  end
-end, {
-  nargs = "?",
-  complete = function()
-    return M.list_categories()
-  end,
-})
-
--- Create a shorter command alias for convenience
-vim.api.nvim_create_user_command("KeyMap", function()
-  M.start_game()
-end, {})
-
--- Also add easier way to open Harpoon-focused training
-vim.api.nvim_create_user_command("HarpoonTrainer", function()
-  M.start_game()
-  M.set_category("harpoon")
-end, {})
-
--- Add vim motions focused training
-vim.api.nvim_create_user_command("MotionsTrainer", function()
-  M.start_game()
-  M.set_category("vim_motions")
-end, {})
-
--- Add text objects focused training
-vim.api.nvim_create_user_command("TextObjectsTrainer", function()
-  M.start_game()
-  M.set_category("text_objects")
-end, {})
-
--- Add git tools focused training
-vim.api.nvim_create_user_command("GitTrainer", function()
-  M.start_game()
-  M.set_category("git_tools")
-end, {})
-
--- Add undotree and history management focused training
-vim.api.nvim_create_user_command("UndoTrainer", function()
-  M.start_game()
-  M.set_category("history_management")
-end, {})
 
 return M

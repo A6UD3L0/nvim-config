@@ -261,17 +261,20 @@ return {
   {
     dir = vim.fn.stdpath("config") .. "/lua/keytrainer",
     name = "keytrainer",
+    cmd = {
+      "KeyMap",
+      "KeyTrainer",
+      "HarpoonTrainer",
+      "MotionsTrainer",
+      "TextObjectsTrainer",
+      "GitTrainer",
+      "UndoTrainer"
+    },
     config = function()
-      require("keytrainer").setup({
-        timeout = 90,  -- 90 seconds per game
-        popup_width = 90,
-        popup_height = 20,
-        default_mode = "beginner", -- Start with beginner mode
-      })
-      -- Add a command to toggle the keybinding trainer
-      vim.api.nvim_create_user_command("KeyMap", function()
-        vim.cmd("KeyTrainer")
-      end, {})
+      -- Only setup once, avoiding conflicts with initialization
+      if not package.loaded["keytrainer"] then 
+        require("keytrainer")
+      end
     end,
   },
 

@@ -59,17 +59,13 @@ vim.opt.rtp:prepend(lazypath)
 
 local lazy_config = require "configs.lazy"
 
--- Load plugins using lazy.nvim:
+-- Load plugins with lazy
 require("lazy").setup({
-  {
-    "NvChad/NvChad",
-    lazy = false,
-    branch = "v2.5",
-    import = "nvchad.plugins",  -- Load NvChad's own plugins
-  },
-
-  { import = "plugins" },        -- Load plugins from your default plugins folder
+  -- Core plugins
+  { import = "plugins" },  -- Automatically loads plugins/init.lua
   { import = "plugins.extra" },  -- Load your extra plugins from a custom file
+  { import = "plugins.copilot" },  -- Load GitHub Copilot integration
+  { import = "plugins.datascience" },  -- Load Data Science plugins
 }, lazy_config)
 
 -- Regenerate base46 cache after plugins are loaded

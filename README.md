@@ -1,6 +1,6 @@
-# Backend & Data Science Neovim Configuration
+# Ultimate Backend & Data Science Neovim IDE
 
-A feature-rich Neovim configuration optimized for backend development and data science, combining ThePrimeagen's keybindings with NvChad's simplicity and elegance.
+A comprehensive Neovim configuration optimized for backend development, data science, and machine learning workflows. This configuration combines ThePrimeagen's efficient keybindings with NvChad's simplicity and elegance, enhanced with specialized tools for development and data analysis.
 
 ![Neovim Backend & Data Science](https://raw.githubusercontent.com/NvChad/nvchad.github.io/src/static/img/screenshots/nvdash.webp)
 
@@ -8,11 +8,31 @@ A feature-rich Neovim configuration optimized for backend development and data s
 
 - **Backend Development Focus**: Optimized for Python, Go, C/C++, SQL, and other backend languages
 - **Data Science Support**: Special tools for Python data analysis, Jupyter notebooks, and scientific computing
-- **ThePrimeagen's Keybindings**: Efficient key mappings inspired by ThePrimeagen for faster coding
-- **KeyTrainer Game**: Custom plugin to learn keybindings through an interactive game (`:KeyMap` to start)
-- **Enhanced LSP**: Advanced language server configuration for better code intelligence
-- **Debugging**: Integrated debugging for Python, Go, and C/C++
+- **Machine Learning Workflow**: Integrated tools for ML development, model training, and experimentation
+- **Git Mastery**: Enhanced Git integration with Fugitive, Gitsigns, Diffview, and LazyGit
+- **AI Code Completion**: GitHub Copilot integration for intelligent code suggestions
+- **Interactive Learning**: KeyTrainer game with specialized modules for different workflows
+- **Advanced Debugging**: Comprehensive DAP setup for Python, Go, and C/C++
 - **Beautiful UI**: Modern interface with Catppuccin theme and customized highlights
+
+## Specialized Tools
+
+- **Jupyter Integration**: Work with Jupyter notebooks directly in Neovim
+- **REPL Support**: Interactive code execution for Python, R, and other languages
+- **Database Client**: Integrated DB client for SQL operations and data exploration
+- **CSV Handling**: Special tools for working with tabular data
+- **SnipRun**: Run code snippets in various languages without leaving Neovim
+- **Enhanced Undotree**: Better visualization of your editing history
+
+## Keybinding Training Modules
+
+Master your Neovim workflow with specialized training modules:
+- `:KeyMap` - General keybinding training
+- `:HarpoonTrainer` - Master quick file navigation
+- `:GitTrainer` - Learn Git operations
+- `:UndoTrainer` - Master history navigation
+- `:MotionsTrainer` - Become proficient with Vim motions
+- `:TextObjectsTrainer` - Master text manipulation
 
 ## One-Command Installation
 
@@ -125,6 +145,58 @@ This will provide documentation on customizing the base46 theme, highlights, and
 - SQL formatting and linting
 - Database client interface
 - Schema-aware completions
+
+## Data Science & Machine Learning Keybindings
+
+### Jupyter Notebook Integration
+- `<leader>jS` - Start Jupynium server
+- `<leader>jA` - Attach to Jupyter notebook
+- `<leader>jE` - Execute selected cells
+
+### Code Execution
+- `<leader>sr` - Run code snippet under cursor
+- `<leader>sl` - Start live code runner
+- `<leader>sc` - Close live runner
+- `<leader>si` - Show runner information
+
+### Database Operations
+- `<leader>db` - Toggle database UI
+- `<leader>da` - Add database connection
+
+### Documentation
+- `<leader>dd` - Generate code documentation
+
+## Git Workflow
+
+### Fugitive
+- `<leader>gs` - Git status
+- `<leader>gb` - Git blame
+- `<leader>gd` - Git diff
+
+### Gitsigns
+- `<leader>gh` - Preview hunk
+- `<leader>gr` - Reset hunk
+- `<leader>gs` - Stage hunk
+- `]h` / `[h` - Navigate between hunks
+
+### Diffview
+- `<leader>gv` - Open diffview
+- `<leader>gf` - View file history
+
+### LazyGit
+- `<leader>gg` - Open LazyGit interface
+
+## Debugging
+
+- `<leader>db` - Toggle breakpoint
+- `<leader>dB` - Set conditional breakpoint
+- `<leader>dc` - Continue execution
+- `<leader>di` - Step into
+- `<leader>do` - Step over
+- `<leader>dO` - Step out
+- `<leader>dr` - Open REPL
+- `<leader>du` - Toggle debug UI
+- `<leader>dx` - Terminate debugging session
 
 ## Customization
 

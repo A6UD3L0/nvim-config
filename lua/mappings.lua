@@ -11,16 +11,7 @@ local map = vim.keymap.set
 local function setup_which_key(wk)
   wk.setup {
     plugins = { spelling = true },
-    triggers = {
-      mode = { "n", "v", "i" },
-      ["<leader>"] = { -- Specify which keys will trigger which-key for which modes
-        n = true, -- normal mode
-        v = true, -- visual mode
-        -- not including insert mode by default
-      },
-      ["g"] = { n = true },
-      ["z"] = { n = true },
-    },
+    triggers = { "<leader>", "g", "z" },
     win = {
       border = "rounded",
       winblend = 0,
@@ -84,8 +75,8 @@ local function setup_which_key(wk)
     -- Harpoon
     h = {
       name = "Harpoon",
-      a = { function() require("harpoon.mark").add_file() end, "Add file" },
-      h = { function() require("harpoon.ui").toggle_quick_menu() end, "Menu" },
+      a = { "<cmd>lua require('harpoon.mark').add_file()<cr>", "Add file" },
+      h = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>", "Menu" },
     },
     
     -- LSP
@@ -108,11 +99,12 @@ local function setup_which_key(wk)
       T = { "<cmd>!python %<cr>", "Run file" },
       t = { "<cmd>!pytest %<cr>", "Run tests" },
       v = { "<cmd>!python -m venv .venv<cr>", "Create venv" },
-      v = { vim.cmd.Ex, "Open netrw file explorer" },
+      e = { "<cmd>Ex<cr>", "Open netrw file explorer" },
     },
     
     -- Go specific
-    g = {
+    go = {
+      name = "Go commands",
       r = { "<cmd>!go run %<CR>", "Run current Go file" },
       t = { "<cmd>!go test ./...<CR>", "Run Go tests" },
       b = { "<cmd>!go build<CR>", "Build Go project" },
@@ -122,7 +114,7 @@ local function setup_which_key(wk)
     -- REPL
     r = {
       name = "REPL",
-      s = { function() vim.cmd("so") end, "Source current file" },
+      s = { "<cmd>so<cr>", "Source current file" },
     },
     
     -- Terminal/Toggle
@@ -134,9 +126,12 @@ local function setup_which_key(wk)
     },
     
     -- Docker commands
-    dc = { "<cmd>!docker-compose up -d<CR>", "Docker-compose up" },
-    dd = { "<cmd>!docker-compose down<CR>", "Docker-compose down" },
-    dl = { "<cmd>!docker ps<CR>", "List Docker containers" },
+    D = {
+      name = "Docker",
+      c = { "<cmd>!docker-compose up -d<CR>", "Docker-compose up" },
+      d = { "<cmd>!docker-compose down<CR>", "Docker-compose down" },
+      l = { "<cmd>!docker ps<CR>", "List Docker containers" },
+    },
     
     -- SQL
     sq = { "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", "Format SQL" },
@@ -144,11 +139,13 @@ local function setup_which_key(wk)
     -- Keep ThePrimeagen's mappings
     y = { [["+y]], "Yank to system clipboard" },
     Y = { [["+Y]], "Yank line to system clipboard" },
-    d = { [["_d]], "Delete without yanking" },
+    D = { [["_d]], "Delete without yanking" },
     
-    -- Visual mode mappings
+    -- Visual mode mappings for x mode only
     p = { [["_dP]], "Paste without yanking selection", mode = "x" },
-    s = { [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Search & replace word under cursor" },
+    
+    -- Other mappings
+    S = { [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Search & replace word under cursor" },
     x = { "<cmd>!chmod +x %<CR>", "Make file executable" },
   }, { prefix = "<leader>" })
 end

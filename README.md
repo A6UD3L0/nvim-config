@@ -339,6 +339,19 @@ rm -rf ~/.cache/nvim
 # Then reinstall following the installation steps above
 ```
 
+## 🔧 Recent Fixes
+
+### April 2025 Updates
+
+- **Fixed Telescope Error**: Resolved issue with invalid 'User TelescopeFindPre' event that was causing Telescope to crash when trying to use file finding features
+- **Updated Which-Key Configuration**: Replaced deprecated 'window' option with modern 'win' option in the which-key setup to fix health check warnings
+- **Improved Overall Stability**: Addressed several minor issues detected in the Neovim health check to ensure smoother operation
+
+To apply these fixes:
+1. Pull the latest changes from the repository
+2. Restart Neovim
+3. Run `:checkhealth` to verify the fixes
+
 ## 🎨 Customization
 
 ### Changing Theme

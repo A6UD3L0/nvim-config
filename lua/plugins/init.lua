@@ -349,9 +349,10 @@ return {
         spacing = 3,
         align = "center",
       },
-      filter = {
-        missing = true, -- Filter out undefined mappings
-      },
+      filter = function(key)
+        -- Filter out undefined mappings
+        return key.mapping ~= nil
+      end,
     },
     config = function(_, opts)
       local wk = require("which-key")

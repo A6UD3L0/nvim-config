@@ -100,16 +100,30 @@ return {
     config = function() require("harpoon").setup({}) end,
   },
   { "numToStr/Comment.nvim", config = function() require("Comment").setup() end },
+  
 {
     "lukas-reineke/indent-blankline.nvim",
     config = function()
-      require("indent_blankline").setup({
-        char = "│",
-        context_char = "▏",  -- Optional: shows current indent level
-        show_trailing_blankline_indent = false,
-        space_char_blankline = " ",
-        use_treesitter = true,
-      })
+      require("indent_blankline").setup {
+  -- Character used for the indent lines
+  char = "┊",
+  -- Optionally change the context character (you can also set this to the same as char)
+  context_char = "│",
+
+  -- Exclude specific filetypes and buffer types
+  filetype_exclude = { "help", "packer", "NvimTree" },
+  buftype_exclude = { "terminal", "nofile" },
+
+  -- Hide the indent guides on trailing blank lines
+  show_trailing_blankline_indent = false,
+
+  -- Show the current context (the block where the cursor is)
+  show_current_context = true,
+
+  -- (Optional) Customize context patterns if needed.
+  -- context_patterns = { "class", "function", "method", "if", "while", "for", "with", "try" },
+}
+)
     end,
   },
   ----------------------------------------------------------------------

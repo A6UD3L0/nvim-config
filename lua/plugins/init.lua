@@ -346,7 +346,8 @@ return {
     keys = {
       { "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Find Files" },
       { "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Find Text" },
-      { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Find Buffers" },
+      { "<leader>fb", function() require("telescope.builtin").file_browser() end, desc = "File Browser" },
+      { "<leader>fB", function() require("telescope.builtin").buffers() end, desc = "Find buffers" },
       { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help Tags" },
       { "<leader>fr", function() require("telescope.builtin").oldfiles() end, desc = "Recent Files" },
       { "<leader>fc", function() require("telescope.builtin").current_buffer_fuzzy_find() end, desc = "Find in Current Buffer" },
@@ -354,55 +355,9 @@ return {
       { "<leader>fs", function() require("telescope.builtin").lsp_document_symbols() end, desc = "Document Symbols" },
     },
     config = function()
-      local telescope = require("telescope")
-      local actions = require("telescope.actions")
-      
-      telescope.setup({
-        defaults = {
-          prompt_prefix = " ",
-          selection_caret = " ",
-          path_display = { "smart" },
-          sorting_strategy = "ascending",
-          layout_config = {
-            horizontal = {
-              prompt_position = "top",
-              preview_width = 0.55,
-              results_width = 0.8,
-            },
-            vertical = {
-              mirror = false,
-            },
-            width = 0.87,
-            height = 0.80,
-            preview_cutoff = 120,
-          },
-          mappings = {
-            i = {
-              ["<C-n>"] = actions.cycle_history_next,
-              ["<C-p>"] = actions.cycle_history_prev,
-              ["<C-j>"] = actions.move_selection_next,
-              ["<C-k>"] = actions.move_selection_previous,
-              ["<esc>"] = actions.close,
-            },
-          },
-          file_ignore_patterns = { "node_modules", "__pycache__", "%.git/", "%.ds_store" },
-        },
-        extensions = {
-          fzf = {
-            fuzzy = true,
-            override_generic_sorter = true,
-            override_file_sorter = true,
-            case_mode = "smart_case",
-          },
-          file_browser = {
-            theme = "dropdown",
-            hijack_netrw = true,
-          },
-        },
-      })
-      
-      telescope.load_extension("fzf")
-      telescope.load_extension("file_browser")
+      -- Set up health check compatibility layer for Neovim 0.11.0+
+      require("plugins.health_compat").setup_health_compat()
+      require("plugins.overrides.telescope").setup()
     end,
   },
   

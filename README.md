@@ -1,236 +1,190 @@
-# Ultimate Backend & Data Science Neovim IDE
+# Ultimate Backend Development Neovim Configuration
 
-A comprehensive Neovim configuration optimized for backend development, data science, and machine learning workflows. This configuration combines ThePrimeagen's efficient keybindings with NvChad's simplicity and elegance, enhanced with specialized tools for development and data analysis.
+A powerful yet clean Neovim setup that combines ThePrimeagen's efficient functionality with NvChad's simplicity and aesthetics. Specifically optimized for backend development in Python, Go, C, SQL, and Docker.
 
-![Neovim Backend & Data Science IDE](https://raw.githubusercontent.com/NvChad/nvchad.github.io/src/static/img/screenshots/nvdash.webp)
+![Neovim Backend IDE](https://raw.githubusercontent.com/NvChad/nvchad.github.io/src/static/img/screenshots/nvdash.webp)
 
-## ✨ Features
+## ✨ Key Features
 
-- **Backend Development Focus**: Optimized for Python, Go, C/C++, SQL, and other backend languages
-- **Data Science Support**: Special tools for Python data analysis, Jupyter notebooks, and scientific computing
-- **Machine Learning Workflow**: Integrated tools for ML development, model training, and experimentation
-- **Git Mastery**: Enhanced Git integration with Fugitive, Gitsigns, Diffview, and LazyGit
-- **AI Code Completion**: GitHub Copilot integration for intelligent code suggestions
-- **Interactive Learning**: KeyTrainer and DataScienceTrainer games for learning Neovim and data science workflows
-- **Advanced Debugging**: Comprehensive DAP setup for Python, Go, and C/C++
-- **Beautiful UI**: Modern interface with Catppuccin theme and customized highlights
+- **ThePrimeagen + NvChad Philosophy**: Powerful features with a clean, accessible interface
+- **Backend Development Focus**: Full support for Python, Go, C, SQL, Docker, and more
+- **Super Fast Navigation**: Harpoon, Telescope, and Leap for quick file and code navigation
+- **Git Mastery**: Enhanced Git integration with Fugitive and Gitsigns
+- **Beautiful UI**: Modern Catppuccin theme with customized highlights
+- **AI Code Completion**: GitHub Copilot integration for intelligent coding assistance
+- **Keybinding Discovery**: Press `Space+Space` to explore all available commands
+- **Advanced Debugging**: Comprehensive DAP setup for all major backend languages
 
-## 🛠️ Specialized Tools
+## 🚀 Getting Started
 
-- **Jupyter Integration**: Work with Jupyter notebooks directly in Neovim
-- **REPL Support**: Interactive code execution for Python, R, and other languages
-- **Database Client**: Integrated DB client for SQL operations and data exploration
-- **CSV Handling**: Special tools for working with tabular data
-- **SnipRun**: Run code snippets in various languages without leaving Neovim
-- **Enhanced Undotree**: Better visualization of your editing history
-
-## 🎮 Interactive Learning Games
-
-Master your workflow with specialized training modules:
-
-### KeyTrainer
-Learn and practice Neovim keybindings with interactive exercises:
-- `:KeyMap` - General keybinding training
-- `:HarpoonTrainer` - Master quick file navigation
-- `:GitTrainer` - Learn Git operations
-- `:UndoTrainer` - Master history navigation
-- `:MotionsTrainer` - Become proficient with Vim motions
-- `:TextObjectsTrainer` - Master text manipulation
-
-### DataScienceTrainer
-Learn data science workflows directly in Neovim with progressive challenges:
-- `:DataScienceTrainer` or `:DST` - Start the main game
-- `:DST basics` - Start with Python basics
-- `:DST numpy` - Learn NumPy operations
-- `:DST pandas` - Practice Pandas data manipulation
-- `:DST visualization` - Create data visualizations
-- `:DST ml` - Build machine learning models
-- `:DST advanced` - Complete advanced workflows
-
-## 📋 Prerequisites
+### Prerequisites
 
 - Neovim 0.9.0 or later
 - Git
 - A Nerd Font (recommended: JetBrainsMono Nerd Font)
-- Python 3.6+ with pip (for data science features)
 - Node.js and npm (for LSP features)
-- [Ripgrep](https://github.com/BurntSushi/ripgrep) for telescope live grep
+- Python 3.6+ with pip
+- Ripgrep for telescope fuzzy finding
 
-## 💻 Installation
-
-### One-Command Installation
-
-```bash
-git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim && nvim
-```
-
-### Step-by-Step Installation
-
-1. **Backup your existing configuration** (if you have one):
+### Installation
 
 ```bash
+# Back up existing configuration if needed
 mv ~/.config/nvim ~/.config/nvim.bak
-```
 
-2. **Clone this repository**:
-
-```bash
+# Clone this repository
 git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim
-```
 
-3. **Make it your own** (optional):
-
-```bash
-rm -rf ~/.config/nvim/.git
-git init ~/.config/nvim
-```
-
-4. **Start Neovim** to automatically install plugins:
-
-```bash
+# Start Neovim to install plugins
 nvim
 ```
 
-The first launch will:
-- Install lazy.nvim (plugin manager)
-- Download and install all configured plugins
-- Set up the UI and theme
+On first launch:
+1. Plugins will be automatically installed
+2. Run `:MasonInstallAll` to set up language servers and tools
+3. Press `Space+Space` to explore keybindings
 
-5. **Install Language Servers and Tools**:
+## ⌨️ Essential Keybindings
 
-After lazy.nvim finishes downloading plugins, run:
+### Navigation
+| Keybinding | Description |
+|------------|-------------|
+| `Space+Space` | Show all keybindings |
+| `jk` | Exit insert mode |
+| `;` | Enter command mode |
+| `<C-h/j/k/l>` | Navigate between windows |
+| `<C-d>/<C-u>` | Half-page down/up (centered) |
 
-```
-:MasonInstallAll
-```
+### Files & Search
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>ff` | Find files |
+| `<leader>fg` | Find text in files |
+| `<leader>fr` | Recent files |
+| `<leader>fb` | Browse buffers |
+| `<leader>fc` | Find in current buffer |
+| `<leader>fB` | File browser |
 
-This will install all pre-configured language servers, formatters, linters, and debugging tools.
+### Code Navigation & LSP
+| Keybinding | Description |
+|------------|-------------|
+| `gd` | Go to definition |
+| `gr` | Find references |
+| `K` | Show documentation |
+| `<leader>ca` | Code actions |
+| `<leader>rn` | Rename symbol |
+| `<leader>f` | Format code |
+| `<leader>D` | Type definition |
 
-6. **For Data Science Features** (optional):
+### Git
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>gs` | Git status |
+| `<leader>gb` | Git blame |
+| `<leader>gd` | Git diff |
+| `<leader>gp` | Git push |
+| `<leader>gl` | Git pull |
+| `<leader>gc` | Git commit |
 
-Install required Python packages:
+### Harpoon
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>ha` | Add file to Harpoon |
+| `<leader>hh` | Harpoon menu |
+| `<C-h/j/k/l>` | Jump to Harpoon marks 1-4 |
 
-```bash
-pip install numpy pandas matplotlib seaborn scikit-learn nltk
-```
+### Debugging (DAP)
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dc` | Start/continue debugging |
+| `<leader>dt` | Toggle debugging UI |
+| `<leader>di` | Step into |
+| `<leader>do` | Step over |
+| `<leader>dO` | Step out |
 
-## 🔄 Updating
+### Language-Specific
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>pt` | Run pytest on current file |
+| `<leader>pT` | Run Python file |
+| `<leader>gr` | Run Go file |
+| `<leader>gt` | Run Go tests |
+| `<leader>dc` | Docker-compose up |
+| `<leader>dd` | Docker-compose down |
 
-To update your plugins to the latest versions:
+## 🛠️ Backend Development Tools
 
-```
-:Lazy sync
-```
+### Python
+- Complete LSP support via Pyright and Jedi
+- Advanced linting with Ruff
+- Integrated test running with Pytest
+- Virtual environment management
+- Debugging with DAP and debugpy
 
-## 🎨 Customizing the UI
+### Go
+- Full LSP support with gopls
+- Code formatting with gofumpt
+- Quick test running
+- Debug integration with Delve
 
-The configuration uses Catppuccin as the default theme. You can change themes in `lua/chadrc.lua`:
+### SQL
+- SQL language server for completion
+- Formatting and linting
+- Database connections (with external tools)
+
+### Docker
+- Dockerfile and docker-compose syntax
+- Integrated container management commands
+- YAML validation for configuration files
+
+### Git
+- Beautiful diff view
+- Blame integration
+- Commit staging and navigation
+- Branch management
+
+## 🎨 Customization
+
+### Changing Theme
+Edit `lua/chadrc.lua` to change the theme:
 
 ```lua
-M.base46 = {
-  theme = "catppuccin", -- Change this to another theme
+M.ui = {
+  theme = "catppuccin", -- Change to another theme
 }
 ```
 
-Available themes include: "catppuccin", "tokyonight", "gruvbox", "onedark", "nord", and more.
+Available themes include: catppuccin, tokyonight, gruvbox, onedark, and more.
 
-## ⌨️ Key Keybindings
+### Plugin Management
+Use Lazy.nvim for managing plugins:
 
-| Keybinding | Description |
-|------------|-------------|
-| `Space` | Leader key |
-| `jk` | Exit insert mode |
-| `;` | Enter command mode |
-| `<C-s>` | Save file |
-| `<leader>pv` | Open file explorer |
-| `<leader>ff` | Find files |
-| `<leader>fw` | Find text in files |
-| `<leader>f` | Format code |
-| `<leader>dt` | Toggle breakpoint |
-| `<leader>dc` | Start debugging |
-| `<leader>ha` | Add file to Harpoon |
-| `<leader>hh` | Toggle Harpoon menu |
-| `<leader>u` | Toggle Undotree |
-| `<leader>gg` | Open LazyGit |
-
-## 🐍 Data Science & Machine Learning
-
-### DataScienceTrainer Controls
-- `n` - Next challenge
-- `p` - Previous challenge
-- `h` - Show hint
-- `s` - Show solution
-- `r` - Run current challenge in a new buffer
-- `o` - Open challenge in editor with full instructions
-- `c` - Change category
-- `l` - Change difficulty level
-- `q`/`Esc` - Quit game
-
-### Jupyter Notebook Integration
-- `<leader>jS` - Start Jupynium server
-- `<leader>jA` - Attach to Jupyter notebook
-- `<leader>jE` - Execute selected cells
-
-### Code Execution
-- `<leader>sr` - Run code snippet under cursor
-- `<leader>sl` - Start live code runner
-- `<leader>sc` - Close live runner
-- `<leader>si` - Show runner information
-
-## 🔄 Git Workflow
-
-### Fugitive
-- `<leader>gs` - Git status
-- `<leader>gb` - Git blame
-- `<leader>gd` - Git diff
-
-### Gitsigns
-- `<leader>gh` - Preview hunk
-- `<leader>gr` - Reset hunk
-- `<leader>gs` - Stage hunk
-- `]h` / `[h` - Navigate between hunks
-
-### Diffview
-- `<leader>gv` - Open diffview
-- `<leader>gf` - View file history
-
-### LazyGit
-- `<leader>gg` - Open LazyGit interface
-
-## 🔎 Debugging
-
-- `<leader>dt` - Toggle breakpoint
-- `<leader>dB` - Set conditional breakpoint
-- `<leader>dc` - Continue execution
-- `<leader>di` - Step into
-- `<leader>do` - Step over
-- `<leader>dO` - Step out
-- `<leader>dr` - Open REPL
-- `<leader>du` - Toggle debug UI
-- `<leader>dx` - Terminate debugging session
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgements
-
-- ThePrimeagen for the keybinding philosophy
-- NvChad for the UI inspiration
-- The Neovim community for all the amazing plugins
-
-## 🧹 Uninstallation
-
-If you need to completely remove this configuration:
-
-### Linux / MacOS (unix)
-```bash
-rm -rf ~/.config/nvim
-rm -rf ~/.local/state/nvim
-rm -rf ~/.local/share/nvim
+```
+:Lazy check     # Check for updates
+:Lazy update    # Update plugins
+:Lazy sync      # Sync plugins (install/clean)
+:Lazy profile   # View startup profile
 ```
 
-### Windows (PowerShell)
-```powershell
-Remove-Item -Recurse -Force ~\AppData\Local\nvim
-Remove-Item -Recurse -Force ~\AppData\Local\nvim-data
+## 🔄 Learning Resources
+
+- Press `Space+Space` to explore available commands
+- Use Leap for quick navigation (press `s` to activate)
+- Try the more advanced LSP features like code actions
+- Learn Git workflow with the dedicated Git keybindings
+
+## 📋 Troubleshooting
+
+### LSP Not Working
+Run `:LspInfo` to check the status, then `:Mason` to install missing servers.
+
+### Missing Dependencies
+Run `:checkhealth` to see what dependencies need to be installed.
+
+### Keybinding Conflicts
+Check for conflicts with `:WhichKey`
+
+---
+
+*This configuration is maintained with ❤️ for backend developers who want power and simplicity.*

@@ -4,7 +4,7 @@
 - So you just import its modules , like `require "nvchad.options" , require "nvchad.mappings"`
 - So you can delete the .git from this repo ( when you clone it locally ) or fork it :)
 
-`git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim`
+`git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim && nvim`
 
 
 

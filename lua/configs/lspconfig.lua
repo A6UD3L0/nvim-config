@@ -39,12 +39,11 @@ local servers = {
   "pyright",        -- Python type checking
   "ruff",           -- Python linter (updated from ruff_lsp)
   "jedi_language_server", -- Python intellisense
-  "jupyter_lsp",    -- Jupyter notebook support
   
   -- Web development
   "html",
   "cssls",
-  "tsserver",       -- TypeScript/JavaScript
+  "ts_ls",          -- TypeScript/JavaScript
   
   -- Go development
   "gopls",          -- Go language server

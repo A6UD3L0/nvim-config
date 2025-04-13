@@ -40,40 +40,37 @@ git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim
 nvim
 ```
 
-4. **Install Language Servers and Tools** (inside Neovim):
+4. **Install Language Servers and Tools**:
+
+After lazy.nvim finishes downloading plugins, run:
 
 ```
-:Mason
+:MasonInstallAll
 ```
-Select and install the tools you need for your workflow.
 
-## Key Features and Components
+This will install all the pre-configured language servers, formatters, and linters.
 
-### Plugin Management
-- Uses `lazy.nvim` for efficient plugin management
-- Lazy-loads plugins for faster startup
+5. **Optional: Remove Git Information**
 
-### Language Support
-- **Python**: LSP, formatter, debugger, REPL integration, Jupyter support
-- **Go**: Complete Go toolchain with LSP, debugger, and error snippets
-- **SQL**: Language server, formatter, and database client
-- **C/C++**: LSP, debugger, and formatter
-- **Web**: JavaScript/TypeScript support
-- **Docker/K8s**: YAML validation with schema
+If you want to make this your own configuration without the original repository's history:
 
-### Development Tools
-- **Telescope**: Fuzzy finder for files, text, and more
-- **Harpoon**: Quick file navigation between frequently used files
-- **Treesitter**: Advanced syntax highlighting and code understanding
-- **Mason**: Package manager for LSP, DAP, linters, and formatters
-- **DAP**: Debug Adapter Protocol for interactive debugging
+```bash
+rm -rf ~/.config/nvim/.git
+```
 
-### Productivity Features
-- **KeyTrainer**: Custom game to practice keybindings (`:KeyMap`)
-- **Custom Mappings**: Efficient keybindings organized by category
-- **Database Client**: Integrated DB management with vim-dadbod
-- **Git Integration**: Fugitive for Git operations
-- **Smart Formatting**: Automatic code formatting on save
+## Updating
+
+To update your plugins to the latest versions:
+
+```
+:Lazy sync
+```
+
+To update NvChad core (if a new version is available):
+
+```
+:NvChadUpdate
+```
 
 ## Learn Your Configuration
 
@@ -82,6 +79,16 @@ Start the keybinding trainer game to practice and learn your custom keybindings:
 ```
 :KeyMap
 ```
+
+## Customizing the UI
+
+For detailed information on customizing the UI and themes:
+
+```
+:help nvui
+```
+
+This will provide documentation on customizing the base46 theme, highlights, and other UI components.
 
 ## Important Keybindings
 
@@ -127,6 +134,36 @@ The configuration is organized into modular components that are easy to customiz
 - `lua/mappings.lua`: All keybindings organized by category
 - `lua/plugins/init.lua`: Plugin configuration
 - `lua/configs/`: Individual configuration files for major plugins
+
+## Uninstallation
+
+If you need to completely remove this configuration:
+
+### Linux / MacOS (unix)
+```bash
+rm -rf ~/.config/nvim
+rm -rf ~/.local/state/nvim
+rm -rf ~/.local/share/nvim
+```
+
+### Flatpak (linux)
+```bash
+rm -rf ~/.var/app/io.neovim.nvim/config/nvim
+rm -rf ~/.var/app/io.neovim.nvim/data/nvim
+rm -rf ~/.var/app/io.neovim.nvim/.local/state/nvim
+```
+
+### Windows CMD
+```cmd
+rd -r ~\AppData\Local\nvim
+rd -r ~\AppData\Local\nvim-data
+```
+
+### Windows PowerShell
+```powershell
+rm -Force ~\AppData\Local\nvim
+rm -Force ~\AppData\Local\nvim-data
+```
 
 ## Credits & Inspiration
 

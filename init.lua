@@ -85,6 +85,7 @@ require("lazy").setup({
   -- Core plugins
   { import = "plugins" },            -- Automatically loads plugins/init.lua
   { import = "plugins.dev_tools" },  -- Development tools and LSP configurations
+  { import = "plugins.completion" }, -- Load completion plugins
   { import = "plugins.copilot" },    -- Load GitHub Copilot integration
   { import = "plugins.datascience" },-- Load Data Science plugins
 }, lazy_config)
@@ -97,6 +98,12 @@ pcall(require, "configs.commands")
 ---------------------------------------------------------
 -- Faster UI updates
 vim.opt.updatetime = 200
+
+-- Apply patches for deprecated APIs
+vim.schedule(function()
+  -- Apply patches for copilot-cmp and other plugins with deprecated warnings
+  pcall(require, "configs.copilot_patches").setup()
+end)
 
 -- Set colorscheme
 vim.schedule(function()

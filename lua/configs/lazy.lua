@@ -4,11 +4,17 @@ return {
 
   ui = {
     icons = {
-      ft = "",
+      ft = "",
       lazy = "󰂠 ",
-      loaded = "",
-      not_loaded = "",
+      loaded = "",
+      not_loaded = "",
     },
+  },
+
+  -- Disable luarocks features to fix warnings
+  rocks = {
+    enabled = false,  -- Disable luarocks completely
+    hererocks = false, -- Also disable hererocks specifically
   },
 
   performance = {

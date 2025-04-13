@@ -313,14 +313,34 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
+    init = function()
+      vim.o.timeout = true
+      vim.o.timeoutlen = 300
+    end,
     opts = {
       plugins = { spelling = true },
       defaults = {
         mode = { "n", "v" },
-        ["<leader>f"] = { name = "+find" },
+        ["<leader>f"] = { name = "+find/files" },
         ["<leader>g"] = { name = "+git" },
         ["<leader>d"] = { name = "+debug" },
         ["<leader>h"] = { name = "+harpoon" },
+        ["<leader>t"] = { name = "+terminal" },
+        ["<leader>r"] = { name = "+repl" },
+        ["<leader>b"] = { name = "+buffer" },
+      },
+      window = {
+        border = "rounded",
+        position = "bottom",
+        margin = { 1, 0, 1, 0 },
+        padding = { 1, 2, 1, 2 },
+        winblend = 0,
+      },
+      layout = {
+        height = { min = 4, max = 25 },
+        width = { min = 20, max = 50 },
+        spacing = 3,
+        align = "center",
       },
     },
     config = function(_, opts)

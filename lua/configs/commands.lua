@@ -9,11 +9,19 @@ vim.api.nvim_create_user_command("MasonInstallAll", function()
   local mason_settings = require("mason.settings").current
   local ensure_installed = mason_settings.ensure_installed or {}
   
-  -- Get the list from mason-lspconfig settings too
+  -- Get the list from mason-lspconfig settings too, but safely
+  local lsp_ensure_installed = {}
   local ok, mason_lspconfig = pcall(require, "mason-lspconfig")
-  if ok then
-    local lsp_settings = mason_lspconfig.get_settings()
-    for _, pkg in ipairs(lsp_settings.ensure_installed or {}) do
+  if ok and mason_lspconfig.setup_handlers ~= nil then
+    -- Try different ways to access the settings
+    if type(mason_lspconfig.get_settings) == "function" then
+      local lsp_settings = mason_lspconfig.get_settings()
+      lsp_ensure_installed = lsp_settings.ensure_installed or {}
+    elseif mason_lspconfig.settings and mason_lspconfig.settings.ensure_installed then
+      lsp_ensure_installed = mason_lspconfig.settings.ensure_installed
+    end
+    
+    for _, pkg in ipairs(lsp_ensure_installed) do
       -- Avoid duplicates
       if not vim.tbl_contains(ensure_installed, pkg) then
         table.insert(ensure_installed, pkg)

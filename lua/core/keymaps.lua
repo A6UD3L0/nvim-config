@@ -11,6 +11,10 @@ local map = vim.keymap.set
 --   term_mode = "t",
 --   command_mode = "c",
 
+-- Show all key mappings
+map("n", "<leader>km", ":Telescope keymaps<CR>", { desc = "Show all key mappings" })
+map("n", "<leader>k", ":WhichKey<CR>", { desc = "Show which-key mappings" })
+
 -- Window navigation
 map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
 map("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })

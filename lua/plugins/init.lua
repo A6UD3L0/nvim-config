@@ -14,7 +14,7 @@ return {
   -- TreeSitter for better syntax highlighting and code understanding
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
+    build = function() require("nvim-treesitter.install").update({ with_sync = true }) end,
     priority = 1000, -- Load before other plugins
     lazy = false,    -- Load at startup to avoid module not found errors
     config = function()

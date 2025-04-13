@@ -361,34 +361,96 @@ return {
     end,
   },
   
-  -- Telescope for improved file and text searching
+  -- Telescope for fuzzy finding
   {
     "nvim-telescope/telescope.nvim",
+    tag = "0.1.5", -- Use stable version
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope-file-browser.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+      "nvim-telescope/telescope-file-browser.nvim",
+      "nvim-tree/nvim-web-devicons",
     },
     cmd = "Telescope",
     keys = {
-      { "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Find Files" },
-      { "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Find Text" },
-      { "<leader>fb", function() require("telescope.builtin").file_browser() end, desc = "File Browser" },
-      { "<leader>fB", function() require("telescope.builtin").buffers() end, desc = "Find buffers" },
-      { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help Tags" },
-      { "<leader>fr", function() require("telescope.builtin").oldfiles() end, desc = "Recent Files" },
-      { "<leader>fc", function() require("telescope.builtin").current_buffer_fuzzy_find() end, desc = "Find in Current Buffer" },
-      { "<leader>fd", function() require("telescope.builtin").diagnostics() end, desc = "Diagnostics" },
-      { "<leader>fs", function() require("telescope.builtin").lsp_document_symbols() end, desc = "Document Symbols" },
+      { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find Files" },
+      { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live Grep" },
+      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Buffers" },
+      { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
+      { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent Files" },
+      { "<leader>fi", "<cmd>Telescope file_browser<CR>", desc = "File Browser" },
+      { "<leader>fc", "<cmd>Telescope current_buffer_fuzzy_find<CR>", desc = "Find in Current Buffer" },
+      { "<leader>fd", "<cmd>Telescope diagnostics<CR>", desc = "Diagnostics" },
+      { "<leader>fs", "<cmd>Telescope lsp_document_symbols<CR>", desc = "Document Symbols" },
+      -- Git specific commands
+      { "<leader>gc", "<cmd>Telescope git_commits<CR>", desc = "Git Commits" },
+      { "<leader>gb", "<cmd>Telescope git_branches<CR>", desc = "Git Branches" },
+      { "<leader>gs", "<cmd>Telescope git_status<CR>", desc = "Git Status" },
     },
     config = function()
-      -- Set up health check compatibility layer for Neovim 0.11.0+
-      -- Load health compatibility layer
-      local health_compat = require("plugins.health_compat")
-      health_compat.setup_health_compat()
+      local telescope = require("telescope")
+      local actions = require("telescope.actions")
       
-      -- Setup telescope
-      require("plugins.overrides.telescope").setup()
+      telescope.setup({
+        defaults = {
+          prompt_prefix = " ",
+          selection_caret = " ",
+          path_display = { "smart" },
+          sorting_strategy = "ascending",
+          layout_config = {
+            horizontal = {
+              prompt_position = "top",
+              preview_width = 0.55,
+              results_width = 0.8,
+            },
+            vertical = {
+              mirror = false,
+            },
+            width = 0.87,
+            height = 0.80,
+            preview_cutoff = 120,
+          },
+          mappings = {
+            i = {
+              ["<C-n>"] = actions.cycle_history_next,
+              ["<C-p>"] = actions.cycle_history_prev,
+              ["<C-j>"] = actions.move_selection_next,
+              ["<C-k>"] = actions.move_selection_previous,
+              ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+              ["<esc>"] = actions.close,
+            },
+          },
+          -- Optimize for backend development by ignoring irrelevant files
+          file_ignore_patterns = { 
+            "node_modules",
+            "__pycache__",
+            "%.git/",
+            "%.DS_Store",
+            "%.pytest_cache/",
+            "venv/",
+            ".venv/",
+            "target/",
+            "dist/",
+            "build/",
+          },
+        },
+        extensions = {
+          fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = "smart_case",
+          },
+          file_browser = {
+            theme = "dropdown",
+            hijack_netrw = true,
+          },
+        },
+      })
+      
+      -- Load extensions
+      pcall(telescope.load_extension, "fzf")
+      pcall(telescope.load_extension, "file_browser")
     end,
   },
   

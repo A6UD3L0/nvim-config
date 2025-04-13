@@ -120,3 +120,61 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+# Neovim Configuration Learning Game
+
+An interactive Python game that helps you learn your Neovim configuration and keybindings.
+
+## Features
+
+- Quiz Mode: Test your knowledge of Neovim keybindings
+- Practice Mode: Learn keybindings by category
+- Colorful interface for better visibility
+- Covers all major keybinding categories from your configuration
+
+## Installation
+
+1. Make sure you have Python 3 installed
+2. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## How to Play
+
+1. Run the game:
+   ```bash
+   python nvim_config_game.py
+   ```
+
+2. Choose a game mode:
+   - Quiz Mode: Test your knowledge with random questions
+   - Practice Mode: Learn keybindings by category
+   - Exit: Quit the game
+
+3. In Quiz Mode:
+   - Choose how many questions you want (1-20)
+   - Answer questions about keybindings
+   - Get immediate feedback on your answers
+   - See your final score
+
+4. In Practice Mode:
+   - Choose a category to practice
+   - View all keybindings in that category
+   - Study at your own pace
+
+## Categories
+
+The game covers the following keybinding categories:
+
+- Find: File and buffer navigation
+- Debug: Debugging commands
+- Git: Version control operations
+- Harpoon: File marking and navigation
+- Window: Window management
+- LSP: Language Server Protocol commands
+- Comment: Code commenting
+
+## Contributing
+
+Feel free to add more keybindings or features to the game. The code is structured to make it easy to add new categories or modify existing ones.

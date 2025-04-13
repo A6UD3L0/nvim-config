@@ -50,78 +50,58 @@ return {
     
     -- Register key mappings using the new format
     wk.register({
-      {
-        mode = { "n", "v" },
-        { "", group = "leader" },
-        { "", group = "code" },
-        { "", group = "harpoon" },
-        { "", group = "window" },
-        { "", group = "project" },
-        { "", group = "search" },
-        { "", group = "terminal" },
-        { "", group = "lsp" },
-        { "", group = "find" },
-        { "", group = "debug" },
-        { "", group = "git" },
-        { "", group = "buffer" },
-        { "", group = "explorer" },
-      },
-    })
-
-    -- Register specific key mappings to avoid overlaps
-    wk.register({
       -- Find mappings
-      { "", "<leader>ff", desc = "<cmd>Telescope find_files<cr>" },
-      { "", "<leader>fg", desc = "<cmd>Telescope live_grep<cr>" },
-      { "", "<leader>fb", desc = "<cmd>Telescope buffers<cr>" },
-      { "", "<leader>fh", desc = "<cmd>Telescope help_tags<cr>" },
-      { "", "<leader>fr", desc = "<cmd>Telescope oldfiles<cr>" },
-      { "", "<leader>fc", desc = "<cmd>Telescope current_buffer_fuzzy_find<cr>" },
-      { "", "<leader>fs", desc = "<cmd>Telescope lsp_document_symbols<cr>" },
-      { "", "<leader>fS", desc = "<cmd>Telescope lsp_workspace_symbols<cr>" },
-      { "", "<leader>ft", desc = "<cmd>Telescope treesitter<cr>" },
-      { "", "<leader>fd", desc = "<cmd>Telescope diagnostics<cr>" },
-      { "", "<leader>f/", desc = "<cmd>Telescope current_buffer_fuzzy_find<cr>" },
-      { "", "<leader>fB", desc = "<cmd>Telescope file_browser<cr>" },
-      { "", "<leader>fi", desc = "<cmd>Telescope file_browser<cr>" },
+      ["<leader>f"] = { name = "Find" },
+      ["<leader>ff"] = { "<cmd>Telescope find_files<cr>", desc = "Find files" },
+      ["<leader>fg"] = { "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
+      ["<leader>fb"] = { "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
+      ["<leader>fh"] = { "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
+      ["<leader>fr"] = { "<cmd>Telescope oldfiles<cr>", desc = "Recent files" },
+      ["<leader>fc"] = { "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Find in buffer" },
+      ["<leader>fs"] = { "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
+      ["<leader>fS"] = { "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
+      ["<leader>ft"] = { "<cmd>Telescope treesitter<cr>", desc = "Treesitter symbols" },
+      ["<leader>fd"] = { "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
+      ["<leader>fB"] = { "<cmd>Telescope file_browser<cr>", desc = "File browser" },
 
       -- Debug mappings
-      { "", "<leader>db", desc = "<cmd>lua require('dap').toggle_breakpoint()<cr>" },
-      { "", "<leader>dc", desc = "<cmd>lua require('dap').continue()<cr>" },
-      { "", "<leader>di", desc = "<cmd>lua require('dap').step_into()<cr>" },
-      { "", "<leader>do", desc = "<cmd>lua require('dap').step_over()<cr>" },
-      { "", "<leader>dO", desc = "<cmd>lua require('dap').step_out()<cr>" },
-      { "", "<leader>dr", desc = "<cmd>lua require('dap').repl.open()<cr>" },
-      { "", "<leader>dt", desc = "<cmd>lua require('dapui').toggle()<cr>" },
-      { "", "<leader>du", desc = "<cmd>lua require('dapui').toggle()<cr>" },
-      { "", "<leader>dB", desc = "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>" },
-      { "", "<leader>dl", desc = "<cmd>Telescope diagnostics<cr>" },
-      { "", "<leader>da", desc = "<cmd>DBUI<cr>" },
-      { "", "<leader>dd", desc = "<cmd>lua vim.lsp.buf.hover()<cr>" },
+      ["<leader>d"] = { name = "Debug" },
+      ["<leader>db"] = { "<cmd>lua require('dap').toggle_breakpoint()<cr>", desc = "Toggle breakpoint" },
+      ["<leader>dc"] = { "<cmd>lua require('dap').continue()<cr>", desc = "Continue" },
+      ["<leader>di"] = { "<cmd>lua require('dap').step_into()<cr>", desc = "Step into" },
+      ["<leader>do"] = { "<cmd>lua require('dap').step_over()<cr>", desc = "Step over" },
+      ["<leader>dO"] = { "<cmd>lua require('dap').step_out()<cr>", desc = "Step out" },
+      ["<leader>dr"] = { "<cmd>lua require('dap').repl.open()<cr>", desc = "Open REPL" },
+      ["<leader>dt"] = { "<cmd>lua require('dapui').toggle()<cr>", desc = "Toggle UI" },
+      ["<leader>dB"] = { "<cmd>lua require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>", desc = "Conditional breakpoint" },
+      ["<leader>dl"] = { "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics list" },
+      ["<leader>da"] = { "<cmd>DBUI<cr>", desc = "Add DB Connection" },
 
       -- Git mappings
-      { "", "<leader>gg", desc = "<cmd>Git<cr>" },
-      { "", "<leader>gb", desc = "<cmd>Git blame<cr>" },
-      { "", "<leader>gd", desc = "<cmd>Git diff<cr>" },
-      { "", "<leader>gc", desc = "<cmd>Git commit<cr>" },
+      ["<leader>g"] = { name = "Git" },
+      ["<leader>gg"] = { "<cmd>Git<cr>", desc = "Git status" },
+      ["<leader>gb"] = { "<cmd>Git blame<cr>", desc = "Git blame" },
+      ["<leader>gd"] = { "<cmd>Git diff<cr>", desc = "Git diff" },
+      ["<leader>gc"] = { "<cmd>Git commit<cr>", desc = "Git commit" },
 
       -- Harpoon mappings
-      { "", "<leader>hh", desc = "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>" },
-      { "", "<leader>ha", desc = "<cmd>lua require('harpoon.mark').add_file()<cr>" },
-
-      -- Window mappings
-      { "", "<leader>wq", desc = "<cmd>wq<cr>" },
-      { "", "<leader>w", desc = "<cmd>w<cr>" },
+      ["<leader>h"] = { name = "Harpoon" },
+      ["<leader>ha"] = { "<cmd>lua require('harpoon.mark').add_file()<cr>", desc = "Add file" },
+      ["<leader>hh"] = { "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>", desc = "Harpoon menu" },
 
       -- LSP mappings
-      { "", "gr", desc = "<cmd>lua vim.lsp.buf.references()<cr>" },
-      { "", "gri", desc = "<cmd>lua vim.lsp.buf.implementation()<cr>" },
-      { "", "gra", desc = "<cmd>lua vim.lsp.buf.code_action()<cr>" },
-      { "", "grn", desc = "<cmd>lua vim.lsp.buf.rename()<cr>" },
-
-      -- Comment mappings
-      { "", "gc", desc = "<cmd>lua require('Comment.api').toggle.linewise.current()<cr>" },
-      { "", "gcc", desc = "<cmd>lua require('Comment.api').toggle.linewise.current()<cr>" },
+      ["<leader>l"] = { name = "LSP" },
+      ["<leader>la"] = { vim.lsp.buf.code_action, desc = "Code action" },
+      ["<leader>ld"] = { vim.lsp.buf.definition, desc = "Go to definition" },
+      ["<leader>lf"] = { vim.lsp.buf.format, desc = "Format" },
+      ["<leader>li"] = { "<cmd>LspInfo<cr>", desc = "LSP info" },
+      ["<leader>ln"] = { vim.lsp.buf.rename, desc = "Rename" },
+      ["<leader>lr"] = { "<cmd>LspRestart<cr>", desc = "Restart LSP" },
+      ["<leader>ls"] = { "<cmd>LspStart<cr>", desc = "Start LSP" },
+      ["<leader>lS"] = { "<cmd>LspStop<cr>", desc = "Stop LSP" },
+      ["<leader>lh"] = { vim.lsp.buf.hover, desc = "Hover documentation" },
+      ["<leader>lk"] = { vim.lsp.buf.signature_help, desc = "Signature help" },
+      ["<leader>lt"] = { vim.lsp.buf.type_definition, desc = "Type definition" },
     }, { mode = "n" })
   end,
 } 

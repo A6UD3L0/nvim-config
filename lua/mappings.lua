@@ -21,13 +21,9 @@ end
 -- Function to set up which-key
 wk.setup {
   plugins = { spelling = true },
-  triggers = "<leader><leader>",
-  triggers_blacklist = {
-    n = { "v", "s" },
-    i = { "j", "k" },
-    v = { "j", "k" },
-  },
-  window = {
+  triggers = { "<leader>" },
+  defer = { gc = "Comments" },
+  win = {
     border = "rounded",
     winblend = 0,
   },
@@ -35,120 +31,6 @@ wk.setup {
 
 -- Add specific mapping for Space+Space to show all keybindings
 map("n", "<leader><leader>", "<cmd>WhichKey <CR>", { desc = "Show all keybindings" })
-
---------------------------
--- WhichKey Leader Mappings (New Format)
---------------------------
--- Register all leader commands in which-key using the new format
-wk.add({
-  -- Buffer management
-  { "<leader>b", name = "Buffer" },
-  { "<leader>bb", "<cmd>Telescope buffers<cr>", desc = "Buffer list" },
-  { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete buffer" },
-  { "<leader>bn", "<cmd>bnext<cr>", desc = "Next buffer" },
-  { "<leader>bp", "<cmd>bprevious<cr>", desc = "Previous buffer" },
-  
-  -- Debug
-  { "<leader>d", name = "Debug" },
-  { "<leader>db", "<cmd>lua require('dap').toggle_breakpoint()<cr>", desc = "Toggle breakpoint" },
-  { "<leader>dc", "<cmd>lua require('dap').continue()<cr>", desc = "Continue" },
-  { "<leader>di", "<cmd>lua require('dap').step_into()<cr>", desc = "Step into" },
-  { "<leader>do", "<cmd>lua require('dap').step_over()<cr>", desc = "Step over" },
-  { "<leader>dr", "<cmd>lua require('dap').repl.open()<cr>", desc = "REPL" },
-  { "<leader>dt", "<cmd>lua require('dapui').toggle()<cr>", desc = "Toggle UI" },
-  
-  -- Find (Telescope)
-  { "<leader>f", name = "Find" },
-  { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
-  { "<leader>fc", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Find in buffer" },
-  { "<leader>fd", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
-  { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-  { "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
-  { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
-  { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent files" },
-  { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
-  { "<leader>ft", "<cmd>Telescope treesitter<cr>", desc = "Treesitter symbols" },
-  { "<leader>fB", "<cmd>Telescope file_browser<cr>", desc = "File browser" },
-  
-  -- Git
-  { "<leader>g", name = "Git" },
-  { "<leader>gb", "<cmd>Git blame<cr>", desc = "Blame" },
-  { "<leader>gc", "<cmd>Git commit<cr>", desc = "Commit" },
-  { "<leader>gd", "<cmd>Gdiffsplit<cr>", desc = "Diff" },
-  { "<leader>gg", "<cmd>Git<cr>", desc = "Status" },
-  { "<leader>gl", "<cmd>Git pull<cr>", desc = "Pull" },
-  { "<leader>gp", "<cmd>Git push<cr>", desc = "Push" },
-  
-  -- Harpoon
-  { "<leader>h", name = "Harpoon" },
-  { "<leader>ha", "<cmd>lua require('harpoon.mark').add_file()<cr>", desc = "Add file" },
-  { "<leader>hh", "<cmd>lua require('harpoon.ui').toggle_quick_menu()<cr>", desc = "Menu" },
-  
-  -- LSP
-  { "<leader>l", name = "LSP" },
-  { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code action" },
-  { "<leader>ld", "<cmd>lua vim.lsp.buf.definition()<cr>", desc = "Go to definition" },
-  { "<leader>lf", "<cmd>lua vim.lsp.buf.format()<cr>", desc = "Format" },
-  { "<leader>li", "<cmd>LspInfo<cr>", desc = "LSP info" },
-  { "<leader>ln", "<cmd>lua vim.lsp.buf.rename()<cr>", desc = "Rename" },
-  { "<leader>lr", "<cmd>LspRestart<cr>", desc = "Restart LSP" },
-  { "<leader>ls", "<cmd>LspStart<cr>", desc = "Start LSP" },
-  { "<leader>lS", "<cmd>LspStop<cr>", desc = "Stop LSP" },
-  { "<leader>lh", "<cmd>lua vim.lsp.buf.hover()<cr>", desc = "Hover documentation" },
-  { "<leader>lk", "<cmd>lua vim.lsp.buf.signature_help()<cr>", desc = "Signature help" },
-  { "<leader>lt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", desc = "Type definition" },
-  
-  -- Python/Project
-  { "<leader>p", name = "Python/Project" },
-  { "<leader>pi", "<cmd>!pip install -r requirements.txt<cr>", desc = "Install requirements" },
-  { "<leader>pT", "<cmd>!python %<cr>", desc = "Run file" },
-  { "<leader>pt", "<cmd>!pytest %<cr>", desc = "Run tests" },
-  { "<leader>pv", "<cmd>!python -m venv .venv<cr>", desc = "Create venv" },
-  { "<leader>pe", "<cmd>Ex<cr>", desc = "Open netrw file explorer" },
-  
-  -- Go specific
-  { "<leader>go", name = "Go commands" },
-  { "<leader>gor", "<cmd>!go run %<CR>", desc = "Run current Go file" },
-  { "<leader>got", "<cmd>!go test ./...<CR>", desc = "Run Go tests" },
-  { "<leader>gob", "<cmd>!go build<CR>", desc = "Build Go project" },
-  { "<leader>goi", "<cmd>!go mod tidy<CR>", desc = "Go mod tidy" },
-  
-  -- REPL/Reload
-  { "<leader>r", name = "REPL/Reload" },
-  { "<leader>rs", "<cmd>so<cr>", desc = "Source current file" },
-  
-  -- Terminal/Toggle
-  { "<leader>t", name = "Terminal/Toggle" },
-  { "<leader>tn", "<cmd>NvimTreeToggle<cr>", desc = "NvimTree" },
-  { "<leader>tt", "<cmd>terminal<cr>", desc = "Terminal" },
-  { "<leader>tu", "<cmd>UndotreeToggle<cr>", desc = "Undotree" },
-  
-  -- Docker commands
-  { "<leader>D", name = "Docker" },
-  { "<leader>Dc", "<cmd>!docker-compose up -d<CR>", desc = "Docker-compose up" },
-  { "<leader>Dd", "<cmd>!docker-compose down<CR>", desc = "Docker-compose down" },
-  { "<leader>Dl", "<cmd>!docker ps<CR>", desc = "List Docker containers" },
-  
-  -- SQL
-  { "<leader>sq", "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", desc = "Format SQL" },
-  
-  -- ThePrimeagen's mappings
-  { "<leader>y", [["+y]], desc = "Yank to system clipboard", mode = { "n", "v" } },
-  { "<leader>Y", [["+Y]], desc = "Yank line to system clipboard" },
-  { "<leader>d", [["_d]], desc = "Delete without yanking", mode = { "n", "v" } },
-  
-  -- Visual mode mappings for x mode only
-  { "<leader>p", [["_dP]], desc = "Paste without yanking selection", mode = "x" },
-  
-  -- Other mappings
-  { "<leader>S", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], desc = "Search & replace word under cursor" },
-  { "<leader>x", "<cmd>!chmod +x %<CR>", desc = "Make file executable" },
-  
-  -- Go error handling snippets
-  { "<leader>e", name = "Error handling" },
-  { "<leader>ee", "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", desc = "Go error snippet: return" },
-  { "<leader>ef", "oif err != nil {<CR>}<Esc>Olog.Fatalf(\"error: %s\\n\", err.Error())<Esc>", desc = "Go error snippet: fatal" },
-})
 
 --------------------------
 -- Basic key mappings that work without which-key
@@ -194,3 +76,40 @@ map("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
 map("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
 map("n", "K", vim.lsp.buf.hover, { desc = "Hover documentation" })
 map("n", "<C-k>", vim.lsp.buf.signature_help, { desc = "Signature help" })
+
+-- Clipboard mappings
+map({ "n", "v" }, "<leader>y", [["+y]], { desc = "Yank to system clipboard" })
+map("n", "<leader>Y", [["+Y]], { desc = "Yank line to system clipboard" })
+map({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete without yanking" })
+map("x", "<leader>p", [["_dP]], { desc = "Paste without yanking selection" })
+
+-- Search and replace
+map("n", "<leader>S", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Search & replace word under cursor" })
+
+-- Make file executable
+map("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable" })
+
+-- Register all leader commands in which-key using the new format
+wk.register({
+  -- Error handling
+  ["<leader>e"] = { name = "Error handling" },
+  ["<leader>ee"] = { "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", desc = "Go error snippet: return" },
+  ["<leader>ef"] = { "oif err != nil {<CR>}<Esc>Olog.Fatalf(\"error: %s\\n\", err.Error())<Esc>", desc = "Go error snippet: fatal" },
+
+  -- Docker commands
+  ["<leader>D"] = { name = "Docker" },
+  ["<leader>Dc"] = { "<cmd>!docker-compose up -d<CR>", desc = "Docker-compose up" },
+  ["<leader>Dd"] = { "<cmd>!docker-compose down<CR>", desc = "Docker-compose down" },
+  ["<leader>Dl"] = { "<cmd>!docker ps<CR>", desc = "List Docker containers" },
+
+  -- SQL formatting
+  ["<leader>sq"] = { "<cmd>%!sqlformat --reindent --keywords upper --identifiers lower -<CR>", desc = "Format SQL" },
+
+  -- File operations
+  ["<leader>w"] = { "<cmd>w<CR>", desc = "Save file" },
+  ["<leader>wq"] = { "<cmd>wq<CR>", desc = "Save and quit" },
+
+  -- Comment mappings
+  ["gc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment toggle linewise" },
+  ["gcc"] = { "<cmd>lua require('Comment.api').toggle.linewise.current()<CR>", desc = "Comment toggle current line" },
+}, { mode = "n" })

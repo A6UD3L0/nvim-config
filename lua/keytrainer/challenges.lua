@@ -1,9 +1,9 @@
 -- Challenges for KeyTrainer
--- These challenges are tailored to the custom keybinding configuration
+-- Enhanced with comprehensive Vim motions and Harpoon mastery
 
 local M = {}
 
--- Beginner mode challenges
+-- Beginner mode challenges (Basic navigation and commands)
 M.beginner = {
   {
     description = "Exit insert mode without using Escape key",
@@ -45,9 +45,24 @@ M.beginner = {
     keybinding = "<C-u>",
     hint = "Control + a letter for 'up'",
   },
+  {
+    description = "Move cursor to the beginning of the line",
+    keybinding = "0",
+    hint = "A single number key",
+  },
+  {
+    description = "Move cursor to the first non-whitespace character",
+    keybinding = "^",
+    hint = "A symbol key found above the 6",
+  },
+  {
+    description = "Move cursor to the end of the line",
+    keybinding = "$",
+    hint = "A symbol key often used in regex",
+  },
 }
 
--- Intermediate mode challenges
+-- Intermediate mode challenges (More advanced navigation and editing)
 M.intermediate = {
   {
     description = "Format the current file",
@@ -89,9 +104,29 @@ M.intermediate = {
     keybinding = "<leader>s",
     hint = "Leader key followed by a single letter for 'substitute'",
   },
+  {
+    description = "Delete current line and enter insert mode",
+    keybinding = "cc",
+    hint = "Double tap a letter that copies",
+  },
+  {
+    description = "Delete from cursor to end of line and enter insert mode",
+    keybinding = "C",
+    hint = "Uppercase version of a common letter",
+  },
+  {
+    description = "Change inside parentheses",
+    keybinding = "ci(",
+    hint = "c + i + a bracket",
+  },
+  {
+    description = "Jump to matching bracket or parenthesis",
+    keybinding = "%",
+    hint = "A symbol key used in many programming languages",
+  },
 }
 
--- Advanced mode challenges
+-- Advanced mode challenges (Complex editing and navigation)
 M.advanced = {
   {
     description = "Add current file to harpoon",
@@ -102,6 +137,16 @@ M.advanced = {
     description = "Toggle harpoon quick menu",
     keybinding = "<leader>hh",
     hint = "Leader key followed by 'hh' for 'harpoon'",
+  },
+  {
+    description = "Navigate to first harpoon mark",
+    keybinding = "<leader>h1",
+    hint = "Leader key + h + number",
+  },
+  {
+    description = "Navigate to second harpoon mark",
+    keybinding = "<leader>h2",
+    hint = "Leader key + h + number",
   },
   {
     description = "Toggle a breakpoint for debugging",
@@ -133,6 +178,169 @@ M.advanced = {
     keybinding = "<leader><leader>",
     hint = "Press the leader key twice",
   },
+  {
+    description = "Delete from cursor to next occurrence of 'x'",
+    keybinding = "dtx",
+    hint = "d + t + character",
+  },
+  {
+    description = "Change until the end of the word",
+    keybinding = "ce",
+    hint = "c + e",
+  },
+  {
+    description = "Delete an entire paragraph",
+    keybinding = "dap",
+    hint = "d + a + p",
+  },
+}
+
+-- Harpoon mastery challenges (focused on Harpoon navigation)
+M.harpoon = {
+  {
+    description = "Add current file to Harpoon",
+    keybinding = "<leader>ha",
+    hint = "Leader key followed by 'ha'",
+  },
+  {
+    description = "Open Harpoon's quick menu",
+    keybinding = "<leader>hh",
+    hint = "Leader key followed by 'hh'",
+  },
+  {
+    description = "Navigate to the first Harpoon mark",
+    keybinding = "<leader>h1",
+    hint = "Leader key + h + the position number",
+  },
+  {
+    description = "Navigate to the second Harpoon mark",
+    keybinding = "<leader>h2",
+    hint = "Leader key + h + the position number",
+  },
+  {
+    description = "Navigate to the third Harpoon mark",
+    keybinding = "<leader>h3",
+    hint = "Leader key + h + the position number",
+  },
+  {
+    description = "Navigate to the fourth Harpoon mark",
+    keybinding = "<leader>h4",
+    hint = "Leader key + h + the position number",
+  },
+  {
+    description = "Add current file to Harpoon and then navigate to first mark",
+    keybinding = "<leader>ha<leader>h1",
+    hint = "Combo: add file then jump to first mark",
+  },
+  {
+    description = "Toggle Harpoon quick menu and remove a file (press 'd' in menu)",
+    keybinding = "<leader>hhd",
+    hint = "Open menu then press delete key",
+  },
+  {
+    description = "Navigate with Harpoon between marks (back and forth)",
+    keybinding = "<leader>h1<leader>h2",
+    hint = "Jump to mark 1 then to mark 2",
+  },
+  {
+    description = "Add a file to Harpoon then immediately navigate to 2nd mark",
+    keybinding = "<leader>ha<leader>h2",
+    hint = "Combo: add file then navigate",
+  },
+}
+
+-- Vim motions mastery challenges
+M.vim_motions = {
+  {
+    description = "Move to the next word (beginning)",
+    keybinding = "w",
+    hint = "A single letter for 'word'",
+  },
+  {
+    description = "Move to the next WORD (beginning)",
+    keybinding = "W",
+    hint = "Uppercase version of previous command",
+  },
+  {
+    description = "Move to the end of current word",
+    keybinding = "e",
+    hint = "A single letter for 'end'",
+  },
+  {
+    description = "Move to the end of current WORD",
+    keybinding = "E",
+    hint = "Uppercase version of previous command",
+  },
+  {
+    description = "Move to the beginning of previous word",
+    keybinding = "b",
+    hint = "A single letter for 'back'",
+  },
+  {
+    description = "Move to the beginning of previous WORD",
+    keybinding = "B",
+    hint = "Uppercase version of previous command",
+  },
+  {
+    description = "Move to the first occurrence of 'x' forward",
+    keybinding = "fx",
+    hint = "f + any character",
+  },
+  {
+    description = "Move to the first occurrence of 'x' backward",
+    keybinding = "Fx",
+    hint = "Uppercase f + any character",
+  },
+  {
+    description = "Move to just before the first occurrence of 'x' forward",
+    keybinding = "tx",
+    hint = "t + any character",
+  },
+  {
+    description = "Move to just after the first occurrence of 'x' backward",
+    keybinding = "Tx",
+    hint = "Uppercase t + any character",
+  },
+  {
+    description = "Repeat last f, F, t, or T motion forward",
+    keybinding = ";",
+    hint = "A single symbol key (might conflict with your command mode mapping)",
+  },
+  {
+    description = "Move to the matching bracket under cursor",
+    keybinding = "%",
+    hint = "A symbol key (percent)",
+  },
+  {
+    description = "Move to the top of the screen",
+    keybinding = "H",
+    hint = "Uppercase direction key for 'High'",
+  },
+  {
+    description = "Move to the middle of the screen",
+    keybinding = "M",
+    hint = "Uppercase letter for 'Middle'",
+  },
+  {
+    description = "Move to the bottom of the screen",
+    keybinding = "L",
+    hint = "Uppercase direction key for 'Low'",
+  },
+  {
+    description = "Jump to line 10",
+    keybinding = "10G",
+    hint = "Number + uppercase letter",
+  },
+  {
+    description = "Jump to the first line of the file",
+    keybinding = "gg",
+    hint = "Double tap a letter",
+  },
+  {
+    description = "Jump to the last line of the file",
+    keybinding = "G",
+    hint = "Single uppercase letter",
+  },
 }
 
 -- Backend development focused challenges
@@ -163,19 +371,157 @@ M.backend_focus = {
     hint = "Leader key followed by 'fo' for 'find old'",
   },
   {
-    description = "Alternative way to exit insert mode",
-    keybinding = "<C-c>",
-    hint = "Control + a letter",
+    description = "Generate Python docstring with Neogen",
+    keybinding = "<leader>dd",
+    hint = "Leader key followed by 'dd' for 'docstring'",
   },
   {
-    description = "Join line without moving cursor",
-    keybinding = "J",
-    hint = "A single capital letter (in normal mode)",
+    description = "Toggle database client UI",
+    keybinding = ":DBUI<CR>",
+    hint = "Command for database UI",
   },
   {
-    description = "Center view after finding next search match",
-    keybinding = "n",
-    hint = "The default key to find next match",
+    description = "Switch to insert mode at the beginning of the line",
+    keybinding = "I",
+    hint = "Uppercase version of the key used to enter insert mode",
+  },
+  {
+    description = "Switch to insert mode at the end of the line",
+    keybinding = "A",
+    hint = "Uppercase version of a letter near 'i'",
+  },
+  {
+    description = "Connect to a REPL for the current Python file",
+    keybinding = ":let b:cmdline_app = 'python'<CR>",
+    hint = "Setting variable then running IPython",
+  },
+  {
+    description = "Toggle undotree visualization",
+    keybinding = ":UndotreeToggle<CR>",
+    hint = "Command to toggle a history visualization tool",
+  },
+}
+
+-- TEXT OBJECT MASTERY challenges (for advanced editing)
+M.text_objects = {
+  {
+    description = "Delete inside parentheses - di(",
+    keybinding = "di(",
+    hint = "d + i + opening parenthesis",
+  },
+  {
+    description = "Change inside quotes - ci\"",
+    keybinding = "ci\"",
+    hint = "c + i + double quote",
+  },
+  {
+    description = "Yank inside braces - yi{",
+    keybinding = "yi{",
+    hint = "y + i + opening brace",
+  },
+  {
+    description = "Delete around parentheses (including them) - da(",
+    keybinding = "da(",
+    hint = "d + a + opening parenthesis",
+  },
+  {
+    description = "Change around quotes (including them) - ca\"",
+    keybinding = "ca\"",
+    hint = "c + a + double quote",
+  },
+  {
+    description = "Delete inside word - diw",
+    keybinding = "diw",
+    hint = "d + i + w",
+  },
+  {
+    description = "Change around word - caw",
+    keybinding = "caw",
+    hint = "c + a + w",
+  },
+  {
+    description = "Delete inside paragraph - dip",
+    keybinding = "dip",
+    hint = "d + i + p",
+  },
+  {
+    description = "Yank around paragraph - yap",
+    keybinding = "yap",
+    hint = "y + a + p",
+  },
+  {
+    description = "Change inside tag (HTML/XML) - cit",
+    keybinding = "cit",
+    hint = "c + i + t",
+  },
+  {
+    description = "Delete around tag (HTML/XML) - dat",
+    keybinding = "dat",
+    hint = "d + a + t",
+  },
+  {
+    description = "Change inside function block or class - cib",
+    keybinding = "cib",
+    hint = "c + i + b",
+  },
+  {
+    description = "Yank inside inner block - yi}",
+    keybinding = "yi}",
+    hint = "y + i + closing brace",
+  },
+}
+
+-- Terminal and Development Workflow challenges
+M.workflow = {
+  {
+    description = "Toggle floating terminal",
+    keybinding = ":ToggleTerm<CR>",
+    hint = "Command to toggle terminal",
+  },
+  {
+    description = "Open Mason package manager",
+    keybinding = ":Mason<CR>",
+    hint = "Command to open LSP/DAP installer",
+  },
+  {
+    description = "Start Git command in Fugitive",
+    keybinding = ":Git<CR>",
+    hint = "Command to open Git interface",
+  },
+  {
+    description = "Apply linting fixes to current file",
+    keybinding = "<leader>f",
+    hint = "Leader key followed by letter for format",
+  },
+  {
+    description = "View git hunks in the current file",
+    keybinding = ":Gitsigns preview_hunk<CR>",
+    hint = "Command to view Git changes",
+  },
+  {
+    description = "View LSP references for symbol under cursor",
+    keybinding = "<leader>lsr",
+    hint = "Leader key followed by 'ls' + 'r'",
+  },
+  {
+    description = "Rename symbol under cursor",
+    keybinding = "<leader>lsn",
+    hint = "Leader key followed by 'ls' + 'n'",
+  },
+  {
+    description = "Show hover documentation",
+    keybinding = "K",
+    hint = "Single uppercase key that moves text in visual mode",
+  },
+  {
+    description = "Format comment block (wrap text)",
+    keybinding = "gq}",
+    hint = "g + q + movement",
+  },
+  {
+    description = "Run Python code snippet under cursor",
+    keybinding = "<Plug>SnipRun",
+    hint = "SnipRun execution key",
   },
 }
 

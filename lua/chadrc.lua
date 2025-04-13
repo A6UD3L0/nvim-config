@@ -87,6 +87,7 @@ M.nvdash = {
     { "󰈭  Find Word", "Spc f w", "Telescope live_grep" },
     { "  Bookmarks", "Spc m a", "Telescope marks" },
     { "  Learn Keys", "Spc k m", "KeyMap" },
+    { "  Train Harpoon", "HT", "HarpoonTrainer" },
     { "  Mason", "Mason", "Mason" },
   },
 }

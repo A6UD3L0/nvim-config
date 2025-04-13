@@ -123,8 +123,7 @@ return {
   -- (Optional) Customize context patterns if needed.
   -- context_patterns = { "class", "function", "method", "if", "while", "for", "with", "try" },
 }
-)
-    end,
+  end,
   },
   ----------------------------------------------------------------------
   -- Optional and Lazy-loaded Plugins:

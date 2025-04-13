@@ -34,7 +34,24 @@ vim.g.loaded_netrwPlugin = 1
 require "options"
 
 ---------------------------------------------------------
--- Core Keymaps  
+-- Plugin Manager Setup (lazy.nvim)
+---------------------------------------------------------
+local lazy_config = require "configs.lazy"
+
+require("lazy").setup({
+  -- Core plugins
+  { import = "plugins" },            -- Automatically loads plugins/init.lua
+  { import = "plugins.dev_tools" },  -- Development tools and LSP configurations
+  { import = "plugins.completion" }, -- Load completion plugins
+  { import = "plugins.copilot" },    -- Load GitHub Copilot integration
+  { import = "plugins.datascience" },-- Load Data Science plugins
+}, lazy_config)
+
+-- Load custom commands including :MasonInstallAll
+pcall(require, "configs.commands")
+
+---------------------------------------------------------
+-- Core Keymaps (loaded after plugins to ensure which-key is available)
 ---------------------------------------------------------
 require "mappings"
 
@@ -75,23 +92,6 @@ autocmd("FileType", {
       - "2" -- Don't use indent of second line for rest of paragraph
   end,
 })
-
----------------------------------------------------------
--- Plugin Manager Setup (lazy.nvim)
----------------------------------------------------------
-local lazy_config = require "configs.lazy"
-
-require("lazy").setup({
-  -- Core plugins
-  { import = "plugins" },            -- Automatically loads plugins/init.lua
-  { import = "plugins.dev_tools" },  -- Development tools and LSP configurations
-  { import = "plugins.completion" }, -- Load completion plugins
-  { import = "plugins.copilot" },    -- Load GitHub Copilot integration
-  { import = "plugins.datascience" },-- Load Data Science plugins
-}, lazy_config)
-
--- Load custom commands including :MasonInstallAll
-pcall(require, "configs.commands")
 
 ---------------------------------------------------------
 -- Final setup and initialization

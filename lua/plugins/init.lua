@@ -322,26 +322,85 @@ return {
     },
   },
   
+  -- Fast navigation with Leap
+  {
+    "ggandor/leap.nvim",
+    event = "VeryLazy",
+    dependencies = { "tpope/vim-repeat" },
+    config = function()
+      require("leap").add_default_mappings()
+    end,
+  },
+  
   -- Telescope for improved file and text searching
   {
     "nvim-telescope/telescope.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope-file-browser.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     },
     cmd = "Telescope",
     keys = {
-      { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find Files" },
-      { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live Grep" },
-      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Buffers" },
-      { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help Tags" },
-      { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent Files" },
-      { "<leader>fc", "<cmd>Telescope git_commits<CR>", desc = "Git Commits" },
-      { "<leader>fs", "<cmd>Telescope git_status<CR>", desc = "Git Status" },
-      { "<leader>fp", "<cmd>Telescope projects<CR>", desc = "Projects" },
+      { "<leader>ff", function() require("telescope.builtin").find_files() end, desc = "Find Files" },
+      { "<leader>fg", function() require("telescope.builtin").live_grep() end, desc = "Find Text" },
+      { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Find Buffers" },
+      { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help Tags" },
+      { "<leader>fr", function() require("telescope.builtin").oldfiles() end, desc = "Recent Files" },
+      { "<leader>fc", function() require("telescope.builtin").current_buffer_fuzzy_find() end, desc = "Find in Current Buffer" },
+      { "<leader>fd", function() require("telescope.builtin").diagnostics() end, desc = "Diagnostics" },
+      { "<leader>fs", function() require("telescope.builtin").lsp_document_symbols() end, desc = "Document Symbols" },
     },
     config = function()
-      require "configs.telescope"
+      local telescope = require("telescope")
+      local actions = require("telescope.actions")
+      
+      telescope.setup({
+        defaults = {
+          prompt_prefix = " ",
+          selection_caret = " ",
+          path_display = { "smart" },
+          sorting_strategy = "ascending",
+          layout_config = {
+            horizontal = {
+              prompt_position = "top",
+              preview_width = 0.55,
+              results_width = 0.8,
+            },
+            vertical = {
+              mirror = false,
+            },
+            width = 0.87,
+            height = 0.80,
+            preview_cutoff = 120,
+          },
+          mappings = {
+            i = {
+              ["<C-n>"] = actions.cycle_history_next,
+              ["<C-p>"] = actions.cycle_history_prev,
+              ["<C-j>"] = actions.move_selection_next,
+              ["<C-k>"] = actions.move_selection_previous,
+              ["<esc>"] = actions.close,
+            },
+          },
+          file_ignore_patterns = { "node_modules", "__pycache__", "%.git/", "%.ds_store" },
+        },
+        extensions = {
+          fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = "smart_case",
+          },
+          file_browser = {
+            theme = "dropdown",
+            hijack_netrw = true,
+          },
+        },
+      })
+      
+      telescope.load_extension("fzf")
+      telescope.load_extension("file_browser")
     end,
   },
   
@@ -390,13 +449,73 @@ return {
       defaults = {
         {
           mode = { "n", "v" },
-          ["b"] = { name = "Buffer" },
-          ["d"] = { name = "Debug" },
-          ["f"] = { name = "Find" },
-          ["g"] = { name = "Git" },
-          ["h"] = { name = "Harpoon" },
-          ["r"] = { name = "Repl" },
-          ["t"] = { name = "Terminal" },
+          ["b"] = { 
+            name = "Buffer", 
+            ["b"] = { "<cmd>Telescope buffers<cr>", "Buffer list" },
+            ["d"] = { "<cmd>bdelete<cr>", "Delete buffer" },
+            ["n"] = { "<cmd>bnext<cr>", "Next buffer" },
+            ["p"] = { "<cmd>bprevious<cr>", "Previous buffer" },
+          },
+          ["d"] = { 
+            name = "Debug",
+            ["b"] = { "<cmd>lua require('dap').toggle_breakpoint()<cr>", "Toggle breakpoint" },
+            ["c"] = { "<cmd>lua require('dap').continue()<cr>", "Continue" },
+            ["i"] = { "<cmd>lua require('dap').step_into()<cr>", "Step into" },
+            ["o"] = { "<cmd>lua require('dap').step_over()<cr>", "Step over" },
+            ["r"] = { "<cmd>lua require('dap').repl.open()<cr>", "REPL" },
+            ["t"] = { "<cmd>lua require('dapui').toggle()<cr>", "Toggle UI" },
+          },
+          ["f"] = { 
+            name = "Find",
+            ["f"] = { "<cmd>Telescope find_files<cr>", "Find files" },
+            ["g"] = { "<cmd>Telescope live_grep<cr>", "Live grep" },
+            ["b"] = { "<cmd>Telescope buffers<cr>", "Find buffers" },
+            ["h"] = { "<cmd>Telescope help_tags<cr>", "Help tags" },
+            ["r"] = { "<cmd>Telescope oldfiles<cr>", "Recent files" },
+            ["c"] = { "<cmd>Telescope current_buffer_fuzzy_find<cr>", "Find in buffer" },
+            ["s"] = { "<cmd>Telescope lsp_document_symbols<cr>", "Document symbols" },
+          },
+          ["g"] = { 
+            name = "Git",
+            ["s"] = { "<cmd>Git<cr>", "Status" },
+            ["b"] = { "<cmd>Git blame<cr>", "Blame" },
+            ["d"] = { "<cmd>Gdiffsplit<cr>", "Diff" },
+            ["c"] = { "<cmd>Git commit<cr>", "Commit" },
+            ["p"] = { "<cmd>Git push<cr>", "Push" },
+            ["l"] = { "<cmd>Git pull<cr>", "Pull" },
+          },
+          ["h"] = { 
+            name = "Harpoon",
+            ["a"] = { function() require("harpoon"):list():append() end, "Add file" },
+            ["h"] = { function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end, "Menu" },
+          },
+          ["l"] = { 
+            name = "LSP",
+            ["d"] = { "<cmd>lua vim.lsp.buf.definition()<cr>", "Go to definition" },
+            ["r"] = { "<cmd>lua vim.lsp.buf.references()<cr>", "References" },
+            ["n"] = { "<cmd>lua vim.lsp.buf.rename()<cr>", "Rename" },
+            ["a"] = { "<cmd>lua vim.lsp.buf.code_action()<cr>", "Code action" },
+            ["f"] = { "<cmd>lua vim.lsp.buf.format()<cr>", "Format" },
+            ["i"] = { "<cmd>LspInfo<cr>", "LSP info" },
+            ["s"] = { "<cmd>LspStart<cr>", "Start LSP" },
+            ["S"] = { "<cmd>LspStop<cr>", "Stop LSP" },
+          },
+          ["p"] = { 
+            name = "Python/Project",
+            ["t"] = { "<cmd>!pytest %<cr>", "Run tests" },
+            ["r"] = { "<cmd>!python %<cr>", "Run file" },
+            ["i"] = { "<cmd>!pip install -r requirements.txt<cr>", "Install requirements" },
+            ["v"] = { "<cmd>!python -m venv .venv<cr>", "Create venv" },
+          },
+          ["r"] = { 
+            name = "REPL",
+          },
+          ["t"] = { 
+            name = "Terminal/Toggle",
+            ["t"] = { "<cmd>terminal<cr>", "Terminal" },
+            ["n"] = { "<cmd>NvimTreeToggle<cr>", "NvimTree" },
+            ["u"] = { "<cmd>UndotreeToggle<cr>", "Undotree" },
+          },
         },
       },
       win = {

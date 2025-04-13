@@ -39,6 +39,15 @@ M.base46 = {
     LineNr = { fg = "#63677f" },
     CursorLineNr = { fg = "#c6a0f6", bold = true },
     CursorLine = { bg = "#303347" },
+    
+    -- WhichKey specific colors for better visibility
+    WhichKey = { fg = "#c6a0f6", bold = true },
+    WhichKeyDesc = { fg = "#8bd5ca" },
+    WhichKeyGroup = { fg = "#ed8796" },
+    WhichKeySeperator = { fg = "#63677f" },
+    WhichKeySeparator = { fg = "#63677f" },
+    WhichKeyFloat = { bg = "#1e1e2e" },
+    WhichKeyValue = { fg = "#63677f" },
   },
   
   -- Custom highlights specific to plugins
@@ -49,20 +58,9 @@ M.base46 = {
     
     -- Telescope enhancements
     TelescopePromptPrefix = { fg = "#c6a0f6" },
-    TelescopePromptTitle = { fg = "#c6a0f6", bold = true },
-    
-    -- LSP and diagnostics with softer colors
-    DiagnosticVirtualTextError = { fg = "#ed8796", bg = "#35293b" },
-    DiagnosticVirtualTextWarn = { fg = "#f5a97f", bg = "#38333b" },
-    DiagnosticVirtualTextInfo = { fg = "#8bd5ca", bg = "#2e3444" },
-    DiagnosticVirtualTextHint = { fg = "#a6da95", bg = "#2d382d" },
-    
-    -- Data Science related highlights
-    JupyniumCodeCell = { bg = "#303347" },
-    JupyniumMarkdownCell = { bg = "#2d2e3b" },
   },
   
-  -- Add some transparency to floating windows
+  -- Configure transparency (disabled by default)
   transparency = false,
 }
 
@@ -97,8 +95,12 @@ M.nvdash = {
 -- UI: Additional Interface Component Customizations
 --------------------------------------------------------------------------------
 M.ui = {
-  -- Show dashboard on startup
-  nvdash = { load_on_startup = true },
+  -- Theme settings from updated configuration
+  theme = "catppuccin",
+  theme_toggle = { "catppuccin", "one_light" },
+  
+  -- Set up a nice terminal color scheme that matches editor
+  terminal_colors = true,
   
   -- Status line config
   statusline = {

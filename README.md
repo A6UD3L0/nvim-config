@@ -2,20 +2,20 @@
 
 A comprehensive Neovim configuration optimized for backend development, data science, and machine learning workflows. This configuration combines ThePrimeagen's efficient keybindings with NvChad's simplicity and elegance, enhanced with specialized tools for development and data analysis.
 
-![Neovim Backend & Data Science](https://raw.githubusercontent.com/NvChad/nvchad.github.io/src/static/img/screenshots/nvdash.webp)
+![Neovim Backend & Data Science IDE](https://raw.githubusercontent.com/NvChad/nvchad.github.io/src/static/img/screenshots/nvdash.webp)
 
-## Features
+## ✨ Features
 
 - **Backend Development Focus**: Optimized for Python, Go, C/C++, SQL, and other backend languages
 - **Data Science Support**: Special tools for Python data analysis, Jupyter notebooks, and scientific computing
 - **Machine Learning Workflow**: Integrated tools for ML development, model training, and experimentation
 - **Git Mastery**: Enhanced Git integration with Fugitive, Gitsigns, Diffview, and LazyGit
 - **AI Code Completion**: GitHub Copilot integration for intelligent code suggestions
-- **Interactive Learning**: KeyTrainer game with specialized modules for different workflows
+- **Interactive Learning**: KeyTrainer and DataScienceTrainer games for learning Neovim and data science workflows
 - **Advanced Debugging**: Comprehensive DAP setup for Python, Go, and C/C++
 - **Beautiful UI**: Modern interface with Catppuccin theme and customized highlights
 
-## Specialized Tools
+## 🛠️ Specialized Tools
 
 - **Jupyter Integration**: Work with Jupyter notebooks directly in Neovim
 - **REPL Support**: Interactive code execution for Python, R, and other languages
@@ -24,9 +24,12 @@ A comprehensive Neovim configuration optimized for backend development, data sci
 - **SnipRun**: Run code snippets in various languages without leaving Neovim
 - **Enhanced Undotree**: Better visualization of your editing history
 
-## Keybinding Training Modules
+## 🎮 Interactive Learning Games
 
-Master your Neovim workflow with specialized training modules:
+Master your workflow with specialized training modules:
+
+### KeyTrainer
+Learn and practice Neovim keybindings with interactive exercises:
 - `:KeyMap` - General keybinding training
 - `:HarpoonTrainer` - Master quick file navigation
 - `:GitTrainer` - Learn Git operations
@@ -34,13 +37,34 @@ Master your Neovim workflow with specialized training modules:
 - `:MotionsTrainer` - Become proficient with Vim motions
 - `:TextObjectsTrainer` - Master text manipulation
 
-## One-Command Installation
+### DataScienceTrainer
+Learn data science workflows directly in Neovim with progressive challenges:
+- `:DataScienceTrainer` or `:DST` - Start the main game
+- `:DST basics` - Start with Python basics
+- `:DST numpy` - Learn NumPy operations
+- `:DST pandas` - Practice Pandas data manipulation
+- `:DST visualization` - Create data visualizations
+- `:DST ml` - Build machine learning models
+- `:DST advanced` - Complete advanced workflows
+
+## 📋 Prerequisites
+
+- Neovim 0.9.0 or later
+- Git
+- A Nerd Font (recommended: JetBrainsMono Nerd Font)
+- Python 3.6+ with pip (for data science features)
+- Node.js and npm (for LSP features)
+- [Ripgrep](https://github.com/BurntSushi/ripgrep) for telescope live grep
+
+## 💻 Installation
+
+### One-Command Installation
 
 ```bash
 git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim && nvim
 ```
 
-## Manual Installation
+### Step-by-Step Installation
 
 1. **Backup your existing configuration** (if you have one):
 
@@ -54,13 +78,25 @@ mv ~/.config/nvim ~/.config/nvim.bak
 git clone https://github.com/A6UD3L0/nvim-config ~/.config/nvim
 ```
 
-3. **Start Neovim** to automatically install plugins:
+3. **Make it your own** (optional):
+
+```bash
+rm -rf ~/.config/nvim/.git
+git init ~/.config/nvim
+```
+
+4. **Start Neovim** to automatically install plugins:
 
 ```bash
 nvim
 ```
 
-4. **Install Language Servers and Tools**:
+The first launch will:
+- Install lazy.nvim (plugin manager)
+- Download and install all configured plugins
+- Set up the UI and theme
+
+5. **Install Language Servers and Tools**:
 
 After lazy.nvim finishes downloading plugins, run:
 
@@ -68,17 +104,17 @@ After lazy.nvim finishes downloading plugins, run:
 :MasonInstallAll
 ```
 
-This will install all the pre-configured language servers, formatters, and linters.
+This will install all pre-configured language servers, formatters, linters, and debugging tools.
 
-5. **Optional: Remove Git Information**
+6. **For Data Science Features** (optional):
 
-If you want to make this your own configuration without the original repository's history:
+Install required Python packages:
 
 ```bash
-rm -rf ~/.config/nvim/.git
+pip install numpy pandas matplotlib seaborn scikit-learn nltk
 ```
 
-## Updating
+## 🔄 Updating
 
 To update your plugins to the latest versions:
 
@@ -86,31 +122,19 @@ To update your plugins to the latest versions:
 :Lazy sync
 ```
 
-To update NvChad core (if a new version is available):
+## 🎨 Customizing the UI
 
-```
-:NvChadUpdate
-```
+The configuration uses Catppuccin as the default theme. You can change themes in `lua/chadrc.lua`:
 
-## Learn Your Configuration
-
-Start the keybinding trainer game to practice and learn your custom keybindings:
-
-```
-:KeyMap
+```lua
+M.base46 = {
+  theme = "catppuccin", -- Change this to another theme
+}
 ```
 
-## Customizing the UI
+Available themes include: "catppuccin", "tokyonight", "gruvbox", "onedark", "nord", and more.
 
-For detailed information on customizing the UI and themes:
-
-```
-:help nvui
-```
-
-This will provide documentation on customizing the base46 theme, highlights, and other UI components.
-
-## Important Keybindings
+## ⌨️ Key Keybindings
 
 | Keybinding | Description |
 |------------|-------------|
@@ -126,27 +150,21 @@ This will provide documentation on customizing the base46 theme, highlights, and
 | `<leader>dc` | Start debugging |
 | `<leader>ha` | Add file to Harpoon |
 | `<leader>hh` | Toggle Harpoon menu |
-| `<leader>dd` | Generate docstring |
+| `<leader>u` | Toggle Undotree |
+| `<leader>gg` | Open LazyGit |
 
-## Language-Specific Features
+## 🐍 Data Science & Machine Learning
 
-### Python Data Science
-- Jupyter notebook integration
-- Interactive REPL support
-- NumPy-style docstring generation
-- Debugging with debugpy
-
-### Go Development
-- Error handling snippets
-- Integrated debugging with Delve
-- Auto imports and formatting
-
-### SQL & Database Work
-- SQL formatting and linting
-- Database client interface
-- Schema-aware completions
-
-## Data Science & Machine Learning Keybindings
+### DataScienceTrainer Controls
+- `n` - Next challenge
+- `p` - Previous challenge
+- `h` - Show hint
+- `s` - Show solution
+- `r` - Run current challenge in a new buffer
+- `o` - Open challenge in editor with full instructions
+- `c` - Change category
+- `l` - Change difficulty level
+- `q`/`Esc` - Quit game
 
 ### Jupyter Notebook Integration
 - `<leader>jS` - Start Jupynium server
@@ -159,14 +177,7 @@ This will provide documentation on customizing the base46 theme, highlights, and
 - `<leader>sc` - Close live runner
 - `<leader>si` - Show runner information
 
-### Database Operations
-- `<leader>db` - Toggle database UI
-- `<leader>da` - Add database connection
-
-### Documentation
-- `<leader>dd` - Generate code documentation
-
-## Git Workflow
+## 🔄 Git Workflow
 
 ### Fugitive
 - `<leader>gs` - Git status
@@ -186,9 +197,9 @@ This will provide documentation on customizing the base46 theme, highlights, and
 ### LazyGit
 - `<leader>gg` - Open LazyGit interface
 
-## Debugging
+## 🔎 Debugging
 
-- `<leader>db` - Toggle breakpoint
+- `<leader>dt` - Toggle breakpoint
 - `<leader>dB` - Set conditional breakpoint
 - `<leader>dc` - Continue execution
 - `<leader>di` - Step into
@@ -198,47 +209,12 @@ This will provide documentation on customizing the base46 theme, highlights, and
 - `<leader>du` - Toggle debug UI
 - `<leader>dx` - Terminate debugging session
 
-## Customization
+## 📝 License
 
-The configuration is organized into modular components that are easy to customize:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- `lua/chadrc.lua`: Main configuration and UI settings
-- `lua/mappings.lua`: All keybindings organized by category
-- `lua/plugins/init.lua`: Plugin configuration
-- `lua/configs/`: Individual configuration files for major plugins
+## 🙏 Acknowledgements
 
-## Uninstallation
-
-If you need to completely remove this configuration:
-
-### Linux / MacOS (unix)
-```bash
-rm -rf ~/.config/nvim
-rm -rf ~/.local/state/nvim
-rm -rf ~/.local/share/nvim
-```
-
-### Flatpak (linux)
-```bash
-rm -rf ~/.var/app/io.neovim.nvim/config/nvim
-rm -rf ~/.var/app/io.neovim.nvim/data/nvim
-rm -rf ~/.var/app/io.neovim.nvim/.local/state/nvim
-```
-
-### Windows CMD
-```cmd
-rd -r ~\AppData\Local\nvim
-rd -r ~\AppData\Local\nvim-data
-```
-
-### Windows PowerShell
-```powershell
-rm -Force ~\AppData\Local\nvim
-rm -Force ~\AppData\Local\nvim-data
-```
-
-## Credits & Inspiration
-
-1. [NvChad](https://github.com/NvChad/NvChad) - Base framework and UI components
-2. [ThePrimeagen](https://github.com/ThePrimeagen/init.lua) - Keybindings and workflow optimizations
-3. [LazyVim](https://github.com/LazyVim/starter) - Inspiration for the starter configuration
+- ThePrimeagen for the keybinding philosophy
+- NvChad for the UI inspiration
+- The Neovim community for all the amazing plugins

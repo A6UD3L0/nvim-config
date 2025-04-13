@@ -1,5 +1,5 @@
--- Load NvChad mappings as base
-require "nvchad.mappings"
+-- Seamless Neovim keybindings for backend development
+-- Combines ThePrimeagen's mappings with NvChad simplicity
 
 -- Map leader key to space
 vim.g.mapleader = " "

@@ -4,14 +4,13 @@ local M = {}
 -- Fix for LuaSnip deprecated vim.validate warnings
 M.setup = function()
   -- Only run if LuaSnip is available
-  local luasnip_status, _ = pcall(require, "luasnip")
+  local luasnip_status, luasnip = pcall(require, "luasnip")
   if not luasnip_status then
     return
   end
 
-  -- Override the deprecated vim.validate function
-  _G._luasnip_validate = function(args, parent)
-    -- Create a non-deprecated version of validation
+  -- Create a non-deprecated version of validation
+  local function validate(args, parent)
     for k, v in pairs(args) do
       if type(v) == "table" then
         local val, spec = v[1], v[2]
@@ -29,15 +28,21 @@ M.setup = function()
   end
 
   -- Apply monkey patch for LuaSnip's internal validation
-  local luasnip_util = package.loaded["luasnip.util.util"]
-  if luasnip_util and luasnip_util.validate then
-    luasnip_util.validate = _G._luasnip_validate
+  if luasnip.util then
+    luasnip.util.validate = validate
   end
 
-  local loaders_util = package.loaded["luasnip.loaders.util"]
-  if loaders_util then
-    loaders_util.validate = _G._luasnip_validate
+  if luasnip.loaders then
+    luasnip.loaders.util.validate = validate
   end
+
+  -- Initialize LuaSnip with proper configuration
+  luasnip.config.setup({
+    history = true,
+    update_events = "TextChanged,TextChangedI",
+    region_check_events = "InsertEnter",
+    delete_check_events = "TextChanged,InsertLeave"
+  })
 end
 
 return M

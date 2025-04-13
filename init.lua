@@ -71,6 +71,13 @@ require("lazy").setup({
   },
 })
 
+-- Load plugin configurations
+require("configs").setup()
+
+-- Explicitly load LuaSnip and Copilot-cmp configurations
+require("configs.luasnip").setup()
+require("mappings") -- This will load Copilot-cmp setup
+
 -- Initialize colorscheme with fallbacks
 vim.schedule(function()
   local colorscheme_ok, _ = pcall(vim.cmd, "colorscheme catppuccin")

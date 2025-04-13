@@ -7,7 +7,18 @@ vim.g.mapleader = " "
 -- Create a local mapping function to use whether or not which-key is available
 local map = vim.keymap.set
 
--- Function to set up which-key
+local wk_status, wk = pcall(require, "which-key")
+if not wk_status then
+  return
+end
+
+-- Initialize Copilot-cmp if available
+local copilot_cmp_status, copilot_cmp = pcall(require, "copilot_cmp")
+if copilot_cmp_status then
+  copilot_cmp.setup()
+end
+
+-- Set up which-key with new format
 wk.setup {
   plugins = { spelling = true },
   triggers = "<leader><leader>",
@@ -135,25 +146,6 @@ wk.setup {
     { "<leader>ee", "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", desc = "Go error snippet: return" },
     { "<leader>ef", "oif err != nil {<CR>}<Esc>Olog.Fatalf(\"error: %s\\n\", err.Error())<Esc>", desc = "Go error snippet: fatal" },
   })
-end
-
--- Safely require which-key so we avoid an error if it's not loaded yet
-local wk_status, wk = pcall(require, "which-key")
-if not wk_status then
-  vim.defer_fn(function()
-    -- Try requiring which-key again after a short delay
-    wk_status, wk = pcall(require, "which-key")
-    if wk_status then
-      -- Configure which-key if it's loaded after the delay
-      setup_which_key(wk)
-    else
-      vim.notify("which-key plugin not found. Basic keybindings will still work.", vim.log.levels.WARN)
-    end
-  end, 500) -- 500ms delay to allow lazy.nvim to load which-key
-else
-  -- If which-key loaded successfully, set it up
-  setup_which_key(wk)
-end
 
 --------------------------
 -- Basic key mappings that work without which-key

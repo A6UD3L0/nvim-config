@@ -1104,14 +1104,12 @@ return {
   -- DevDocs integration for programming language documentation
   {
     "luckasRanarison/nvim-devdocs",
-    lazy = false,  -- Load on startup instead of lazy loading
-    priority = 100,  -- Higher priority for loading
+    event = "VeryLazy", 
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
-    build = ":lua require('nvim-devdocs.install').check_requirements()",
     config = function()
       local status_ok, devdocs = pcall(require, "nvim-devdocs")
       if not status_ok then
@@ -1155,21 +1153,13 @@ return {
           "python~3.11",  -- Specific Python version
           "javascript",
           "typescript",
-          "go",
           "bash",
-          "css",
-          "html",
-          "http",
           "git",
           "docker",
           "sql",
-          "postgresql",
-          "rust",
           "scikit_learn",  -- Machine learning library
           "numpy~1.24",    -- Data manipulation
           "pandas~1",      -- Data analysis
-          "tensorflow~2.12", -- Deep learning framework
-          "matplotlib~3",  -- Data visualization
         },
         mappings = {
           open_in_split = "<C-s>",  -- Open in horizontal split
@@ -1177,6 +1167,47 @@ return {
           open_in_tab = "<C-t>",    -- Open in new tab
         },
       })
+      
+      -- Create command aliases for DevDocs to ensure compatibility
+      vim.api.nvim_create_user_command("DevdocsFetch", function()
+        vim.notify("Fetching documentation index...", vim.log.levels.INFO)
+        devdocs.update_metadata()
+      end, {})
+      
+      vim.api.nvim_create_user_command("DevdocsInstall", function(opts)
+        if opts.args and opts.args ~= "" then
+          vim.notify("Installing documentation for " .. opts.args, vim.log.levels.INFO)
+          devdocs.install(opts.args)
+        else
+          vim.notify("Please specify a documentation to install", vim.log.levels.ERROR)
+        end
+      end, { nargs = "?" })
+      
+      vim.api.nvim_create_user_command("DevdocsOpen", function(opts)
+        if opts.args and opts.args ~= "" then
+          devdocs.open(opts.args)
+        else
+          devdocs.open()
+        end
+      end, { nargs = "?" })
+      
+      vim.api.nvim_create_user_command("DevdocsOpenFloat", function(opts)
+        if opts.args and opts.args ~= "" then
+          devdocs.open_float(opts.args)
+        else
+          devdocs.open_float()
+        end
+      end, { nargs = "?" })
+      
+      vim.api.nvim_create_user_command("DevdocsSearch", function()
+        if devdocs.search then
+          devdocs.search()
+        else
+          -- Fallback if search function is not available
+          vim.notify("Search function not available in this version", vim.log.levels.WARN)
+          devdocs.open()
+        end
+      end, {})
     end,
   },
   

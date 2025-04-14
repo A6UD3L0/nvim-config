@@ -5,61 +5,39 @@ local M = {}
 
 -- Backend development language servers configuration
 M.setup_lsp = function()
-  local lspconfig = require("lspconfig")
+  -- LSP setup is now handled by the plugins/backend-essentials.lua file
+  -- This function is kept for compatibility with the init.lua file
   
-  -- Python configuration
-  lspconfig.pyright.setup({
-    settings = {
-      python = {
-        analysis = {
-          typeCheckingMode = "basic",
-          diagnosticMode = "workspace",
-          autoSearchPaths = true,
-          useLibraryCodeForTypes = true,
-          inlayHints = {
-            variableTypes = true,
-            functionReturnTypes = true,
-          },
-        },
-      },
-    },
+  -- Add any additional LSP configuration here if needed
+  vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(args)
+      local bufnr = args.buf
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      
+      -- Set autoformatting on save for supported languages
+      if client.supports_method("textDocument/formatting") then
+        vim.api.nvim_create_autocmd("BufWritePre", {
+          buffer = bufnr,
+          callback = function()
+            -- Don't format if the user has disabled it
+            if vim.g.disable_autoformat then
+              return
+            end
+            vim.lsp.buf.format({
+              buffer = bufnr,
+              timeout_ms = 3000,
+            })
+          end,
+        })
+      end
+    end,
   })
   
-  -- Go configuration
-  lspconfig.gopls.setup({
-    settings = {
-      gopls = {
-        analyses = {
-          unusedparams = true,
-          shadow = true,
-        },
-        staticcheck = true,
-        usePlaceholders = true,
-        completeUnimported = true,
-      },
-    },
-  })
-  
-  -- SQL configuration
-  lspconfig.sqlls.setup({})
-  
-  -- C/C++ configuration
-  lspconfig.clangd.setup({})
-  
-  -- Docker configuration
-  lspconfig.dockerls.setup({})
-  
-  -- YAML for Kubernetes
-  lspconfig.yamlls.setup({
-    settings = {
-      yaml = {
-        schemas = {
-          ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
-          ["https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/master/v1.18.0-standalone-strict/all.json"] = "/*.k8s.yaml",
-        },
-      },
-    },
-  })
+  -- Add command to toggle autoformatting
+  vim.api.nvim_create_user_command("FormatToggle", function()
+    vim.g.disable_autoformat = not vim.g.disable_autoformat
+    vim.notify("Autoformatting on save: " .. (vim.g.disable_autoformat and "Disabled" or "Enabled"))
+  end, {})
 end
 
 -- Backend development tools setup
@@ -180,13 +158,28 @@ end
 
 -- Configure debugging for backend development
 M.setup_debugging = function()
+  -- Ensure DAP is available
+  local status_ok, dap = pcall(require, "dap")
+  if not status_ok then
+    vim.notify("DAP not found, debugging functionality will be limited", vim.log.levels.WARN)
+    return
+  end
+  
   -- Python debugging
-  local dap = require("dap")
-  local path = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python"
+  local python_path = function()
+    -- Check for virtual environment
+    local venv_path = vim.fn.finddir('.venv', vim.fn.getcwd() .. ';')
+    if venv_path ~= "" then
+      return vim.fn.getcwd() .. '/' .. venv_path .. '/bin/python'
+    else
+      -- Try to detect system python
+      return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
+    end
+  end
   
   dap.adapters.python = {
     type = 'executable',
-    command = path,
+    command = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python",
     args = { '-m', 'debugpy.adapter' },
   }
   
@@ -196,15 +189,7 @@ M.setup_debugging = function()
       request = 'launch',
       name = 'Launch file',
       program = "${file}",
-      pythonPath = function()
-        -- Try to detect python path from virtual environments
-        local venv_path = vim.fn.finddir('.venv', vim.fn.getcwd() .. ';')
-        if venv_path ~= "" then
-          return vim.fn.getcwd() .. '/' .. venv_path .. '/bin/python'
-        else
-          return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
-        end
-      end,
+      pythonPath = python_path,
     },
     {
       type = 'python',
@@ -212,14 +197,7 @@ M.setup_debugging = function()
       name = 'FastAPI',
       module = "uvicorn",
       args = { "app.main:app", "--reload" },
-      pythonPath = function()
-        local venv_path = vim.fn.finddir('.venv', vim.fn.getcwd() .. ';')
-        if venv_path ~= "" then
-          return vim.fn.getcwd() .. '/' .. venv_path .. '/bin/python'
-        else
-          return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
-        end
-      end,
+      pythonPath = python_path,
     },
     {
       type = 'python',
@@ -227,73 +205,147 @@ M.setup_debugging = function()
       name = 'Django',
       program = vim.fn.getcwd() .. '/manage.py',
       args = {'runserver', '--noreload'},
-      pythonPath = function()
-        local venv_path = vim.fn.finddir('.venv', vim.fn.getcwd() .. ';')
-        if venv_path ~= "" then
-          return vim.fn.getcwd() .. '/' .. venv_path .. '/bin/python'
-        else
-          return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
-        end
-      end,
+      pythonPath = python_path,
     },
   }
   
-  -- Go debugging
-  dap.adapters.delve = {
-    type = 'server',
-    port = '${port}',
-    executable = {
-      command = 'dlv',
-      args = {'dap', '-l', '127.0.0.1:${port}'},
+  -- Go debugging (only configure if delve is available)
+  local delve_path = vim.fn.exepath('dlv')
+  if delve_path ~= "" then
+    dap.adapters.delve = {
+      type = 'server',
+      port = '${port}',
+      executable = {
+        command = 'dlv',
+        args = {'dap', '-l', '127.0.0.1:${port}'},
+      }
     }
-  }
 
-  dap.configurations.go = {
-    {
-      type = 'delve',
-      name = 'Debug',
-      request = 'launch',
-      program = "${file}"
-    },
-    {
-      type = 'delve',
-      name = 'Debug test',
-      request = 'launch',
-      mode = 'test',
-      program = "${file}"
-    },
-    {
-      type = 'delve',
-      name = 'Debug test (go.mod)',
-      request = 'launch',
-      mode = 'test',
-      program = "./${relativeFileDirname}"
+    dap.configurations.go = {
+      {
+        type = 'delve',
+        name = 'Debug',
+        request = 'launch',
+        program = "${file}"
+      },
+      {
+        type = 'delve',
+        name = 'Debug test',
+        request = 'launch',
+        mode = 'test',
+        program = "${file}"
+      },
+      {
+        type = 'delve',
+        name = 'Debug test (go.mod)',
+        request = 'launch',
+        mode = 'test',
+        program = "./${relativeFileDirname}"
+      }
     }
-  }
+  end
   
   -- C/C++ debugging
-  dap.adapters.lldb = {
-    type = 'executable',
-    command = '/usr/bin/lldb-vscode',
-    name = 'lldb'
-  }
+  local codelldb_path = vim.fn.stdpath("data") .. "/mason/bin/codelldb"
+  local codelldb_exec = vim.fn.stdpath("data") .. "/mason/packages/codelldb/extension/adapter/codelldb"
   
-  dap.configurations.cpp = {
-    {
-      name = 'Launch',
-      type = 'lldb',
-      request = 'launch',
-      program = function()
-        return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-      end,
-      cwd = '${workspaceFolder}',
-      stopOnEntry = false,
-      args = {},
-      runInTerminal = false,
-    },
-  }
+  if vim.fn.filereadable(codelldb_exec) == 1 then
+    dap.adapters.codelldb = {
+      type = 'server',
+      port = "${port}",
+      executable = {
+        command = codelldb_exec,
+        args = {"--port", "${port}"},
+      }
+    }
+    
+    dap.configurations.cpp = {
+      {
+        name = 'Launch file',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+        args = {},
+      },
+    }
+    
+    dap.configurations.c = dap.configurations.cpp
+    dap.configurations.rust = dap.configurations.cpp
+  end
   
-  dap.configurations.c = dap.configurations.cpp
+  -- Configure DAP UI if available
+  local has_dapui, dapui = pcall(require, "dapui")
+  if has_dapui then
+    -- Setup better UI for debugging
+    dapui.setup({
+      icons = { expanded = "▾", collapsed = "▸", current_frame = "▸" },
+      mappings = {
+        expand = { "<CR>", "<2-LeftMouse>" },
+        open = "o",
+        remove = "d",
+        edit = "e",
+        repl = "r",
+        toggle = "t",
+      },
+      element_mappings = {},
+      expand_lines = vim.fn.has("nvim-0.7") == 1,
+      force_buffers = true,
+      floating = {
+        border = "rounded",
+        mappings = {
+          close = { "q", "<Esc>" },
+        },
+      },
+      layouts = {
+        {
+          elements = {
+            { id = "scopes", size = 0.25 },
+            { id = "breakpoints", size = 0.25 },
+            { id = "stacks", size = 0.25 },
+            { id = "watches", size = 0.25 },
+          },
+          size = 40,
+          position = "left",
+        },
+        {
+          elements = {
+            { id = "repl", size = 0.5 },
+            { id = "console", size = 0.5 },
+          },
+          size = 10,
+          position = "bottom",
+        },
+      },
+      controls = {
+        enabled = true,
+        element = "repl",
+        icons = {
+          pause = "",
+          play = "",
+          step_into = "",
+          step_over = "",
+          step_out = "",
+          step_back = "",
+          run_last = "",
+          terminate = "",
+        },
+      },
+      render = {
+        max_type_length = nil,
+        max_value_lines = 100,
+        indent = 1,
+      },
+    })
+    
+    -- Auto open/close UI when debugging starts/ends
+    dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
+    dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
+    dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
+  end
 end
 
 return M

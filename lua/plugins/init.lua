@@ -5,5 +5,5 @@ return {
   -- Import all backend development and data science plugins
   { import = "plugins.backend-essentials" },
   
-  -- This is where you can add any additional plugins if needed
+  -- Add any additional plugins if needed below
 }

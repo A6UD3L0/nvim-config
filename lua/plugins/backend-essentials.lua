@@ -6,12 +6,48 @@ return {
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
+      "WhoIsSethDaniel/mason-tool-installer.nvim",
       "folke/neodev.nvim",
+      "b0o/schemastore.nvim", -- Add SchemaStore for JSON schemas
     },
     config = function()
+      -- Setup Mason first to ensure package manager is ready
       require("mason").setup({
-        ui = { border = "rounded" }
+        ui = { 
+          border = "rounded",
+          icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗"
+          },
+          keymaps = {
+            toggle_package_expand = "<CR>",
+            install_package = "i",
+            update_package = "u",
+            check_package_version = "c",
+            update_all_packages = "U",
+            check_outdated_packages = "C",
+            uninstall_package = "X",
+            cancel_installation = "<C-c>",
+          },
+        },
+        max_concurrent_installers = 10,
+        registries = {
+          "github:mason-org/mason-registry",
+        },
+        log_level = vim.log.levels.INFO,
+        install_root_dir = vim.fn.stdpath("data") .. "/mason",
       })
+      
+      -- Setup Neodev for Lua development
+      require("neodev").setup({
+        library = { 
+          plugins = { "nvim-dap-ui" },
+          types = true,
+        },
+      })
+      
+      -- Install and configure LSP servers
       require("mason-lspconfig").setup({
         ensure_installed = {
           -- Backend languages
@@ -28,7 +64,244 @@ return {
         automatic_installation = true,
       })
       
-      require("neodev").setup({})
+      -- Install additional tools with mason-tool-installer
+      require("mason-tool-installer").setup({
+        ensure_installed = {
+          -- Formatters
+          "black",             -- Python formatter
+          "isort",             -- Python import sorter
+          "stylua",            -- Lua formatter
+          "shfmt",             -- Shell formatter
+          "gofumpt",           -- Go formatter
+          "goimports",         -- Go imports
+          "clang-format",      -- C/C++ formatter
+          "prettier",          -- JSON/YAML formatter
+          "sqlfluff",          -- SQL formatter
+          
+          -- Linters
+          "flake8",            -- Python linter
+          "mypy",              -- Python type checker
+          "pylint",            -- Python linter
+          "golangci-lint",     -- Go linter
+          "hadolint",          -- Dockerfile linter
+          "shellcheck",        -- Shell linter
+          "luacheck",          -- Lua linter
+          
+          -- DAP (Debugging)
+          "debugpy",           -- Python debugger
+          "delve",             -- Go debugger
+          "codelldb",          -- C/C++ debugger
+        },
+        auto_update = true,
+        run_on_start = true,
+        start_delay = 3000, -- 3 second delay
+        debounce_hours = 24, -- Only run once a day
+      })
+      
+      -- Configure LSP capabilities with nvim-cmp
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      
+      -- Configure individual LSP servers
+      local lspconfig = require("lspconfig")
+      
+      -- Lua
+      lspconfig.lua_ls.setup({
+        capabilities = capabilities,
+        settings = {
+          Lua = {
+            workspace = { checkThirdParty = false },
+            telemetry = { enable = false },
+            diagnostics = {
+              globals = { "vim" },
+            },
+          },
+        },
+      })
+
+      -- Python
+      lspconfig.pyright.setup({
+        capabilities = capabilities,
+        settings = {
+          python = {
+            analysis = {
+              typeCheckingMode = "basic",
+              diagnosticMode = "workspace",
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+              inlayHints = {
+                variableTypes = true,
+                functionReturnTypes = true,
+              },
+            },
+          },
+        },
+      })
+
+      -- Go
+      lspconfig.gopls.setup({
+        capabilities = capabilities,
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+              shadow = true,
+            },
+            staticcheck = true,
+            usePlaceholders = true,
+            completeUnimported = true,
+          },
+        },
+      })
+
+      -- JSON with schema support
+      lspconfig.jsonls.setup({
+        capabilities = capabilities,
+        settings = {
+          json = {
+            schemas = require('schemastore').json.schemas(),
+            validate = { enable = true },
+          },
+        },
+      })
+
+      -- YAML with schema support
+      lspconfig.yamlls.setup({
+        capabilities = capabilities,
+        settings = {
+          yaml = {
+            schemas = require('schemastore').yaml.schemas(),
+            validate = true,
+            completion = true,
+            hover = true,
+            schemaStore = {
+              enable = false, -- We're using schemastore.nvim instead
+              url = "", -- Not required when enable=false
+            },
+          },
+        },
+      })
+
+      -- C/C++
+      lspconfig.clangd.setup({
+        capabilities = capabilities,
+      })
+      
+      -- SQL
+      lspconfig.sqlls.setup({
+        capabilities = capabilities,
+      })
+      
+      -- Docker
+      lspconfig.dockerls.setup({
+        capabilities = capabilities,
+      })
+      
+      -- YAML
+      -- lspconfig.yamlls.setup({
+      --   capabilities = capabilities,
+      --   settings = {
+      --     yaml = {
+      --       schemas = {
+      --         ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+      --         ["https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/master/v1.18.0-standalone-strict/all.json"] = "/*.k8s.yaml",
+      --       },
+      --     },
+      --   },
+      -- })
+      
+      -- JSON
+      -- lspconfig.jsonls.setup({
+      --   capabilities = capabilities,
+      --   settings = {
+      --     json = {
+      --       schemas = require('schemastore').json.schemas(),
+      --       validate = { enable = true },
+      --     },
+      --   },
+      -- })
+      
+      -- Bash
+      lspconfig.bashls.setup({
+        capabilities = capabilities,
+      })
+      
+      -- Lua
+      -- lspconfig.lua_ls.setup({
+      --   capabilities = capabilities,
+      --   settings = {
+      --     Lua = {
+      --       runtime = {
+      --         version = 'LuaJIT',
+      --       },
+      --       diagnostics = {
+      --         globals = { 'vim' },
+      --       },
+      --       workspace = {
+      --         library = vim.api.nvim_get_runtime_file("", true),
+      --         checkThirdParty = false,
+      --       },
+      --       telemetry = {
+      --         enable = false,
+      --       },
+      --     },
+      --   },
+      -- })
+      
+      -- Global LSP keymappings (will be mapped by which-key later)
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+        callback = function(ev)
+          local bufnr = ev.buf
+          local client = vim.lsp.get_client_by_id(ev.data.client_id)
+          
+          -- Enable completion triggered by <c-x><c-o>
+          vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
+          
+          -- Buffer local mappings
+          local opts = { buffer = bufnr }
+          vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+          vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+          vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+          vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+          vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
+          vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+          vim.keymap.set('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
+          vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
+          vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+          vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
+          vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+          
+          -- Set some keybinds conditional on server capabilities
+          if client.server_capabilities.documentFormattingProvider then
+            vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, opts)
+          end
+        end,
+      })
+      
+      -- Diagnostic configuration
+      vim.diagnostic.config({
+        virtual_text = true,
+        signs = true,
+        update_in_insert = false,
+        underline = true,
+        severity_sort = true,
+        float = {
+          focusable = false,
+          style = "minimal",
+          border = "rounded",
+          source = "always",
+          header = "",
+          prefix = "",
+        },
+      })
+      
+      -- Diagnostic signs
+      local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+      for type, icon in pairs(signs) do
+        local hl = "DiagnosticSign" .. type
+        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+      end
     end,
   },
   

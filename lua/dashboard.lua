@@ -21,12 +21,41 @@ function M.setup()
     [[                                                       ]],
   }
   
+  -- Directory finder function - allows selecting a directory to switch to
+  local function find_directory_and_cd()
+    local telescope = require('telescope.builtin')
+    local actions = require('telescope.actions')
+    local state = require('telescope.actions.state')
+    
+    telescope.find_files({
+      find_command = {'find', '.', '-type', 'd', '-not', '-path', '*/\\.*'},
+      prompt_title = 'Find Directory',
+      attach_mappings = function(prompt_bufnr, map)
+        map('i', '<CR>', function()
+          local selection = state.get_selected_entry(prompt_bufnr)
+          actions.close(prompt_bufnr)
+          
+          -- Change directory to the selected path
+          if selection and selection.path then
+            vim.cmd('cd ' .. selection.path)
+            -- Provide visual feedback to user
+            vim.notify('Working directory changed to: ' .. selection.path, 
+                      vim.log.levels.INFO, 
+                      {title = "Directory Changed"})
+          end
+        end)
+        return true
+      end
+    })
+  end
+  
   -- Define the menu buttons
   dashboard.section.buttons.val = {
     dashboard.button("f", "󰈞  Find file", ":Telescope find_files <CR>"),
     dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>"),
     dashboard.button("r", "  Recent files", ":Telescope oldfiles <CR>"),
     dashboard.button("g", "  Find word", ":Telescope live_grep <CR>"),
+    dashboard.button("d", "  Find directory", ":lua require('dashboard').find_directory_and_cd()<CR>"),
     dashboard.button("c", "  Configuration", ":e $MYVIMRC <CR>"),
     dashboard.button("p", "  Plugins", ":e ~/nvim-config/lua/plugins/backend-essentials.lua <CR>"),
     dashboard.button("t", "  Terminal", ":ToggleTerm direction=float<CR>"),
@@ -51,41 +80,45 @@ function M.setup()
   dashboard.section.buttons.opts.hl = "AlphaButtons"
   dashboard.section.footer.opts.hl = "AlphaFooter"
   
-  dashboard.opts.layout = {
+  -- Configure layout
+  dashboard.config.layout = {
     { type = "padding", val = 2 },
     dashboard.section.header,
     { type = "padding", val = 2 },
     dashboard.section.buttons,
-    { type = "padding", val = 2 },
+    { type = "padding", val = 1 },
     dashboard.section.footer,
   }
   
-  -- Load alpha with our dashboard configuration
-  require("alpha").setup(dashboard.opts)
+  -- Set the dashboard as the startup screen
+  require("alpha").setup(dashboard.config)
+end
 
-  -- Create autocmd to open dashboard when Neovim starts with no arguments
-  vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-      if vim.fn.argc() == 0 and vim.fn.line2byte("$") == -1 then
-        require("alpha").start()
-      end
-    end,
-  })
+-- Add helper functions to the module
+M.find_directory_and_cd = function()
+  local telescope = require('telescope.builtin')
+  local actions = require('telescope.actions')
+  local state = require('telescope.actions.state')
   
-  -- Create highlight groups for the dashboard
-  vim.api.nvim_create_autocmd("ColorScheme", {
-    callback = function()
-      -- Get colors from current colorscheme
-      local bg = vim.api.nvim_get_hl(0, { name = "Normal" }).bg
-      local fg = vim.api.nvim_get_hl(0, { name = "Normal" }).fg
-      local accent = vim.api.nvim_get_hl(0, { name = "String" }).fg
-      local muted = vim.api.nvim_get_hl(0, { name = "Comment" }).fg
-      
-      -- Apply dashboard highlights
-      vim.api.nvim_set_hl(0, "AlphaHeader", { fg = accent, bg = bg })
-      vim.api.nvim_set_hl(0, "AlphaButtons", { fg = fg, bg = bg })
-      vim.api.nvim_set_hl(0, "AlphaFooter", { fg = muted, bg = bg })
-    end,
+  telescope.find_files({
+    find_command = {'find', '.', '-type', 'd', '-not', '-path', '*/\\.*'},
+    prompt_title = 'Find Directory',
+    attach_mappings = function(prompt_bufnr, map)
+      map('i', '<CR>', function()
+        local selection = state.get_selected_entry(prompt_bufnr)
+        actions.close(prompt_bufnr)
+        
+        -- Change directory to the selected path
+        if selection and selection.path then
+          vim.cmd('cd ' .. selection.path)
+          -- Provide visual feedback to user
+          vim.notify('Working directory changed to: ' .. selection.path, 
+                    vim.log.levels.INFO, 
+                    {title = "Directory Changed"})
+        end
+      end)
+      return true
+    end
   })
 end
 

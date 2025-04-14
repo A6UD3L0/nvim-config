@@ -280,6 +280,7 @@ map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
 map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Find help tags" })
 map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
 map("n", "<leader>fm", "<cmd>Telescope marks<CR>", { desc = "Find marks" })
+map("n", "<leader>fd", "<cmd>lua require('dashboard').find_directory_and_cd()<CR>", { desc = "Find directory and cd" })
 
 -- File operations
 map("n", "<leader>fs", "<cmd>w<CR>", { desc = "Save file" })

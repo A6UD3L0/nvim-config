@@ -88,23 +88,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Setup color scheme with Rose Pine as the main theme
-local function set_colorscheme()
-  -- Try to use Rose Pine (our preferred theme)
-  local success = pcall(vim.cmd, "colorscheme rose-pine")
-  
-  -- If Rose Pine fails, fall back to a default theme
-  if not success then
-    pcall(vim.cmd, "colorscheme habamax")
-  end
-end
-
--- Apply the colorscheme on startup (after plugins have loaded)
-vim.api.nvim_create_autocmd("User", {
-  pattern = "LazyDone",
-  callback = set_colorscheme,
-})
-
 -- Editor settings
 vim.opt.tabstop = 4             -- Number of spaces tabs count for
 vim.opt.softtabstop = 4         -- Number of spaces in tab when editing
@@ -196,38 +179,132 @@ require("lazy").setup({
   -- Core plugins
   { import = "plugins" },
   
-  -- Colorscheme with high priority to load first
+  -- Linting and formatting
   {
-    "rose-pine/neovim",
-    name = "rose-pine",
-    priority = 1000,
-    lazy = false,
+    "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
-      require("rose-pine").setup({
-        dark_variant = "main",
-        disable_background = true,
-        disable_float_background = true,
-        disable_italics = false,
+      require("lint").linters_by_ft = {
+        python = {"flake8", "mypy"},
+        lua = {"luacheck"},
+        go = {"golangci-lint"},
+      }
+      
+      -- Run lint on save
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        callback = function()
+          require("lint").try_lint()
+        end,
       })
     end,
   },
-}, {
-  -- Lazy.nvim configuration
-  ui = {
-    border = "rounded",  -- Make UI elements consistent
-    size = { width = 0.8, height = 0.8 },
+  {
+    "stevearc/conform.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("conform").setup({
+        formatters_by_ft = {
+          python = { "black", "isort" },
+          go = { "gofmt", "goimports" },
+          lua = { "stylua" },
+          json = { "jq" },
+          yaml = { "yamlfmt" },
+          sql = { "sqlfluff" },
+        },
+        format_on_save = {
+          timeout_ms = 500,
+          lsp_fallback = true,
+        },
+      })
+    end,
   },
+  
+  -- UI Improvements
+  {
+    "stevearc/dressing.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("dressing").setup({
+        input = {
+          enabled = true,
+          default_prompt = "Input:",
+          prompt_align = "left",
+          insert_only = true,
+          border = "rounded",
+          relative = "cursor",
+          win_options = {
+            winblend = 10,
+            wrap = false,
+          },
+        },
+        select = {
+          enabled = true,
+          backend = { "telescope", "fzf", "builtin" },
+          trim_prompt = true,
+          border = "rounded",
+        },
+      })
+    end,
+  },
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "rcarriga/nvim-notify",
+    },
+    opts = {
+      lsp = {
+        override = {
+          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+          ["vim.lsp.util.stylize_markdown"] = true,
+          ["cmp.entry.get_documentation"] = true,
+        },
+        signature = {
+          enabled = true,
+          auto_open = {
+            enabled = true,
+            trigger = true,
+            luasnip = true,
+            throttle = 50,
+          },
+        },
+      },
+      presets = {
+        bottom_search = true,
+        command_palette = true,
+        long_message_to_split = true,
+        inc_rename = true,
+        lsp_doc_border = true,
+      },
+    },
+  },
+
+}, {
   install = {
-    colorscheme = { "rose-pine" },  -- Set fallback colorscheme
-    missing = true,  -- Auto-install missing plugins
+    colorscheme = { "rose-pine" },
+  },
+  ui = {
+    border = "rounded",
+    icons = {
+      cmd = "⌘",
+      config = "🛠️",
+      event = "📅",
+      ft = "📂",
+      init = "⚙️",
+      keys = "🔑",
+      plugin = "🔌",
+      runtime = "💻",
+      source = "📄",
+      start = "🚀",
+      task = "📌",
+      lazy = "💤 ",
+    },
   },
   performance = {
     rtp = {
       disabled_plugins = {
         "gzip",
-        "matchit",
-        "matchparen",
-        "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
@@ -235,17 +312,58 @@ require("lazy").setup({
       },
     },
   },
-  checker = {
-    enabled = true,  -- Auto-check for plugin updates
-    frequency = 86400,  -- Check once a day
-  },
-  change_detection = {
-    notify = false,  -- Don't notify on config changes
-  },
-  spec = {
-    { "luarocks", enabled = false },  -- Disable luarocks support
-  },
 })
+
+-- Language-specific settings for backend development
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "python", "go", "c", "cpp", "sql", "dockerfile", "yaml", "json" },
+  callback = function()
+    -- Set appropriate indent for backend languages
+    vim.opt_local.expandtab = true
+    
+    -- Different indent sizes for specific languages
+    if vim.bo.filetype == "python" or vim.bo.filetype == "go" then
+      vim.opt_local.tabstop = 4
+      vim.opt_local.softtabstop = 4
+      vim.opt_local.shiftwidth = 4
+    elseif vim.bo.filetype == "yaml" or vim.bo.filetype == "json" then
+      vim.opt_local.tabstop = 2
+      vim.opt_local.softtabstop = 2
+      vim.opt_local.shiftwidth = 2
+    end
+  end
+})
+
+-- Python-specific settings
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "python",
+  callback = function()
+    -- Maximum line length indicator per PEP 8
+    vim.opt_local.colorcolumn = "88"
+    
+    -- Enable docstring folding
+    vim.opt_local.foldmethod = "expr"
+    vim.opt_local.foldexpr = "nvim_treesitter#foldexpr()"
+    
+    -- Start unfolded
+    vim.opt_local.foldenable = false
+  end
+})
+
+-- Load venv_diagnostics module
+local venv_ok, venv_diagnostics = pcall(require, "venv_diagnostics")
+if venv_ok then
+  _G.VenvDiagnostics = venv_diagnostics
+end
+
+-- Set up commands for commonly used functions
+vim.api.nvim_create_user_command("Format", function()
+  if require("conform") then
+    require("conform").format()
+  else
+    vim.lsp.buf.format({ async = true })
+  end
+end, { desc = "Format current buffer with LSP or formatter" })
 
 -- Initialize backend development tools after plugins are loaded
 vim.api.nvim_create_autocmd("User", {

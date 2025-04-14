@@ -10,45 +10,316 @@ local map = vim.keymap.set
 -- Create a module for exported functions
 local M = {}
 
--- =============================================
--- GLOBAL KEYBINDINGS (not namespace specific)
--- =============================================
+-- Helper for checking if a command exists
+M._command_exists = function(cmd)
+  local handle = io.popen("which " .. cmd .. " 2>/dev/null")
+  if not handle then return false end
+  
+  local result = handle:read("*a")
+  handle:close()
+  
+  return result and #result > 0
+end
 
--- Map jk to escape insert mode (faster alternative to Escape key)
-map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
+-- Helper to run a command in a toggleterm window
+M._run_in_terminal = function(cmd, direction)
+  direction = direction or "horizontal"
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = direction,
+    close_on_exit = false,
+  })
+  term:toggle()
+end
 
--- =============================================
--- KEYBINDING ORGANIZATION REFERENCE (MECE)
--- =============================================
---
--- Namespace structure for leader-prefixed commands:
--- <leader>b  - Buffer operations (buffer navigation, management)
--- <leader>c  - Code editing (formatting, styling, refactoring)
--- <leader>d  - Documentation (devdocs, help, guides) 
--- <leader>e  - Explorer operations (file navigation, project structure)
--- <leader>f  - Find/File operations (Telescope, file search, save)
--- <leader>g  - Git operations (stage, commit, diff, blame)
--- <leader>h  - Harpoon operations (file marking, quick navigation)
--- <leader>k  - Keymaps (show key bindings, help)
--- <leader>l  - LSP operations (diagnostics, actions, definitions, references)
--- <leader>o  - Organize (Python Poetry package/environment management)
--- <leader>p  - Project operations (project-wide actions)
--- <leader>r  - Run/Requirements (run code, manage dependencies)
--- <leader>s  - Search/Replace operations
--- <leader>t  - Terminal operations (toggle terminals, run commands)
--- <leader>u  - Utilities (undotree, misc helpers)
--- <leader>v  - Virtual environment (Python venv management)
--- <leader>w  - Window operations (splits, resize, navigation)
--- <leader>x  - Execute code operations (run snippets, files, REPL integration)
--- <leader>z  - Zen/Focus mode (distraction-free coding)
---
--- Non-leader keys follow standard Vim conventions where possible:
--- g* - Navigation/Go to (gd = definition, gr = references)
--- z* - Folding and view control
--- []/() - Pair navigation and movement
--- 
--- This structure ensures categories are mutually exclusive (no overlap)
--- while being collectively exhaustive (covering all needed functionality)
+-- Python venv smart activation
+M._venv_smart_activate = function()
+  -- Check if venv_diagnostics module is available
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
+    _G.VenvDiagnostics.smart_activate()
+    return true
+  end
+  
+  -- Fallback implementation
+  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+  local pyenv_path = vim.fn.finddir(".python-version", vim.fn.getcwd() .. ";")
+  local poetry_path = vim.fn.findfile("pyproject.toml", vim.fn.getcwd() .. ";")
+  
+  if venv_path ~= "" then
+    vim.notify("Detected .venv directory", vim.log.levels.INFO)
+    return true
+  elseif pyenv_path ~= "" then
+    vim.notify("Detected .python-version file", vim.log.levels.INFO)
+    return true
+  elseif poetry_path ~= "" then
+    vim.notify("Detected poetry project", vim.log.levels.INFO)
+    return true
+  else
+    vim.notify("No Python environment detected", vim.log.levels.WARN)
+    return false
+  end
+end
+
+-- Run Python file with environment
+M._python_run_file = function()
+  local file = vim.fn.expand('%:p')
+  if vim.fn.filereadable(file) == 0 then
+    vim.notify("No file to run", vim.log.levels.ERROR)
+    return
+  end
+  
+  if vim.bo.filetype ~= "python" then
+    vim.notify("Not a Python file", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Call VenvDiagnostics.run_with_env if available
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then
+    _G.VenvDiagnostics.run_with_env()
+    return
+  end
+  
+  -- Fallback implementation
+  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+  local pyenv_path = vim.fn.finddir(".python-version", vim.fn.getcwd() .. ";")
+  local poetry_path = vim.fn.findfile("pyproject.toml", vim.fn.getcwd() .. ";")
+  local python_cmd = "python"
+  
+  if venv_path ~= "" then
+    python_cmd = "source " .. venv_path .. "/bin/activate && python"
+  elseif pyenv_path ~= "" then
+    python_cmd = "pyenv shell $(cat " .. pyenv_path .. ") && python"
+  elseif poetry_path ~= "" then
+    python_cmd = "poetry run python"
+  end
+  
+  M._run_in_terminal(python_cmd .. " \"" .. file .. "\"")
+end
+
+-- Execute Python snippet (selected text)
+M._python_execute_snippet = function()
+  -- Get visual selection
+  local lines = vim.api.nvim_buf_get_visual_selection()
+  
+  -- Create a temporary file
+  local temp_file = os.tmpname() .. ".py"
+  local f = io.open(temp_file, "w")
+  if not f then
+    vim.notify("Failed to create temporary file", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Write the selection to the file
+  for _, line in ipairs(lines) do
+    f:write(line .. "\n")
+  end
+  f:close()
+  
+  -- Run the file
+  M._run_in_terminal("python " .. temp_file)
+end
+
+-- Run current selection in IPython
+M._python_execute_in_ipython = function()
+  -- Get visual selection
+  local lines = vim.api.nvim_buf_get_visual_selection()
+  local code = table.concat(lines, "\n")
+  
+  -- Escape any quotes
+  code = code:gsub('"', '\\"')
+  
+  -- Run in IPython
+  M._run_in_terminal('ipython -c "' .. code .. '"')
+end
+
+-- Create a new Python file
+M._python_new_file = function()
+  vim.ui.input({ prompt = "Enter filename: " }, function(name)
+    if not name or name == "" then return end
+    
+    -- Add .py extension if not present
+    if not name:match("%.py$") then
+      name = name .. ".py"
+    end
+    
+    -- Open the file
+    vim.cmd("e " .. name)
+    
+    -- Add a basic header
+    local lines = {
+      "#!/usr/bin/env python3",
+      "# -*- coding: utf-8 -*-",
+      '"""',
+      name .. " - [Brief description]",
+      "",
+      "Created on " .. os.date("%Y-%m-%d"),
+      '"""',
+      "",
+      "",
+      "def main():",
+      "    pass",
+      "",
+      "",
+      'if __name__ == "__main__":',
+      "    main()",
+      "",
+    }
+    
+    vim.api.nvim_buf_set_lines(0, 0, 0, false, lines)
+    -- Position cursor at a sensible position (line 11, column 5)
+    vim.api.nvim_win_set_cursor(0, {11, 4})
+  end)
+end
+
+-- POETRY FUNCTIONS
+
+-- Check if Poetry is installed
+M._check_poetry = function()
+  local poetry_installed = M._command_exists("poetry")
+  if not poetry_installed then
+    vim.notify("Poetry is not installed. Please install it first.", vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
+-- Poetry shell
+M._poetry_shell = function()
+  if not M._check_poetry() then return end
+  M._run_in_terminal("poetry shell")
+end
+
+-- Create Poetry environment and install dependencies
+M._poetry_create_venv = function()
+  if not M._check_poetry() then return end
+  M._run_in_terminal("poetry install")
+end
+
+-- Add a package with Poetry
+M._poetry_add_package = function()
+  if not M._check_poetry() then return end
+  
+  vim.ui.input({ prompt = "Package to add: " }, function(package)
+    if not package or package == "" then return end
+    
+    -- Ask if it's a dev dependency
+    vim.ui.select({ "regular", "dev" }, {
+      prompt = "Dependency type:",
+    }, function(choice)
+      if not choice then return end
+      
+      local cmd = "poetry add " .. package
+      if choice == "dev" then
+        cmd = cmd .. " --group dev"
+      end
+      
+      M._run_in_terminal(cmd)
+    end)
+  end)
+end
+
+-- Remove a package with Poetry
+M._poetry_remove_package = function()
+  if not M._check_poetry() then return end
+  
+  -- Get list of installed packages
+  local handle = io.popen("poetry show --no-ansi | awk '{print $1}'")
+  if not handle then
+    vim.notify("Failed to get package list", vim.log.levels.ERROR)
+    return
+  end
+  
+  local packages = {}
+  for line in handle:lines() do
+    table.insert(packages, line)
+  end
+  handle:close()
+  
+  if #packages == 0 then
+    vim.notify("No packages installed", vim.log.levels.INFO)
+    return
+  end
+  
+  -- Select package to remove
+  vim.ui.select(packages, {
+    prompt = "Select package to remove:",
+  }, function(package)
+    if not package then return end
+    
+    M._run_in_terminal("poetry remove " .. package)
+  end)
+end
+
+-- Update packages with Poetry
+M._poetry_update = function()
+  if not M._check_poetry() then return end
+  M._run_in_terminal("poetry update")
+end
+
+-- Show outdated packages
+M._poetry_show_outdated = function()
+  if not M._check_poetry() then return end
+  M._run_in_terminal("poetry show --outdated")
+end
+
+-- Generate requirements.txt from Poetry
+M._poetry_generate_requirements = function()
+  if not M._check_poetry() then return end
+  M._run_in_terminal("poetry export -f requirements.txt --output requirements.txt --without-hashes")
+end
+
+-- Create a new Poetry project
+M._poetry_new = function()
+  if not M._check_poetry() then return end
+  
+  vim.ui.input({ prompt = "Project name: " }, function(name)
+    if not name or name == "" then return end
+    M._run_in_terminal("poetry new " .. name)
+    
+    -- Ask if user wants to cd into the project
+    vim.ui.select({ "Yes", "No" }, {
+      prompt = "Change to project directory?",
+    }, function(choice)
+      if choice == "Yes" then
+        vim.cmd("cd " .. name)
+        vim.notify("Changed to directory: " .. name, vim.log.levels.INFO)
+      end
+    end)
+  end)
+end
+
+-- Build Poetry package
+M._poetry_build = function()
+  if not M._check_poetry() then return end
+  M._run_in_terminal("poetry build")
+end
+
+-- Publish Poetry package
+M._poetry_publish = function()
+  if not M._check_poetry() then return end
+  M._run_in_terminal("poetry publish")
+end
+
+-- Edit pyproject.toml
+M._poetry_edit_pyproject = function()
+  local path = vim.fn.findfile("pyproject.toml", vim.fn.getcwd() .. ";")
+  if path == "" then
+    vim.notify("pyproject.toml not found", vim.log.levels.ERROR)
+    return
+  end
+  
+  vim.cmd("edit " .. path)
+end
+
+-- Run a command with Poetry
+M._poetry_run = function()
+  if not M._check_poetry() then return end
+  
+  vim.ui.input({ prompt = "Command to run: " }, function(cmd)
+    if not cmd or cmd == "" then return end
+    M._run_in_terminal("poetry run " .. cmd)
+  end)
+end
 
 -- =============================================
 -- TERMINAL OPERATIONS (t namespace)

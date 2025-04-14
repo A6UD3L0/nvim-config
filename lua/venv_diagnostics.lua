@@ -614,4 +614,7 @@ function VenvDiagnostics.setup()
   _G._PYTHON_RUN_WITH_ENV = VenvDiagnostics.run_with_env
 end
 
+-- Initialize the module by calling the setup function
+VenvDiagnostics.setup()
+
 return M, VenvDiagnostics

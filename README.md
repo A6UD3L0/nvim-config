@@ -129,6 +129,187 @@ rm -rf ~/.local/state/nvim
 rm -f ~/.cache/nvim/lsp.log
 ```
 
+## ⌨️ Key Bindings
+
+This configuration includes a comprehensive set of keybindings organized into logical namespaces for easy discovery. All mappings use `<leader>` as the Space key.
+
+### General Navigation
+
+| Keybinding | Description |
+|------------|-------------|
+| `<C-d>` | Half-page down with cursor centered |
+| `<C-u>` | Half-page up with cursor centered |
+| `n` | Next search result and center |
+| `N` | Previous search result and center |
+| `J` | Join lines without moving cursor |
+| `Q` | Alias for 'q' (quit) |
+| `jk` | Exit insert mode (faster than Escape) |
+| `<C-c>` | Exit insert mode |
+
+### Text Manipulation
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>p` | Paste without losing register content |
+| `<leader>y` | Copy to system clipboard |
+| `<leader>Y` | Copy line to system clipboard |
+| `<leader>d` | Delete without yanking |
+| `=ap` | Format paragraph and return to position |
+| `J` (in visual mode) | Move selected lines down |
+| `K` (in visual mode) | Move selected lines up |
+| `<leader>s` | Search and replace word under cursor |
+| `<leader>x` | Make current file executable |
+
+### File Navigation
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>pv` | Open Netrw file explorer |
+| `<leader>e` | Toggle NvimTree file explorer |
+| `<leader>ef` | Focus file explorer |
+| `<leader>f` | Find files with Telescope |
+| `<leader>fg` | Live grep with Telescope |
+| `<leader>fb` | Browse buffers |
+| `<leader>fh` | Help tags |
+| `<leader>fr` | Recent files |
+| `<leader>cd` | Find and set working directory |
+
+### LSP and Code Intelligence
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>lf` | Format code |
+| `<leader>lr` | Rename symbol |
+| `<leader>la` | Code actions |
+| `<leader>ld` | Go to definition |
+| `<leader>li` | Go to implementation |
+| `<leader>lk` | Show hover information |
+| `<leader>ln` | Go to next diagnostic |
+| `<leader>lp` | Go to previous diagnostic |
+| `<leader>cf` | Format buffer with conform |
+
+### Documentation
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>do` | Open documentation in float window |
+| `<leader>dO` | Open documentation in buffer |
+| `<leader>ds` | Search in documentation |
+
+### Window Management
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>ww` | Save file |
+| `<leader>wv` | Split window vertically |
+| `<leader>wh` | Split window horizontally |
+| `<leader>wc` | Close window |
+| `<leader>wq` | Quit |
+| `<leader>wQ` | Quit all |
+| `<leader>w=` | Equal size windows |
+| `<leader>wL` | Increase window width |
+| `<leader>wH` | Decrease window width |
+| `<leader>wK` | Increase window height |
+| `<leader>wJ` | Decrease window height |
+
+### Buffer Management
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>bn` | Next buffer |
+| `<leader>bp` | Previous buffer |
+| `<leader>bd` | Delete buffer |
+| `<leader>bl` | List buffers |
+
+### Terminal Integration
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>tt` | Toggle horizontal terminal |
+| `<leader>tf` | Toggle float terminal |
+| `<leader>tv` | Toggle vertical terminal |
+| `<leader>tp` | Python terminal |
+| `<leader>ti` | IPython terminal |
+| `<leader>tr` | Run Python file |
+
+### Git Integration
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>gg` | Open LazyGit |
+| `<leader>gs` | Stage hunk |
+| `<leader>gu` | Undo stage hunk |
+| `<leader>gp` | Preview hunk |
+| `<leader>gb` | Blame line |
+| `<leader>gd` | Diff this |
+| `<leader>gc` | Git commits |
+| `<leader>gB` | Git branches |
+
+### Debugging
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dc` | Continue |
+| `<leader>di` | Step into |
+| `<leader>do` | Step over |
+| `<leader>dO` | Step out |
+| `<leader>dt` | Toggle UI |
+| `<leader>dr` | Open REPL |
+
+### Quickfix Navigation
+
+| Keybinding | Description |
+|------------|-------------|
+| `<C-k>` | Next quickfix item and center |
+| `<C-j>` | Previous quickfix item and center |
+| `<leader>qk` | Next location list item and center |
+| `<leader>qj` | Previous location list item and center |
+
+### Python Development
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>yr` | Run Python file |
+| `<leader>ye` | Execute visual selection |
+| `<leader>yi` | Execute in IPython |
+| `<leader>yv` | Select venv |
+| `<leader>yd` | Select cached venv |
+| `<leader>yt` | Python tests |
+
+### Poetry Management
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>oi` | Poetry install |
+| `<leader>oc` | Create .venv |
+| `<leader>oa` | Add package |
+| `<leader>or` | Remove package |
+| `<leader>ou` | Update packages |
+| `<leader>oo` | Show outdated packages |
+| `<leader>og` | Generate requirements.txt |
+| `<leader>on` | New project |
+| `<leader>ob` | Build package |
+| `<leader>os` | Poetry shell |
+| `<leader>oe` | Edit pyproject.toml |
+
+### Requirements Management
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>rc` | Create requirements.txt |
+| `<leader>ri` | Install from requirements.txt |
+| `<leader>re` | Edit requirements.txt |
+
+### Other Tools
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>u` | Toggle Undotree |
+| `<leader>dbu` | Toggle database UI |
+| `<leader>dba` | Add database connection |
+| `<leader>dbf` | Find database buffer |
+
 ## 💻 Installation Instructions
 
 ### Windows Installation
@@ -218,131 +399,6 @@ git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
 # Start Neovim - plugins will be installed automatically
 nvim
 ```
-
-## ⌨️ Keybinding Reference
-
-All keybindings are organized in namespaces with a consistent structure for easy memorization.
-
-### Namespace Structure
-
-| Prefix            | Category                                   |
-|-------------------|------------------------------------------- |
-| `<leader>b`       | Buffer operations                          |
-| `<leader>c`       | Code actions (LSP related)                 |
-| `<leader>cd`      | Change directory operations                |
-| `<leader>d`       | Debug operations                           |
-| `<leader>e`       | File explorer operations                   |
-| `<leader>f`       | Find/Files operations (Telescope)          |
-| `<leader>g`       | Git operations                             |
-| `<leader>h`       | Harpoon operations                         |
-| `<leader>l`       | LSP operations                             |
-| `<leader>o`       | Poetry operations                          |
-| `<leader>r`       | Requirements.txt operations                |
-| `<leader>t`       | Terminal operations                        |
-| `<leader>u`       | Undotree operations                        |
-| `<leader>v`       | Virtual environment operations             |
-| `<leader>w`       | Window operations                          |
-| `<leader>y`       | Python operations                          |
-
-### Terminal Operations
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>tp`      | Toggle Python REPL                         |
-| `<leader>ti`      | Toggle IPython with matplotlib support     |
-| `<leader>tt`      | Toggle floating terminal                   |
-| `<leader>th`      | Toggle horizontal terminal                 |
-| `<leader>tv`      | Toggle vertical terminal                   |
-| `<Esc>` or `jk`   | Exit terminal mode                         |
-
-### Python Operations
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>yr`      | Run current Python file                    |
-| `<leader>ye`      | Execute selected Python code (visual mode) |
-| `<leader>yi`      | Execute selected code in IPython           |
-| `<leader>yt`      | Run Python tests with Telescope            |
-| `<leader>yn`      | Create new Python file with boilerplate    |
-
-### Virtual Environment Operations
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>vs`      | Select Python virtual environment          |
-| `<leader>vc`      | Select cached virtual environment          |
-| `<leader>vd`      | Run virtual environment diagnostics        |
-| `<leader>vt`      | Test current virtual environment           |
-
-### File Operations (Telescope)
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>ff`      | Find files                                 |
-| `<leader>fg`      | Find text in files (live grep)             |
-| `<leader>fb`      | Find open buffers                          |
-| `<leader>fh`      | Find help tags                             |
-| `<leader>fr`      | Find recent files                          |
-| `<leader>fm`      | Find marks                                 |
-| `<leader>fs`      | Save current file                          |
-| `<leader>fS`      | Save all files                             |
-
-### File Explorer Operations
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>e`       | Toggle file explorer                       |
-| `<leader>ef`      | Focus file explorer                        |
-
-### Window Operations
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>wv`      | Split window vertically                    |
-| `<leader>wh`      | Split window horizontally                  |
-| `<leader>we`      | Make splits equal size                     |
-| `<leader>wx`      | Close current split                        |
-| `<leader>wq`      | Quit window                                |
-| `<leader>wQ`      | Quit all windows                           |
-| `<leader>wL`      | Increase window width                      |
-| `<leader>wH`      | Decrease window width                      |
-| `<leader>wK`      | Increase window height                     |
-| `<leader>wJ`      | Decrease window height                     |
-
-### Git Operations
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>gs`      | Stage hunk                                 |
-| `<leader>gr`      | Reset hunk                                 |
-| `<leader>gS`      | Stage buffer                               |
-| `<leader>gu`      | Undo stage hunk                            |
-| `<leader>gR`      | Reset buffer                               |
-| `<leader>gp`      | Preview hunk                               |
-| `<leader>gb`      | Blame line                                 |
-| `]c`              | Next hunk                                  |
-| `[c`              | Previous hunk                              |
-
-### LSP Operations
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>lf`      | Format buffer                              |
-| `<leader>lr`      | Rename symbol                              |
-| `<leader>la`      | Code action                                |
-| `<leader>ld`      | Go to definition                           |
-| `<leader>lD`      | Go to declaration                          |
-| `<leader>li`      | Go to implementation                       |
-| `<leader>lt`      | Go to type definition                      |
-| `<leader>lh`      | Hover documentation                        |
-| `<leader>ls`      | Signature help                             |
-| `<leader>lR`      | Find references                            |
-
-### Undotree
-
-| Keybinding        | Action                                     |
-|-------------------|------------------------------------------- |
-| `<leader>u`       | Toggle Undotree                            |
 
 ## 🔧 Configuration Structure
 

@@ -269,7 +269,7 @@ end
 -- Generate requirements.txt from Poetry
 M._poetry_generate_requirements = function()
   if not M._check_poetry() then return end
-  M._run_in_terminal("poetry export -f requirements.txt --output requirements.txt --without-hashes")
+  M._run_in_terminal("poetry export --format requirements.txt --output requirements.txt --without-hashes")
 end
 
 -- Create a new Poetry project
@@ -692,14 +692,13 @@ map("n", "<leader>dmk", function() M._open_ml_docs("scikit-learn") end, { desc =
 -- =============================================
 
 -- Poetry keybindings
-map("n", "<leader>oi", function() M._poetry_create_venv() end, { desc = "Poetry install" })
-map("n", "<leader>oc", function() M._poetry_create_venv() end, { desc = "Create Poetry env" })
+map("n", "<leader>oi", function() M._poetry_create_venv() end, { desc = "Poetry install dependencies" })
+map("n", "<leader>oc", function() M._poetry_new() end, { desc = "Create new Poetry project" })
 map("n", "<leader>oa", function() M._poetry_add_package() end, { desc = "Add package" })
 map("n", "<leader>or", function() M._poetry_remove_package() end, { desc = "Remove package" })
 map("n", "<leader>ou", function() M._poetry_update() end, { desc = "Update packages" })
 map("n", "<leader>oo", function() M._poetry_show_outdated() end, { desc = "Show outdated" })
 map("n", "<leader>og", function() M._poetry_generate_requirements() end, { desc = "Generate requirements.txt" })
-map("n", "<leader>on", function() M._poetry_new() end, { desc = "New Poetry project" })
 map("n", "<leader>ob", function() M._poetry_build() end, { desc = "Build package" })
 map("n", "<leader>op", function() M._poetry_publish() end, { desc = "Publish package" })
 map("n", "<leader>os", function() M._poetry_shell() end, { desc = "Poetry shell" })

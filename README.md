@@ -20,6 +20,13 @@ A comprehensive Neovim configuration optimized for backend development and data 
   - Python debugging with DAP integration
   - Integrated REPL with Python and IPython support
 
+- **Machine Learning & Data Science**
+  - Integrated documentation for ML libraries (scikit-learn, NumPy, Pandas)
+  - Direct shortcuts to TensorFlow, PyTorch, and Matplotlib documentation
+  - Virtual environment management optimized for data science workflows
+  - Intelligent code completion for ML libraries
+  - Notebook-like experience with code execution
+
 - **Backend Language Support**
   - First-class support for Python, Go, Rust, TypeScript, SQL
   - Docker and Kubernetes integration
@@ -36,7 +43,7 @@ A comprehensive Neovim configuration optimized for backend development and data 
 
 - **Efficient Git Workflow**
   - Gitsigns for inline git information
-  - Fugitive for git commands
+  - LazyGit for visual Git operations
   - Diffview for code comparison
   - Merge conflict resolution tools
 
@@ -66,6 +73,7 @@ This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhau
 | `<leader>b`  | Buffer operations                           |
 | `<leader>c`  | Code editing (formatting, styling)          |
 | `<leader>d`  | Documentation (devdocs, help)               |
+| `<leader>dm` | Machine Learning documentation              |
 | `<leader>e`  | Explorer operations                         |
 | `<leader>f`  | Find/File operations                        |
 | `<leader>g`  | Git operations                              |
@@ -83,6 +91,27 @@ This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhau
 | `<leader>x`  | Execute code (run scripts, REPL)            |
 | `<leader>z`  | Zen/Focus mode                              |
 
+### Documentation Keybindings
+
+Documentation is accessible through the `<leader>d` namespace with ML-specific documentation under `<leader>dm`:
+
+| Binding           | Action                                    |
+|-------------------|-------------------------------------------|
+| `<leader>do`      | Toggle documentation panel                |
+| `<leader>dO`      | Open documentation in buffer              |
+| `<leader>df`      | Fetch documentation index                 |
+| `<leader>di`      | Install documentation                     |
+| `<leader>du`      | Update documentation                      |
+| `<leader>dU`      | Update all documentation                  |
+| `<leader>dh`      | Search in documentation                   |
+| `<leader>dm`      | Browse ML documentation (interactive)     |
+| `<leader>dmk`     | scikit-learn documentation               |
+| `<leader>dmn`     | NumPy documentation                       |
+| `<leader>dmp`     | Pandas documentation                      |
+| `<leader>dmt`     | TensorFlow documentation                  |
+| `<leader>dmy`     | PyTorch documentation                     |
+| `<leader>dmm`     | Matplotlib documentation                  |
+
 ## 🔑 Key Productivity Shortcuts
 
 - `jk` - Exit insert mode (faster than pressing Escape)
@@ -95,6 +124,10 @@ This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhau
 - `<leader>gg` - Open LazyGit
 - `<leader>tt` - Toggle terminal
 - `<leader>do` - Open documentation in a pane with search capabilities
+- `<leader>dm` - Browse ML library documentation interactively
+- `<leader>dmk` - Quick access to scikit-learn documentation
+- `<leader>vr` - Run Python file with virtual environment
+- `<leader>oi` - Install Poetry dependencies
 
 ## 🔧 Installation
 

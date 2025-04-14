@@ -78,49 +78,20 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Setup color scheme and theme manager
-
--- Define a function to set colorscheme with Tokyo Night conditional switching
+-- Setup color scheme with Rose Pine as the main theme
 local function set_colorscheme()
-  -- Check if tokyonight is available
-  local has_tokyonight = pcall(vim.cmd, "colorscheme tokyonight-night")
+  -- Try to use Rose Pine (our preferred theme)
+  local success = pcall(vim.cmd, "colorscheme rose-pine")
   
-  -- Get current filetype
-  local filetype = vim.bo.filetype
-  
-  -- Apply appropriate theme based on filetype if tokyonight is available
-  if has_tokyonight then
-    if filetype == "python" then
-      vim.cmd.colorscheme("tokyonight-night") -- Use Tokyo Night for Python files
-    elseif filetype == "go" then
-      vim.cmd.colorscheme("tokyonight-storm") -- Use Tokyo Night Storm for Go files
-    elseif filetype == "lua" then 
-      vim.cmd.colorscheme("tokyonight-moon") -- Use Tokyo Night Moon for Lua files
-    elseif filetype == "javascript" or filetype == "typescript" then
-      vim.cmd.colorscheme("tokyonight-day") -- Use Tokyo Night Day for JS/TS
-    else
-      -- Fallback to original theme if tokyonight is available but no specific filetype match
-      vim.cmd.colorscheme("tokyonight-night")
-    end
-  else
-    -- Fallback to rose-pine if tokyonight is not available
-    local has_rosepine = pcall(vim.cmd, "colorscheme rose-pine-moon")
-    if not has_rosepine then
-      -- If even rose-pine is not available, use a default colorscheme
-      pcall(vim.cmd, "colorscheme habamax")
-    end
+  -- If Rose Pine fails, fall back to a default theme
+  if not success then
+    pcall(vim.cmd, "colorscheme habamax")
   end
 end
 
 -- Apply the colorscheme on startup (after plugins have loaded)
 vim.api.nvim_create_autocmd("User", {
   pattern = "LazyDone",
-  callback = set_colorscheme,
-})
-
--- Set up an autocommand to change colorscheme when the filetype changes
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "*",
   callback = set_colorscheme,
 })
 
@@ -217,22 +188,16 @@ require("lazy").setup({
   
   -- Colorscheme with high priority to load first
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "rose-pine/neovim",
+    name = "rose-pine",
     priority = 1000,
     config = function()
-      require("catppuccin").setup({
-        flavour = "mocha",
-        integrations = {
-          cmp = true,
-          gitsigns = true,
-          nvimtree = true,
-          telescope = true,
-          treesitter = true,
-          which_key = true,
-        },
+      require("rose-pine").setup({
+        dark_variant = "main",
+        disable_background = true,
+        disable_float_background = true,
+        disable_italics = false,
       })
-      vim.cmd.colorscheme "catppuccin"
     end,
   },
 }, {
@@ -242,7 +207,7 @@ require("lazy").setup({
     size = { width = 0.8, height = 0.8 },
   },
   install = {
-    colorscheme = { "catppuccin" },  -- Set fallback colorscheme
+    colorscheme = { "rose-pine" },  -- Set fallback colorscheme
     missing = true,  -- Auto-install missing plugins
   },
   performance = {

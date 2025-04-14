@@ -979,30 +979,41 @@ return {
     end,
   },
   
-  -- Tokyo Night colorscheme
+  -- Rose Pine colorscheme - main theme
   {
-    "folke/tokyonight.nvim",
+    "rose-pine/neovim",
+    name = "rose-pine",
     lazy = false,
     priority = 1000,
     config = function()
-      require("tokyonight").setup({
-        style = "night", -- The theme comes in four styles: storm, moon, night, day
-        transparent = true, -- Enable this to disable setting the background color
-        terminal_colors = true, -- Configure the colors used when opening a `:terminal`
+      require("rose-pine").setup({
+        variant = "moon", -- moon, main, or dawn
+        dark_variant = "main",
+        dim_inactive_windows = true,
+        extend_background_behind_borders = true,
+        
         styles = {
-          -- Style to be applied to different syntax groups
-          comments = { italic = true },
-          keywords = { italic = true },
-          functions = {},
-          variables = {},
-          sidebars = "dark", -- style for sidebars, see below
-          floats = "dark", -- style for floating windows
+          bold = true,
+          italic = true,
+          transparency = true,
         },
-        sidebars = { "qf", "help", "terminal", "packer" }, -- Set a darker background on sidebar-like windows
-        day_brightness = 0.3, -- Adjusts the brightness of the colors of the **Day** style
-        hide_inactive_statusline = false, -- Enabling this option will hide inactive statuslines
-        dim_inactive = true, -- dims inactive windows
-        lualine_bold = true, -- When `true`, section headers in the lualine theme will be bold
+        
+        highlight_groups = {
+          -- Enhance visibility for important elements
+          CursorLine = { bg = "foam", blend = 10 },
+          StatusLine = { fg = "love", bg = "pine", blend = 10 },
+          
+          -- Command line and UI tweaks
+          WildMenu = { fg = "gold", bg = "overlay" },
+          Pmenu = { bg = "overlay", blend = 10 },
+          PmenuSel = { fg = "text", bg = "foam" },
+          
+          -- Diagnostics with better visibility
+          DiagnosticError = { fg = "love" },
+          DiagnosticWarn = { fg = "gold" },
+          DiagnosticInfo = { fg = "foam" },
+          DiagnosticHint = { fg = "iris" },
+        }
       })
     end,
   },
@@ -1106,13 +1117,13 @@ return {
         ),
       })
 
-      -- Tokyo Night color scheme for wilder.nvim
-      local tokyonight_colors = {
-        bg = "#1a1b26",
-        fg = "#c0caf5",
-        accent = "#7aa2f7",
-        selected = "#414868",
-        border = "#32344a",
+      -- Rose Pine color scheme for wilder.nvim
+      local rose_pine_colors = {
+        bg = "#1a1d23",
+        fg = "#aeaebf",
+        accent = "#dca561",
+        selected = "#2a2b33",
+        border = "#3b3f4e",
         gray = "#565f89",
         error = "#f7768e",
         warning = "#e0af68",
@@ -1122,16 +1133,16 @@ return {
 
       -- Create highlight groups for wilder
       local highlight_colors = {
-        ["bg"] = { background = tokyonight_colors.bg },
-        ["fg"] = { foreground = tokyonight_colors.fg },
-        ["accent"] = { foreground = tokyonight_colors.accent },
-        ["accent_bg"] = { background = tokyonight_colors.accent, foreground = tokyonight_colors.bg },
-        ["selected"] = { background = tokyonight_colors.selected },
-        ["border"] = { foreground = tokyonight_colors.border },
-        ["error"] = { foreground = tokyonight_colors.error },
+        ["bg"] = { background = rose_pine_colors.bg },
+        ["fg"] = { foreground = rose_pine_colors.fg },
+        ["accent"] = { foreground = rose_pine_colors.accent },
+        ["accent_bg"] = { background = rose_pine_colors.accent, foreground = rose_pine_colors.bg },
+        ["selected"] = { background = rose_pine_colors.selected },
+        ["border"] = { foreground = rose_pine_colors.border },
+        ["error"] = { foreground = rose_pine_colors.error },
       }
 
-      -- Add Tokyo Night inspired border and better visual appearance
+      -- Add Rose Pine inspired border and better visual appearance
       local popupmenu_renderer = wilder.popupmenu_renderer(
         wilder.popupmenu_border_theme({
           highlights = {
@@ -1154,8 +1165,8 @@ return {
             " ",
             wilder.popupmenu_scrollbar({
               thumb_char = '┃',
-              thumb_hl = wilder.make_hl("WilderScrollbar", "Pmenu", {}, highlight_colors.accent),
-              track_hl = wilder.make_hl("WilderScrollbarTrack", "Pmenu", highlight_colors.bg),
+              thumb_hl = wilder.make_hl("WilderScrollbar", "Pmenu", {}, rose_pine_colors.accent),
+              track_hl = wilder.make_hl("WilderScrollbarTrack", "Pmenu", rose_pine_colors.bg),
             }),
           },
           empty_message = wilder.popupmenu_empty_message({

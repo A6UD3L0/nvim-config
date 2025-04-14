@@ -424,7 +424,7 @@ function M.run_diagnostics()
   return results
 end
 
--- Register commands and keybindings that follow our namespace structure
+-- Register commands only (mappings are now in mappings.lua)
 vim.api.nvim_create_user_command('VenvDiagnostics', M.run_diagnostics, {})
 vim.api.nvim_create_user_command('TestVenv', function(opts)
   local venv_path = opts.args
@@ -467,9 +467,6 @@ end, {
   end
 })
 
--- Use consistent namespace: leader v for "Virtual environment diagnostics"
-vim.api.nvim_set_keymap('n', '<leader>vd', ':VenvDiagnostics<CR>', { noremap = true, silent = true, desc = "Run venv diagnostics" })
-vim.api.nvim_set_keymap('n', '<leader>vt', ':TestVenv<CR>', { noremap = true, silent = true, desc = "Test current venv" })
-vim.api.nvim_set_keymap('n', '<leader>vs', ':VenvSelect<CR>', { noremap = true, silent = true, desc = "Select venv" })
+-- Keymappings have been centralized in mappings.lua
 
 return M

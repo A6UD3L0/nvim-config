@@ -257,25 +257,8 @@ return {
           -- Enable completion triggered by <c-x><c-o>
           vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
           
-          -- Buffer local mappings
-          local opts = { buffer = bufnr }
-          vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-          vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-          vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-          vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-          vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-          vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
-          vim.keymap.set('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
-          vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
-          vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-          vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
-          vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-          
-          -- Set some keybinds conditional on server capabilities
-          if client.server_capabilities.documentFormattingProvider then
-            vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format { async = true } end, opts)
-          end
+          -- Load all LSP-related keymappings from the central mappings file
+          require("mappings").setup_lsp_mappings(bufnr)
         end,
       })
       
@@ -432,43 +415,19 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     opts = {
       signs = {
-        add = { text = "" },
-        change = { text = "" },
-        delete = { text = "" },
-        topdelete = { text = "" },
-        changedelete = { text = "" },
-        untracked = { text = "" },
+        add = { text = "│" },
+        change = { text = "│" },
+        delete = { text = "_" },
+        topdelete = { text = "‾" },
+        changedelete = { text = "~" },
+        untracked = { text = "┆" },
       },
-      on_attach = function(buffer)
+      signcolumn = true,
+      on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
         
-        local function map(mode, l, r, desc)
-          vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
-        end
-        
-        -- Navigation
-        map("n", "]c", function()
-          if vim.wo.diff then return "]c" end
-          vim.schedule(function() gs.next_hunk() end)
-          return "<Ignore>"
-        end, "Next hunk")
-        
-        map("n", "[c", function()
-          if vim.wo.diff then return "[c" end
-          vim.schedule(function() gs.prev_hunk() end)
-          return "<Ignore>"
-        end, "Previous hunk")
-        
-        -- Actions
-        map("n", "<leader>gs", gs.stage_hunk, "Stage hunk")
-        map("n", "<leader>gr", gs.reset_hunk, "Reset hunk")
-        map("v", "<leader>gs", function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end, "Stage selected hunk")
-        map("v", "<leader>gr", function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end, "Reset selected hunk")
-        map("n", "<leader>gS", gs.stage_buffer, "Stage buffer")
-        map("n", "<leader>gu", gs.undo_stage_hunk, "Undo stage hunk")
-        map("n", "<leader>gR", gs.reset_buffer, "Reset buffer")
-        map("n", "<leader>gp", gs.preview_hunk, "Preview hunk")
-        map("n", "<leader>gb", function() gs.blame_line{full=true} end, "Blame line")
+        -- Use centralized git mappings
+        require("mappings").setup_git_mappings(gs)
       end,
     },
   },

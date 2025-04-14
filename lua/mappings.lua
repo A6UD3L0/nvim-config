@@ -383,28 +383,52 @@ map("n", "N", "Nzzzv", { desc = "Previous search result and center" })
 map("n", "J", "mzJ`z", { desc = "Join lines without moving cursor" })
 
 -- Disable Ex mode (avoid accidental activation)
-map("n", "Q", "<nop>", { desc = "Disable Ex mode" })
+-- map("n", "Q", "<nop>", { desc = "Disable Ex mode" })
+-- Map Q to quit
+map("n", "Q", "q", { desc = "Quit (Q = q)" })
+
+-- Quickfix navigation
+map("n", "<C-k>", "<cmd>cnext<CR>zz", { desc = "Next quickfix item" })
+map("n", "<C-j>", "<cmd>cprev<CR>zz", { desc = "Previous quickfix item" })
+map("n", "<leader>qk", "<cmd>lnext<CR>zz", { desc = "Next location list item" })
+map("n", "<leader>qj", "<cmd>lprev<CR>zz", { desc = "Previous location list item" })
+
+-- Quick search and replace for word under cursor
+map("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Search and replace word under cursor" })
+
+-- Make current file executable
+map("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make file executable" })
+
+-- Tmux integration (only if tmux is installed)
+if vim.fn.executable("tmux") == 1 then
+  map("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "Open tmux sessionizer" })
+end
+
+-- Format with conform.nvim if available
+local has_conform, _ = pcall(require, "conform")
+if has_conform then
+  map("n", "<leader>cf", function()
+    require("conform").format({ bufnr = 0 })
+  end, { desc = "Format buffer with conform" })
+end
 
 -- =============================================
 -- TEXT MANIPULATION & EDITING
 -- =============================================
 
+-- Format paragraph and return to position
+map("n", "=ap", "ma=ap'a", { desc = "Format paragraph and return" })
+
 -- Move selected lines up and down in visual mode
-map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selected lines down" })
-map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selected lines up" })
-
--- Reformat paragraph and return to position
-map("n", "=ap", "ma=ap'a", { desc = "Format paragraph and return to position" })
-
--- Escape from insert mode with Ctrl+c
-map("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
+map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- =============================================
 -- CLIPBOARD OPERATIONS
 -- =============================================
 
 -- Paste without losing register content
-map("x", "<leader>p", [["_dP]], { desc = "Paste over without yanking" })
+map("x", "<leader>p", [["_dP]], { desc = "Paste without yanking" })
 
 -- Copy to system clipboard
 map({ "n", "v" }, "<leader>y", [["+y]], { desc = "Copy to system clipboard" })

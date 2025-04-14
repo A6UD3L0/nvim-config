@@ -54,6 +54,16 @@ vim.opt.pumheight = 15                     -- Maximum number of items in popup m
 vim.opt.pumblend = 10                      -- Pseudo-transparency for popup menu
 vim.opt.winblend = 10                      -- Pseudo-transparency for floating windows
 
+-- Enhanced window/pane management
+vim.opt.equalalways = true                 -- Make window size equal when splitting
+vim.opt.splitkeep = "screen"               -- Keep text on same screen line when splitting
+
+-- Enhanced window decorations and visual cues
+vim.opt.winbar = "%=%m %f"                 -- Show file path in window bar
+vim.opt.title = true                       -- Show file in terminal title
+vim.opt.colorcolumn = "100"                -- Show a ruler at column 100
+vim.opt.cursorlineopt = "both"             -- Highlight both line number and text line
+
 -- Better command-line experience
 vim.opt.cmdheight = 1                      -- Height of the command line
 vim.opt.laststatus = 3                     -- Global statusline

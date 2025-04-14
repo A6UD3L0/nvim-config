@@ -178,6 +178,186 @@ The command-line interface has been enhanced with wilder.nvim for a more intuiti
 | `<leader>fh` | Help tags |
 | `<leader>e` | Toggle file explorer |
 
+## Plugin Documentation
+
+### Harpoon - Quick File Navigation
+
+Harpoon provides lightning-fast navigation between your most frequently used files.
+
+| Keybind | Description |
+|---------|-------------|
+| `<leader>ha` | Add current file to harpoon |
+| `<leader>hh` | Toggle harpoon quick menu |
+| `<leader>h1` | Navigate to harpoon file 1 |
+| `<leader>h2` | Navigate to harpoon file 2 |
+| `<leader>h3` | Navigate to harpoon file 3 |
+| `<leader>h4` | Navigate to harpoon file 4 |
+| `<leader>hp` | Navigate to previous harpoon mark |
+| `<leader>hn` | Navigate to next harpoon mark |
+
+**Usage Tips:**
+- Mark your most important project files with `<leader>ha`
+- Use the quick menu (`<leader>hh`) to see all marked files at once
+- The numerical shortcuts (`<leader>h1-4`) are the fastest way to jump between files
+
+![Harpoon Quick Menu](https://raw.githubusercontent.com/ThePrimeagen/harpoon/master/assets/harpoon-quick-menu.png)
+
+### Undotree - Visual History Navigation
+
+Undotree provides a visual representation of your edit history, allowing you to navigate to any previous state of your file.
+
+| Keybind | Description |
+|---------|-------------|
+| `<leader>u` | Toggle Undotree panel |
+
+**Usage Tips:**
+- Use Undotree when you need to go back to a specific version of your file
+- The visual tree makes it easy to see branching edit history
+- Navigate the tree using standard Vim motions (j/k)
+- Press Enter on a state to revert to it
+
+![Undotree Visualization](https://raw.githubusercontent.com/mbbill/undotree/master/doc/undotree.png)
+
+### Telescope - Fuzzy Finding
+
+Telescope is a highly extendable fuzzy finder over lists.
+
+| Keybind | Description |
+|---------|-------------|
+| `<leader>ff` | Find files in current directory |
+| `<leader>fg` | Live grep in current directory |
+| `<leader>fb` | Browse open buffers |
+| `<leader>fh` | Search help tags |
+| `<leader>fr` | Browse recent files |
+| `<leader>fc` | Browse colorscheme |
+| `<leader>fk` | Search keymaps |
+| `<leader>f/` | Search current buffer |
+| `<leader>fd` | Browse diagnostics |
+| `<leader>fs` | Browse LSP document symbols |
+| `<leader>fw` | Browse LSP workspace symbols |
+
+**Usage Tips:**
+- Type a few characters to fuzzy-find what you need
+- Use `Ctrl-n`/`Ctrl-p` to move up/down the results
+- Press `Tab` to select multiple items when applicable
+- Press `Ctrl-v` to open in vertical split, `Ctrl-x` for horizontal split
+
+### LSP and Diagnostics
+
+Language Server Protocol integration for intelligent code assistance.
+
+| Keybind | Description |
+|---------|-------------|
+| `gd` | Go to definition |
+| `gi` | Go to implementation |
+| `gr` | Find references |
+| `K` | Show hover documentation |
+| `<leader>lr` | Rename symbol |
+| `<leader>la` | Code actions |
+| `<leader>lf` | Format document |
+| `<leader>ld` | Show diagnostics |
+| `[d` | Previous diagnostic |
+| `]d` | Next diagnostic |
+
+**Usage Tips:**
+- Install language servers using `:Mason`
+- Check language server status with `:LspInfo`
+- Format on save is enabled for most file types
+
+### Multiple Pane Management
+
+Efficiently work with multiple files side by side.
+
+| Keybind | Description |
+|---------|-------------|
+| `<leader>sv` | Split window vertically |
+| `<leader>sh` | Split window horizontally |
+| `<leader>se` | Make splits equal size |
+| `<leader>sx` | Close current split |
+| `<C-h>` | Move to left window |
+| `<C-j>` | Move to bottom window |
+| `<C-k>` | Move to top window |
+| `<C-l>` | Move to right window |
+| `<C-Up>` | Decrease window height |
+| `<C-Down>` | Increase window height |
+| `<C-Left>` | Decrease window width |
+| `<C-Right>` | Increase window width |
+
+**Usage Tips:**
+- Use vertical splits (`<leader>sv`) for comparing files side by side
+- Use horizontal splits (`<leader>sh`) for viewing documentation while coding
+- Resize windows with `<C-arrows>` to optimize your workspace
+
+### UI Enhancements
+
+This configuration includes several UI enhancements for a better coding experience:
+
+#### Visually Appealing Interface
+
+- **Rose Pine Theme** with transparent backgrounds for distraction-free coding
+- **Custom Statusline** showing file information, Git status, and diagnostics
+- **Rounded Corners** on floating windows and popups
+- **Icons** throughout the interface for better visual identification
+- **Syntax Highlighting** powered by Treesitter for accurate code coloring
+
+#### Focused Coding Experience
+
+- **Distraction-free Mode**: Toggle with `<leader>z` to hide UI elements
+- **Winbar** showing current code context at the top of the window
+- **Indent Guides** for better code structure visualization
+- **Git Integration** with inline blame and status indicators
+- **Error Highlighting** that's visible but not distracting
+
+#### Context-Aware UI
+
+The UI adapts to what you're doing:
+
+- **LSP Status Indicator** shows when language servers are active
+- **Mode Indicator** changes color based on current mode (normal, insert, visual)
+- **Task Running Indicator** when async processes are active
+- **File Type Icons** for quick visual recognition
+
+#### Customized for Backend Development
+
+- **Database Connections** shown in the sidebar
+- **Terminal Integration** with proper styling
+- **Python Environment Indicator** in the statusline
+- **Color Coded Diagnostics** with severity levels
+
+### Code Folding
+
+Organize and navigate your code with folding.
+
+| Keybind | Description |
+|---------|-------------|
+| `<leader>zc` | Close fold |
+| `<leader>zo` | Open fold |
+| `<leader>za` | Toggle fold |
+| `<leader>zC` | Close all folds |
+| `<leader>zO` | Open all folds |
+| `<leader>zA` | Toggle all folds |
+
+### Nvim-Tree File Explorer
+
+A file explorer that integrates with Git, icons, and more.
+
+| Keybind | Description |
+|---------|-------------|
+| `<leader>e` | Toggle file explorer |
+| `<leader>o` | Focus file explorer |
+
+**In Explorer Window:**
+- `a` - Create new file/directory
+- `d` - Delete file/directory
+- `r` - Rename file/directory
+- `x` - Cut file to clipboard
+- `c` - Copy file to clipboard
+- `p` - Paste from clipboard
+- `y` - Copy filename
+- `Y` - Copy relative path
+- `<C-v>` - Open in vertical split
+- `<C-x>` - Open in horizontal split
+
 ## Plugin List
 
 This configuration includes carefully selected plugins for backend development:

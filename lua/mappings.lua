@@ -14,8 +14,8 @@ map("i", "jk", "<ESC>", { desc = "Exit insert mode" })
 map("i", "<C-c>", "<ESC>", { desc = "Alternative exit insert mode" })
 map({ "n", "i", "v" }, "<C-s>", "<cmd>w<cr>", { desc = "Save file" })
 
--- Disable Ex mode (avoid accidental entry)
-map("n", "Q", "<nop>", { desc = "Disabled Ex mode" })
+-- Remap Q to function as q (quit)
+map("n", "Q", "q", { desc = "Q acts as q (quit)" })
 
 -- Better window navigation
 map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })

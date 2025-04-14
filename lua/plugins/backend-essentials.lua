@@ -1000,7 +1000,7 @@ return {
     event = "VeryLazy",
     opts = {
       options = {
-        theme = "catppuccin",
+        theme = "rose-pine",
         globalstatus = true,
       },
       sections = {
@@ -1166,20 +1166,6 @@ return {
     "norcalli/nvim-colorizer.lua",
     event = "BufReadPre",
     config = true,
-  },
-  
-  -- Python Environment Diagnostics
-  {
-    "A6UD3L0/venv-diagnostics.nvim",
-    dir = vim.fn.stdpath("config") .. "/lua/venv_diagnostics.lua",
-    ft = { "python" },
-    dependencies = {
-      "neovim/nvim-lspconfig",
-      "williamboman/mason.nvim",
-    },
-    config = function()
-      require("venv_diagnostics")
-    end,
   },
   
   -- Undotree

@@ -389,7 +389,19 @@ M._toggle_documentation = function()
     toml = "toml",
   }
   
-  local doc_type = ft_map[ft] or ft
+  -- Additional documentation mapping for specialized topics
+  local specialized_docs = {
+    ["sklearn"] = "scikit_learn",
+    ["scikit-learn"] = "scikit_learn",
+    ["ml"] = "scikit_learn",
+    ["machinelearning"] = "scikit_learn",
+    ["numpy"] = "numpy~1.24",
+    ["pandas"] = "pandas~1",
+    ["tensorflow"] = "tensorflow~2.12",
+    ["pytorch"] = "pytorch",
+  }
+  
+  local doc_type = ft_map[ft] or specialized_docs[ft] or ft
   
   -- Try to open documentation for the specific filetype
   local success = pcall(vim.cmd, "DevdocsOpenFloat " .. vim.fn.shellescape(doc_type))
@@ -406,6 +418,60 @@ M._toggle_documentation = function()
     end, 1000)
   end
 end
+
+-- Documentation keybinding
+map("n", "<leader>do", function() M._toggle_documentation() end, { desc = "Toggle documentation" })
+
+-- Add specialized documentation commands for machine learning
+M._open_ml_docs = function(doc_type)
+  -- Check if DevDocs is available
+  local devdocs_ok, _ = pcall(require, "nvim-devdocs")
+  if not devdocs_ok then
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Map shorthand names to full documentation IDs
+  local ml_docs = {
+    ["sklearn"] = "scikit_learn",
+    ["scikit-learn"] = "scikit_learn",
+    ["numpy"] = "numpy~1.24",
+    ["pandas"] = "pandas~1",
+    ["tf"] = "tensorflow~2.12",
+    ["tensorflow"] = "tensorflow~2.12",
+    ["pytorch"] = "pytorch",
+    ["matplotlib"] = "matplotlib~3",
+    ["ml"] = "scikit_learn",  -- Default to scikit-learn for generic ML request
+  }
+  
+  local target_doc = ml_docs[doc_type] or doc_type
+  
+  -- Try to open documentation
+  local success = pcall(vim.cmd, "DevdocsOpenFloat " .. vim.fn.shellescape(target_doc))
+  
+  -- If failed, try to install the documentation
+  if not success then
+    vim.notify("Documentation for " .. target_doc .. " not found. Attempting to install...", vim.log.levels.INFO)
+    vim.cmd("DevdocsFetch")
+    vim.defer_fn(function()
+      pcall(vim.cmd, "DevdocsInstall " .. vim.fn.shellescape(target_doc))
+      vim.defer_fn(function()
+        pcall(vim.cmd, "DevdocsOpenFloat " .. vim.fn.shellescape(target_doc))
+      end, 2000)
+    end, 1000)
+  end
+end
+
+-- Machine learning documentation keybindings
+map("n", "<leader>dm", function() 
+  vim.ui.select(
+    { "sklearn", "numpy", "pandas", "tensorflow", "pytorch", "matplotlib" },
+    { prompt = "Select ML Documentation:" },
+    function(choice) 
+      if choice then M._open_ml_docs(choice) end
+    end
+  )
+end, { desc = "Browse ML documentation" })
 
 -- =============================================
 -- TERMINAL OPERATIONS (t namespace)
@@ -590,17 +656,36 @@ map("n", "<leader>th", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
 map("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle Undotree" })
 
 -- =============================================
--- DOCUMENTATION (do namespace)
+-- DOCUMENTATION (d namespace)
 -- =============================================
 
 -- Documentation operations
 map("n", "<leader>do", function() M._toggle_documentation() end, { desc = "Toggle documentation" })
 map("n", "<leader>dO", "<cmd>DevdocsOpen<CR>", { desc = "Open documentation in buffer" })
-map("n", "<leader>ds", "<cmd>DevdocsOpenFloat<CR>", { desc = "Search in documentation" })
+map("n", "<leader>df", "<cmd>DevdocsFetch<CR>", { desc = "Fetch documentation index" })
 map("n", "<leader>di", "<cmd>DevdocsInstall<CR>", { desc = "Install documentation" })
 map("n", "<leader>du", "<cmd>DevdocsUpdate<CR>", { desc = "Update documentation" })
 map("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all documentation" })
-map("n", "<leader>df", "<cmd>DevdocsFetch<CR>", { desc = "Fetch documentation index" })
+map("n", "<leader>dh", "<cmd>DevdocsSearch<CR>", { desc = "Search in documentation" })
+
+-- Machine learning documentation (d + m subfolder)
+map("n", "<leader>dm", function() 
+  vim.ui.select(
+    { "sklearn", "numpy", "pandas", "tensorflow", "pytorch", "matplotlib" },
+    { prompt = "Select ML Documentation:" },
+    function(choice) 
+      if choice then M._open_ml_docs(choice) end
+    end
+  )
+end, { desc = "Browse ML documentation" })
+
+-- Specific ML docs shortcuts
+map("n", "<leader>dmn", function() M._open_ml_docs("numpy") end, { desc = "NumPy docs" })
+map("n", "<leader>dmp", function() M._open_ml_docs("pandas") end, { desc = "Pandas docs" })
+map("n", "<leader>dmt", function() M._open_ml_docs("tensorflow") end, { desc = "TensorFlow docs" })
+map("n", "<leader>dmy", function() M._open_ml_docs("pytorch") end, { desc = "PyTorch docs" })
+map("n", "<leader>dmm", function() M._open_ml_docs("matplotlib") end, { desc = "Matplotlib docs" })
+map("n", "<leader>dmk", function() M._open_ml_docs("scikit-learn") end, { desc = "Scikit-learn docs" })
 
 -- =============================================
 -- POETRY OPERATIONS (o namespace)
@@ -735,6 +820,13 @@ M.setup_git_mappings = function(gitsigns)
   end, { desc = "Toggle deleted" })
 end
 
+-- Function for diagnostic window keybindings
+M.setup_diagnostic_window_mappings = function(buf)
+  -- Add keybindings for the diagnostic window
+  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q<CR>', { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', ':q<CR>', { noremap = true, silent = true })
+end
+
 -- =============================================
 -- LSP MAPPINGS
 -- =============================================
@@ -775,13 +867,6 @@ M.setup_lsp_mappings = function(bufnr)
   map("n", "<leader>cl", function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, { buffer = bufnr, desc = "List workspace folders" })
-end
-
--- Function for diagnostic window keybindings
-M.setup_diagnostic_window_mappings = function(buf)
-  -- Add keybindings for the diagnostic window
-  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q<CR>', { noremap = true, silent = true })
-  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', ':q<CR>', { noremap = true, silent = true })
 end
 
 -- =============================================

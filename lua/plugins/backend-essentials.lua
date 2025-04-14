@@ -979,6 +979,73 @@ return {
     },
   },
   
+  -- Enhanced command-line UI with wilder.nvim
+  {
+    "gelguy/wilder.nvim",
+    event = "CmdlineEnter",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      {
+        "romgrk/fzy-lua-native",
+        build = "make",
+      },
+    },
+    config = function()
+      local wilder = require("wilder")
+      wilder.setup({
+        modes = { ":", "/", "?" },
+        next_key = "<Tab>",
+        previous_key = "<S-Tab>",
+        accept_key = "<Down>",
+        reject_key = "<Up>",
+      })
+
+      -- Enable fuzzy search
+      wilder.set_option("pipeline", {
+        wilder.branch(
+          wilder.cmdline_pipeline({
+            fuzzy = 1,
+            set_pcre2_pattern = 1,
+          }),
+          wilder.python_search_pipeline({
+            pattern = wilder.python_fuzzy_pattern(),
+            sorter = wilder.python_difflib_sorter(),
+            engine = "re",
+          })
+        ),
+      })
+
+      -- Add border and better visual appearance
+      local popupmenu_renderer = wilder.popupmenu_renderer(
+        wilder.popupmenu_border_theme({
+          highlights = {
+            border = "Normal",
+            accent = wilder.make_hl("WilderAccent", "Pmenu", {{a = 1}, {a = 1}, {foreground = "#f4468f"}}),
+          },
+          border = "rounded",
+          left = {" ", wilder.popupmenu_devicons()},
+          right = {" ", wilder.popupmenu_scrollbar()},
+          empty_message = wilder.popupmenu_empty_message({
+            message = " No matches ",
+          }),
+        })
+      )
+
+      local wildmenu_renderer = wilder.wildmenu_renderer({
+        highlighter = wilder.basic_highlighter(),
+        separator = " · ",
+        left = {" ", wilder.wildmenu_spinner(), " "},
+        right = {" ", wilder.wildmenu_index()},
+      })
+
+      wilder.set_option("renderer", wilder.renderer_mux({
+        [":"] = popupmenu_renderer,
+        ["/"] = wildmenu_renderer,
+        ["?"] = wildmenu_renderer,
+      }))
+    end,
+  },
+  
   -- Comment toggling
   {
     "numToStr/Comment.nvim",

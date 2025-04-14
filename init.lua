@@ -19,9 +19,24 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Basic options
+-- UI Settings
+vim.opt.termguicolors = true    -- True color support
+vim.opt.background = "dark"     -- Dark background
 vim.opt.number = true           -- Show line numbers
 vim.opt.relativenumber = true   -- Show relative line numbers
+vim.opt.cursorline = true       -- Highlight current line
+vim.opt.signcolumn = "yes"      -- Always show sign column
+vim.opt.showmode = false        -- Don't show mode, as it's in the statusline
+vim.opt.title = true            -- Show file title in terminal title
+vim.opt.splitbelow = true       -- Horizontal splits go below
+vim.opt.splitright = true       -- Vertical splits go right
+vim.opt.scrolloff = 10          -- Keep cursor 10 lines from screen edge
+vim.opt.sidescrolloff = 8       -- Keep cursor 8 columns from screen edge
+vim.opt.pumheight = 15          -- Maximum number of items to show in popup menu
+vim.opt.pumblend = 10           -- Make popup menu semi-transparent
+vim.opt.winblend = 10           -- Make floating windows semi-transparent
+
+-- Editor settings
 vim.opt.tabstop = 4             -- Number of spaces tabs count for
 vim.opt.softtabstop = 4         -- Number of spaces in tab when editing
 vim.opt.shiftwidth = 4          -- Number of spaces to use for autoindent
@@ -32,19 +47,36 @@ vim.opt.swapfile = false        -- Don't use swapfile
 vim.opt.backup = false          -- Don't create backup files
 vim.opt.undofile = true         -- Enable persistent undo
 vim.opt.undodir = vim.fn.stdpath("data") .. "/undodir" -- Where to store undo history
-vim.opt.hlsearch = false        -- Don't highlight all matches
-vim.opt.incsearch = true        -- Incremental search
-vim.opt.termguicolors = true    -- True color support
-vim.opt.scrolloff = 8           -- Keep 8 lines above/below cursor when scrolling
-vim.opt.signcolumn = "yes"      -- Always show sign column
 vim.opt.updatetime = 50         -- Faster completion
 vim.opt.colorcolumn = "80"      -- Show column marker at 80 characters
-vim.opt.splitbelow = true       -- Split below current window
-vim.opt.splitright = true       -- Split right of current window
 vim.opt.clipboard = "unnamedplus" -- Use system clipboard
+
+-- Command line UI improvements
+vim.opt.wildmenu = true         -- Command-line completion
+vim.opt.wildmode = "longest:full,full" -- Complete till longest common string, then start wildmenu
+vim.opt.cmdheight = 1           -- Command-line height
+vim.opt.laststatus = 3          -- Global statusline
+vim.opt.showmatch = true        -- Jump to matching bracket briefly
+
+-- Better display of invisibles
+vim.opt.list = true
+vim.opt.listchars = {
+  tab = "» ",
+  trail = "·",
+  extends = "›",
+  precedes = "‹",
+  nbsp = "␣",
+}
+
+-- Better search experience
 vim.opt.ignorecase = true       -- Ignore case in search
-vim.opt.smartcase = true        -- Use smart case in search
-vim.opt.showmode = false        -- Don't show mode, as it's in the statusline
+vim.opt.smartcase = true        -- Unless search has uppercase
+vim.opt.incsearch = true        -- Show matches as you type
+vim.opt.hlsearch = true         -- Highlight search results
+
+-- Buffer settings
+vim.opt.hidden = true           -- Allow switching from unsaved buffers
+vim.opt.confirm = true          -- Confirm changes when exiting buffers
 vim.opt.completeopt = "menuone,noselect" -- Better completion experience
 
 -- Disable unused providers to remove health check warnings

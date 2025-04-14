@@ -283,7 +283,12 @@ return {
       local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
       for type, icon in pairs(signs) do
         local hl = "DiagnosticSign" .. type
-        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        if vim.fn.has("nvim-0.10") == 1 and vim.fn.sign_define then
+          vim.api.nvim_set_hl(0, hl, { default = true })
+          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        else
+          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        end
       end
     end,
   },
@@ -1121,15 +1126,17 @@ return {
       devdocs.setup({
         dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
         telescope = {
-          width = 0.85, -- 85% of the screen width
-          height = 0.75, -- 75% of the screen height
-          previewer_width = 0.6, -- 60% of the telescope width for the document previewer
+          width = 0.7, -- Simpler, more focused UI
+          height = 0.5, -- Less intrusive
+          previewer_width = 0.5, -- More balanced preview
         },
         float_win = {
           relative = "editor",
-          height = 0.9, -- 90% of the screen height
-          width = 0.9, -- 90% of the screen width
+          height = 0.7, -- More compact floating window
+          width = 0.7,
           border = "rounded",
+          title = "DevDocs",
+          title_pos = "center",
         },
         wrap = true, -- Wrap content in devdocs buffer
         after_open = function(bufnr)
@@ -1144,9 +1151,11 @@ return {
           vim.api.nvim_buf_set_keymap(bufnr, 'n', '/', '/', { noremap = true })
           vim.api.nvim_buf_set_keymap(bufnr, 'n', 'n', 'n', { noremap = true })
           vim.api.nvim_buf_set_keymap(bufnr, 'n', 'N', 'N', { noremap = true })
-          
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-s>', ':DevdocsOpen<CR>', { noremap = true, silent = true })
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-v>', ':DevdocsOpen<CR>', { noremap = true, silent = true })
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-t>', ':DevdocsOpen<CR>', { noremap = true, silent = true })
           -- Notify user about search capabilities
-          vim.notify("Use '/' to search within documentation. Press 'q' to close.", vim.log.levels.INFO)
+          vim.notify("[DevDocs] '/' to search, <C-s>/<C-v>/<C-t> to open, 'q' to close.", vim.log.levels.INFO)
         end,
         ensure_installed = {
           -- Automatically install these documentations on startup
@@ -1162,16 +1171,20 @@ return {
           "pandas~1",      -- Data analysis
         },
         mappings = {
-          open_in_split = "<C-s>",  -- Open in horizontal split
-          open_in_vsplit = "<C-v>", -- Open in vertical split
-          open_in_tab = "<C-t>",    -- Open in new tab
+          open_in_split = "<C-s>",
+          open_in_vsplit = "<C-v>",
+          open_in_tab = "<C-t>",
         },
       })
       
       -- Create command aliases for DevDocs to ensure compatibility
       vim.api.nvim_create_user_command("DevdocsFetch", function()
         vim.notify("Fetching documentation index...", vim.log.levels.INFO)
-        devdocs.update_metadata()
+        if devdocs.update_metadata then
+          devdocs.update_metadata()
+        else
+          vim.notify("DevDocs: update_metadata() not available in this version", vim.log.levels.WARN)
+        end
       end, {})
       
       vim.api.nvim_create_user_command("DevdocsInstall", function(opts)

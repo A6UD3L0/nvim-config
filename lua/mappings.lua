@@ -672,6 +672,9 @@ map("n", "<leader>tb", function() M._toggle_database_terminal() end, { desc = "D
 map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 map("t", "jk", "<C-\\><C-n>", { desc = "Exit terminal mode with jk" })
 
+-- Exit insert mode with jk (MECE, does not interfere with terminal mode mapping)
+map("i", "jk", "<Esc>", { desc = "Exit insert mode with jk" })
+
 -- =============================================
 -- BUFFER OPERATIONS (b namespace)
 -- =============================================

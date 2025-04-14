@@ -695,36 +695,42 @@ return {
           height = { min = 4, max = 25 }, -- min and max height of the columns
           width = { min = 20, max = 50 }, -- min and max width of the columns
           spacing = 3,                    -- spacing between columns
+          align = "center",               -- align columns left, center or right
+        },
+        icons = {
+          breadcrumb = "»",  -- Symbol in the command line area
+          separator = "➜",   -- Symbol between a key and its label
+          group = "+",       -- Symbol prepended to a group
         },
       })
       
-      -- Register all keybinding groups
+      -- Register label namespaces only (all actual keybindings are in mappings.lua)
       wk.register({
         ["<leader>"] = {
-          ["<leader>"] = { "<cmd>WhichKey<CR>", "Show all keybindings" },
-          ["b"] = { name = "Buffers" },
-          ["c"] = { name = "Code Actions" },
-          ["cd"] = { name = "Change Directory" },
-          ["cf"] = { name = "Format" },
-          ["d"] = { name = "Debug/Delete" },
-          ["do"] = { name = "Documentation" },
-          ["e"] = { name = "Explorer" },
-          ["f"] = { name = "Files/Find" },
-          ["g"] = { name = "Git" },
-          ["h"] = { name = "Harpoon" },
-          ["l"] = { name = "LSP" },
-          ["o"] = { name = "Poetry" },
-          ["p"] = { name = "Paste/Project" },
-          ["pv"] = { vim.cmd.Ex, "Open Netrw" },
-          ["q"] = { name = "Quickfix" },
-          ["r"] = { name = "Requirements" },
-          ["s"] = { name = "Search & Replace" },
-          ["t"] = { name = "Terminal" },
-          ["u"] = { name = "Undotree" },
-          ["v"] = { name = "Venv" },
-          ["w"] = { name = "Window" },
-          ["x"] = { "<cmd>!chmod +x %<CR>", "Make executable" },
-          ["y"] = { name = "Python/Yank" },
+          ["<leader>"] = { name = "Show all keybindings" },
+          ["b"] = { name = " Buffers" },
+          ["c"] = { name = " Code Actions" },
+          ["cd"] = { name = " Change Directory" },
+          ["cf"] = { name = "Format code" },
+          ["d"] = { name = " Debug/Delete" },
+          ["do"] = { name = " Documentation" },
+          ["e"] = { name = " Explorer" },
+          ["f"] = { name = " Find/Files" },
+          ["g"] = { name = " Git" },
+          ["h"] = { name = " Harpoon" },
+          ["l"] = { name = " LSP" },
+          ["o"] = { name = " Poetry" },
+          ["p"] = { name = " Paste/Project" },
+          ["pv"] = { name = "Open Netrw" },
+          ["q"] = { name = " Quickfix" },
+          ["r"] = { name = " Requirements" },
+          ["s"] = { name = "Search and replace" },
+          ["t"] = { name = " Terminal" },
+          ["u"] = { name = "Toggle Undotree" },
+          ["v"] = { name = "󱎫 Python Tools" },
+          ["w"] = { name = " Window" },
+          ["x"] = { name = "Make executable" },
+          ["y"] = { name = " Python" },
         },
         ["w"] = { name = "Window/Write" },
         ["g"] = { name = "Go to" },
@@ -931,7 +937,7 @@ return {
             fuzzy = 1,
             fuzzy_filter = wilder.lua_fzy_filter(),
             file_completion = function(_, arg)
-              return wilder.wildcard_expansion(arg, file_completion)
+              return wilder.vim_filepath_completion(arg)
             end,
           }),
           

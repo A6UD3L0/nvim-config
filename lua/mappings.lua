@@ -245,6 +245,193 @@ map("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all documen
 map("n", "<leader>df", "<cmd>DevdocsFetch<CR>", { desc = "Fetch documentation index" })
 
 -- =============================================
+-- POETRY OPERATIONS (o namespace)
+-- =============================================
+
+-- Create a new Poetry project
+M._poetry_new = function()
+  local project_name = vim.fn.input("New Poetry project name: ")
+  if project_name == "" then
+    return
+  end
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry new " .. project_name,
+    direction = "float",
+    close_on_exit = false,
+    on_exit = function()
+      vim.notify("Poetry project created: " .. project_name, vim.log.levels.INFO)
+      -- Ask if user wants to cd into the new project
+      if vim.fn.confirm("Change to new project directory?", "&Yes\n&No", 1) == 1 then
+        vim.cmd("cd " .. project_name)
+        vim.cmd("NvimTreeRefresh")
+      end
+    end,
+  })
+  term:toggle()
+end
+
+-- Create a Poetry virtual environment in the current project
+M._poetry_create_venv = function()
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry install",
+    direction = "float",
+    close_on_exit = false,
+    on_exit = function()
+      vim.notify("Poetry virtual environment created", vim.log.levels.INFO)
+    end,
+  })
+  term:toggle()
+end
+
+-- Add a package with Poetry
+M._poetry_add_package = function()
+  local package_name = vim.fn.input("Package name: ")
+  if package_name == "" then
+    return
+  end
+  
+  local dev = vim.fn.confirm("Add as dev dependency?", "&Yes\n&No", 2) == 1
+  local cmd = "poetry add " .. (dev and "--group dev " or "") .. package_name
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "float",
+    close_on_exit = false,
+    on_exit = function()
+      vim.notify("Package added: " .. package_name, vim.log.levels.INFO)
+    end,
+  })
+  term:toggle()
+end
+
+-- Remove a package with Poetry
+M._poetry_remove_package = function()
+  local package_name = vim.fn.input("Package to remove: ")
+  if package_name == "" then
+    return
+  end
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry remove " .. package_name,
+    direction = "float",
+    close_on_exit = false,
+    on_exit = function()
+      vim.notify("Package removed: " .. package_name, vim.log.levels.INFO)
+    end,
+  })
+  term:toggle()
+end
+
+-- Update packages with Poetry
+M._poetry_update = function()
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry update",
+    direction = "float",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Show outdated packages
+M._poetry_show_outdated = function()
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry show --outdated",
+    direction = "float",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Generate requirements.txt from Poetry
+M._poetry_generate_requirements = function()
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry export -f requirements.txt --output requirements.txt --without-hashes",
+    direction = "float",
+    close_on_exit = false,
+    on_exit = function()
+      vim.notify("Generated requirements.txt", vim.log.levels.INFO)
+    end,
+  })
+  term:toggle()
+end
+
+-- Poetry build
+M._poetry_build = function()
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry build",
+    direction = "float",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Poetry publish
+M._poetry_publish = function()
+  local repo = vim.fn.input("Repository (leave empty for default PyPI): ")
+  local cmd = "poetry publish"
+  if repo ~= "" then
+    cmd = cmd .. " --repository " .. repo
+  end
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "float",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Poetry shell
+M._poetry_shell = function()
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry shell",
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Edit pyproject.toml
+M._poetry_edit_pyproject = function()
+  if vim.fn.filereadable("pyproject.toml") == 1 then
+    vim.cmd("edit pyproject.toml")
+  else
+    vim.notify("pyproject.toml not found in current directory", vim.log.levels.ERROR)
+  end
+end
+
+-- Poetry run
+M._poetry_run = function()
+  local command = vim.fn.input("Command to run with poetry run: ")
+  if command == "" then
+    return
+  end
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry run " .. command,
+    direction = "float",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Poetry keybindings
+map("n", "<leader>oi", function() M._poetry_create_venv() end, { desc = "Poetry install" })
+map("n", "<leader>oc", function() M._poetry_create_venv() end, { desc = "Create Poetry env" })
+map("n", "<leader>oa", function() M._poetry_add_package() end, { desc = "Add package" })
+map("n", "<leader>or", function() M._poetry_remove_package() end, { desc = "Remove package" })
+map("n", "<leader>ou", function() M._poetry_update() end, { desc = "Update packages" })
+map("n", "<leader>oo", function() M._poetry_show_outdated() end, { desc = "Show outdated" })
+map("n", "<leader>og", function() M._poetry_generate_requirements() end, { desc = "Generate requirements.txt" })
+map("n", "<leader>on", function() M._poetry_new() end, { desc = "New Poetry project" })
+map("n", "<leader>ob", function() M._poetry_build() end, { desc = "Build package" })
+map("n", "<leader>op", function() M._poetry_publish() end, { desc = "Publish package" })
+map("n", "<leader>os", function() M._poetry_shell() end, { desc = "Poetry shell" })
+map("n", "<leader>oe", function() M._poetry_edit_pyproject() end, { desc = "Edit pyproject.toml" })
+map("n", "<leader>oR", function() M._poetry_run() end, { desc = "Poetry run command" })
+
+-- =============================================
 -- VIRTUAL ENV OPERATIONS (v namespace)
 -- =============================================
 
@@ -261,6 +448,9 @@ map("n", "<leader>vt", "<cmd>TestVenv<CR>", { desc = "Test current venv" })
 -- File explorer mappings
 map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
 map("n", "<leader>ef", "<cmd>NvimTreeFocus<CR>", { desc = "Focus file explorer" })
+
+-- Quick access to built-in file explorer (complements NvimTree)
+map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
 
 -- =============================================
 -- FILE/FIND OPERATIONS (f namespace)
@@ -431,36 +621,169 @@ map("n", "<leader>Y", [["+Y]], { desc = "Copy line to system clipboard" })
 map({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete without yanking" })
 
 -- =============================================
--- FILE EXPLORER
+-- BUFFER OPERATIONS (b namespace)
 -- =============================================
+
+-- Buffer management
+map("n", "<leader>bn", "<cmd>bnext<CR>", { desc = "Next buffer" })
+map("n", "<leader>bp", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
+map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
+map("n", "<leader>bl", "<cmd>buffers<CR>", { desc = "List buffers" })
+
+-- =============================================
+-- TERMINAL OPERATIONS (t namespace)
+-- =============================================
+
+-- Generic terminal toggle (from ToggleTerm plugin)
+map("n", "<leader>tt", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Toggle horizontal terminal" })
+map("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", { desc = "Toggle floating terminal" })
+map("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Toggle vertical terminal" })
+
+-- Toggle terminal instances (these rely on functions in backend-essentials)
+if _G._PYTHON_TOGGLE then
+  map("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", { desc = "Toggle Python Terminal" })
+end
+
+if _G._IPYTHON_TOGGLE then
+  map("n", "<leader>ti", "<cmd>lua _IPYTHON_TOGGLE()<CR>", { desc = "Toggle IPython Terminal" })
+end
+
+if _G._PYTHON_RUN_FILE then
+  map("n", "<leader>tr", "<cmd>lua _PYTHON_RUN_FILE()<CR>", { desc = "Run Python File" })
+end
+
+if _G._DOCKER_TERM then
+  map("n", "<leader>td", "<cmd>lua _DOCKER_TERM()<CR>", { desc = "Docker Terminal" })
+end
+
+if _G._DATABASE_TERM then
+  map("n", "<leader>tb", "<cmd>lua _DATABASE_TERM()<CR>", { desc = "Database Terminal" })
+end
+
+-- Terminal mode mappings
+map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+map("t", "jk", "<C-\\><C-n>", { desc = "Exit terminal mode with jk" })
+
+-- =============================================
+-- FILE EXPLORER OPERATIONS (e namespace)
+-- =============================================
+
+-- File explorer mappings
+map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+map("n", "<leader>ef", "<cmd>NvimTreeFocus<CR>", { desc = "Focus file explorer" })
 
 -- Quick access to built-in file explorer (complements NvimTree)
 map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
 
 -- =============================================
--- TESTING & DEBUGGING
+-- FILE/FIND OPERATIONS (f namespace)
 -- =============================================
 
--- Run Plenary test file
-vim.api.nvim_set_keymap("n", "<leader>tf", "<Plug>PlenaryTestFile", { noremap = false, silent = false, desc = "Run Plenary test file" })
+-- Telescope/find mappings
+map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
+map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Find in files (grep)" })
+map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
+map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Find help tags" })
+map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
+map("n", "<leader>fm", "<cmd>Telescope marks<CR>", { desc = "Find marks" })
+map("n", "<leader>fd", "<cmd>lua require('dashboard').find_directory_and_cd()<CR>", { desc = "Find directory and cd" })
 
--- Restart LSP (useful for Zig development)
-map("n", "<leader>lr", "<cmd>LspRestart<cr>", { desc = "Restart LSP server" })
+-- File operations
+map("n", "<leader>fs", "<cmd>w<CR>", { desc = "Save file" })
+map("n", "<leader>fS", "<cmd>wa<CR>", { desc = "Save all files" })
 
 -- =============================================
--- COLLABORATIVE EDITING (Optional)
+-- WINDOW OPERATIONS (w namespace)
 -- =============================================
 
--- Optional vim-with-me integration if the plugin is installed
-if pcall(require, "vim-with-me") then
-  map("n", "<leader>vwm", function()
-      require("vim-with-me").StartVimWithMe()
-  end, { desc = "Start Vim-with-me session" })
-  
-  map("n", "<leader>svwm", function()
-      require("vim-with-me").StopVimWithMe()
-  end, { desc = "Stop Vim-with-me session" })
-end
+-- Window management
+map("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Split vertically" })
+map("n", "<leader>wh", "<cmd>split<CR>", { desc = "Split horizontally" })
+map("n", "<leader>we", "<C-w>=", { desc = "Make splits equal size" })
+map("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close current split" })
+map("n", "<leader>wq", "<cmd>q<CR>", { desc = "Quit window" })
+map("n", "<leader>wQ", "<cmd>qa<CR>", { desc = "Quit all windows" })
+map("n", "<leader>wL", "<cmd>vertical resize +10<CR>", { desc = "Increase width" })
+map("n", "<leader>wH", "<cmd>vertical resize -10<CR>", { desc = "Decrease width" })
+map("n", "<leader>wK", "<cmd>resize +5<CR>", { desc = "Increase height" })
+map("n", "<leader>wJ", "<cmd>resize -5<CR>", { desc = "Decrease height" })
+
+-- =============================================
+-- UNDOTREE OPERATION (u namespace)
+-- =============================================
+
+-- Undotree toggle
+map("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle Undotree" })
+
+-- =============================================
+-- DOCUMENTATION (do namespace)
+-- =============================================
+
+-- Documentation operations
+map("n", "<leader>do", "<cmd>DevdocsOpenFloat<CR>", { desc = "Open documentation in float" })
+map("n", "<leader>dO", "<cmd>DevdocsOpen<CR>", { desc = "Open documentation in buffer" })
+map("n", "<leader>ds", "<cmd>Telescope devdocs search<CR>", { desc = "Search in documentation" })
+map("n", "<leader>di", "<cmd>DevdocsInstall<CR>", { desc = "Install documentation" })
+map("n", "<leader>du", "<cmd>DevdocsUpdate<CR>", { desc = "Update documentation" })
+map("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all documentation" })
+map("n", "<leader>df", "<cmd>DevdocsFetch<CR>", { desc = "Fetch documentation index" })
+
+-- =============================================
+-- POETRY OPERATIONS (o namespace)
+-- =============================================
+
+-- Poetry keybindings
+map("n", "<leader>oi", function() M._poetry_create_venv() end, { desc = "Poetry install" })
+map("n", "<leader>oc", function() M._poetry_create_venv() end, { desc = "Create Poetry env" })
+map("n", "<leader>oa", function() M._poetry_add_package() end, { desc = "Add package" })
+map("n", "<leader>or", function() M._poetry_remove_package() end, { desc = "Remove package" })
+map("n", "<leader>ou", function() M._poetry_update() end, { desc = "Update packages" })
+map("n", "<leader>oo", function() M._poetry_show_outdated() end, { desc = "Show outdated" })
+map("n", "<leader>og", function() M._poetry_generate_requirements() end, { desc = "Generate requirements.txt" })
+map("n", "<leader>on", function() M._poetry_new() end, { desc = "New Poetry project" })
+map("n", "<leader>ob", function() M._poetry_build() end, { desc = "Build package" })
+map("n", "<leader>op", function() M._poetry_publish() end, { desc = "Publish package" })
+map("n", "<leader>os", function() M._poetry_shell() end, { desc = "Poetry shell" })
+map("n", "<leader>oe", function() M._poetry_edit_pyproject() end, { desc = "Edit pyproject.toml" })
+map("n", "<leader>oR", function() M._poetry_run() end, { desc = "Poetry run command" })
+-- Virtual env integration with Poetry
+map("n", "<leader>ov", "<cmd>VenvSelect<CR>", { desc = "Select any venv" })
+map("n", "<leader>od", "<cmd>VenvDiagnostics<CR>", { desc = "Run venv diagnostics" })
+
+-- =============================================
+-- REQUIREMENTS MANAGEMENT (r namespace)
+-- =============================================
+
+-- Requirements management with Poetry integration
+map("n", "<leader>rg", function() M._poetry_generate_requirements() end, { desc = "Generate from Poetry (recommended)" })
+map("n", "<leader>re", "<cmd>edit requirements.txt<CR>", { desc = "Edit requirements.txt" })
+map("n", "<leader>ri", "<cmd>TermExec cmd='pip install -r requirements.txt'<CR>", { desc = "Install from requirements.txt" })
+map("n", "<leader>rp", "<cmd>echo 'Use Poetry for dependency management with <leader>o'<CR>", { desc = "Use Poetry (<leader>o)" })
+
+-- =============================================
+-- PYTHON TOOLS (v namespace)
+-- =============================================
+
+-- Python tools and venv management (alternative to Poetry for non-Poetry projects)
+map("n", "<leader>va", "<cmd>VenvSelect<CR>", { desc = "Activate any venv" })
+map("n", "<leader>vc", "<cmd>VenvSelectCached<CR>", { desc = "Cached venv" })
+map("n", "<leader>vt", "<cmd>TestVenv<CR>", { desc = "Test current venv" })
+map("n", "<leader>vp", function() M._python_run_file() end, { desc = "Run Python file" })
+map("n", "<leader>vr", "<cmd>Telescope python_tests<CR>", { desc = "Run Python tests" })
+
+-- =============================================
+-- PYTHON OPERATIONS (y namespace)
+-- =============================================
+
+-- Python execution and file operations
+map("n", "<leader>ye", function() M._python_execute_snippet() end, { desc = "Execute selection" })
+map("n", "<leader>yi", function() M._python_execute_in_ipython() end, { desc = "Run in IPython" })
+map("n", "<leader>yn", function() M._python_new_file() end, { desc = "New Python file" })
+map("n", "<leader>yt", "<cmd>Telescope python_tests<CR>", { desc = "Run tests" })
+map("n", "<leader>yp", "<cmd>echo 'Use <leader>o for Poetry dependency management'<CR>", { desc = "Dependency management ⟶ <leader>o" })
+
+-- Register whichkey specific activate command
+map("n", "<leader><leader>", "<cmd>WhichKey<CR>", { desc = "Show all keybindings" })
 
 -- =============================================
 -- HELPER FUNCTIONS

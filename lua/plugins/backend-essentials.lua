@@ -313,9 +313,26 @@ return {
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-cmdline",
-      "L3MON4D3/LuaSnip",
-      "saadparwaiz1/cmp_luasnip",
-      "rafamadriz/friendly-snippets",
+      {
+        "L3MON4D3/LuaSnip",
+        dependencies = {
+          "rafamadriz/friendly-snippets",
+          "saadparwaiz1/cmp_luasnip",
+          {
+            "benfowler/telescope-luasnip.nvim",
+          },
+        },
+        build = (not jit.os:find("Windows")) and 
+          "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp" or nil,
+        event = "InsertEnter",
+        config = function()
+          require("luasnip.loaders.from_vscode").lazy_load()
+          require("luasnip").filetype_extend("python", { "django", "pydoc" })
+          require("luasnip").filetype_extend("javascript", { "html", "css" })
+          require("luasnip").filetype_extend("typescript", { "javascript", "html", "css" })
+          require("luasnip").filetype_extend("go", { "godoc" })
+        end,
+      },
     },
     config = function()
       local cmp = require("cmp")
@@ -656,7 +673,7 @@ return {
     config = function()
       local wk = require("which-key")
       wk.setup({
-        window = {
+        win = {  
           border = "single",
           position = "top-right",
           margin = { 1, 0, 2, 0 },
@@ -670,19 +687,17 @@ return {
       })
       
       wk.register({
-        ["<leader>"] = {
-          b = { name = "Buffers" },
-          c = { name = "Code Actions" },
-          d = { name = "Debug" },
-          D = { name = "Docker" },
-          f = { name = "Find" },
-          g = { name = "Git" },
-          h = { name = "Harpoon" },
-          l = { name = "LSP" },
-          p = { name = "Python" },
-          t = { name = "Terminal" },
-          w = { name = "Window" },
-        },
+        { "<leader>b", group = "Buffers" },
+        { "<leader>c", group = "Code Actions" },
+        { "<leader>d", group = "Debug" },
+        { "<leader>D", group = "Docker" },
+        { "<leader>f", group = "Find" },
+        { "<leader>g", group = "Git" },
+        { "<leader>h", group = "Harpoon" },
+        { "<leader>l", group = "LSP" },
+        { "<leader>p", group = "Python" },
+        { "<leader>t", group = "Terminal" },
+        { "<leader>w", group = "Window" },
       })
     end,
   },

@@ -63,6 +63,14 @@ elseif vim.fn.has('win32') == 1 then
   vim.g.python3_host_prog = vim.fn.expand('~/AppData/Local/Programs/Python/Python39/python.exe')
 end
 
+-- Unset VIRTUAL_ENV to prevent the Python virtualenv warning
+if vim.env.VIRTUAL_ENV then
+  -- Store the original value in case we need it later
+  vim.g.original_virtual_env = vim.env.VIRTUAL_ENV
+  -- Unset it to avoid the warning
+  vim.env.VIRTUAL_ENV = nil
+end
+
 -- Ensure data directories exist
 local function ensure_dir(path)
   local stat = vim.loop.fs_stat(path)

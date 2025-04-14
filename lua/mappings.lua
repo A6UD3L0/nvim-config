@@ -72,8 +72,7 @@ map({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete without yanking" })
 map("x", "<leader>p", [["_dP]], { desc = "Paste without yanking selection" })
 
 -- Search and replace
-map("n", "<leader>S", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Search & replace word under cursor" })
-map("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Search & replace word under cursor" })
+map("n", "<leader>sr", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Search & replace word under cursor" })
 
 -- Make file executable
 map("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable" })
@@ -128,20 +127,24 @@ map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
 map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Show diagnostic in float" })
 map("n", "<leader>cl", vim.diagnostic.setloclist, { desc = "Diagnostics to location list" })
 
--- DAP debugging
+-- DAP debugging with proper prefixes to avoid overlap
 map("n", "<leader>db", "<cmd>lua require('dap').toggle_breakpoint()<CR>", { desc = "Toggle breakpoint" })
 map("n", "<leader>dc", "<cmd>lua require('dap').continue()<CR>", { desc = "Continue debug" })
 map("n", "<leader>di", "<cmd>lua require('dap').step_into()<CR>", { desc = "Step into" })
 map("n", "<leader>do", "<cmd>lua require('dap').step_over()<CR>", { desc = "Step over" })
 map("n", "<leader>dO", "<cmd>lua require('dap').step_out()<CR>", { desc = "Step out" })
 map("n", "<leader>dt", "<cmd>lua require('dapui').toggle()<CR>", { desc = "Toggle DAP UI" })
+map("n", "<leader>dr", "<cmd>lua require('dap').repl.open()<CR>", { desc = "Open REPL" })
 
--- Comment
-map("n", "gcc", function() require("Comment.api").toggle.linewise.current() end, { desc = "Toggle comment" })
-map("v", "gc", "<esc><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment" })
+-- Comment with non-overlapping mappings
+-- Using the Comment.api for clarity and to avoid mapping overlaps
+map("n", "<leader>cc", function() require("Comment.api").toggle.linewise.current() end, { desc = "Toggle line comment" })
+map("n", "<leader>cb", function() require("Comment.api").toggle.blockwise.current() end, { desc = "Toggle block comment" })
+map("v", "<leader>c", "<esc><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>", { desc = "Toggle comment" })
 
--- Database UI
-map("n", "<leader>da", "<cmd>DBUI<CR>", { desc = "Open Database UI" })
+-- Database UI with proper prefix
+map("n", "<leader>dbu", "<cmd>DBUIToggle<CR>", { desc = "Toggle Database UI" })
+map("n", "<leader>dba", "<cmd>DBUIAddConnection<CR>", { desc = "Add DB Connection" })
 
 -- Working directory mappings for Python projects
 -- Mapping for changing directories and activating virtual environments

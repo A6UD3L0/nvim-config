@@ -939,6 +939,7 @@ return {
             file_completion = function(_, arg)
               return wilder.vim_filepath_completion(arg)
             end,
+            language = "lua",
           }),
           
           -- Use vim search for / and ? mode
@@ -1055,40 +1056,45 @@ return {
       "DevdocsUpdateAll",
     },
     keys = {
-      { "<leader>do", "<cmd>DevdocsOpenFloat<CR>", desc = "Open documentation in float" },
-      { "<leader>dO", "<cmd>DevdocsOpen<CR>", desc = "Open documentation in buffer" },
-      { "<leader>ds", "<cmd>Telescope devdocs search<CR>", desc = "Search in documentation" },
+      -- Remove key mappings here as they're centralized in mappings.lua
     },
-    opts = {
-      dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
-      telescope = {
-        width = 0.8, -- 80% of the screen width
-        height = 0.7, -- 70% of the screen height
-        previewer_width = 0.6, -- 60% of the telescope width for the document previewer
-      },
-      float_win = {
-        relative = "editor",
-        height = 0.8, -- 80% of the screen height
-        width = 0.8, -- 80% of the screen width
-        border = "rounded",
-      },
-      wrap = true, -- Wrap content in devdocs buffer
-      ensure_installed = {
-        -- Automatically install these documentations on startup
-        "python",
-        "javascript",
-        "typescript",
-        "go",
-        "bash",
-        "css",
-        "html",
-        "http",
-        "git",
-        "docker",
-        "markdown",
-        "sql",
-      },
-    },
+    config = function()
+      require("nvim-devdocs").setup({
+        dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
+        telescope = {
+          width = 0.8, -- 80% of the screen width
+          height = 0.7, -- 70% of the screen height
+          previewer_width = 0.6, -- 60% of the telescope width for the document previewer
+        },
+        float_win = {
+          relative = "editor",
+          height = 0.8, -- 80% of the screen height
+          width = 0.8, -- 80% of the screen width
+          border = "rounded",
+        },
+        wrap = true, -- Wrap content in devdocs buffer
+        ensure_installed = {
+          -- Automatically install these documentations on startup
+          "python",
+          "javascript",
+          "typescript",
+          "go",
+          "bash",
+          "css",
+          "html",
+          "http",
+          "git",
+          "docker",
+          "markdown",
+          "sql",
+        },
+      })
+      
+      -- Only try to register the extension if Telescope is already loaded
+      if package.loaded["telescope"] then
+        pcall(require("telescope").load_extension, "devdocs")
+      end
+    end,
   },
   
   -- Alpha dashboard for a beautiful welcome screen

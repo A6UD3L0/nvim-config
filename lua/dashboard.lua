@@ -69,7 +69,7 @@ function M.setup()
     local datetime = os.date(" %Y-%m-%d   %H:%M:%S")
     local version = vim.version()
     local nvim_version = "  v" .. version.major .. "." .. version.minor .. "." .. version.patch
-    
+  
     return datetime .. " " .. nvim_version
   end
   
@@ -99,18 +99,32 @@ M.find_directory_and_cd = function()
   local telescope = require('telescope.builtin')
   local actions = require('telescope.actions')
   local state = require('telescope.actions.state')
+  local pickers = require('telescope.pickers')
+  local finders = require('telescope.finders')
+  local conf = require('telescope.config').values
   
-  telescope.find_files({
-    find_command = {'find', '.', '-type', 'd', '-not', '-path', '*/\\.*'},
+  -- Use a more reliable method to find directories
+  local find_command = {'find', '.', '-type', 'd', '-not', '-path', '*/\\.git/*', '-not', '-path', '*/\\node_modules/*', '-not', '-path', '*/__pycache__/*'}
+  
+  pickers.new({}, {
     prompt_title = 'Find Directory',
+    finder = finders.new_oneshot_job(find_command, { entry_maker = function(entry)
+      return {
+        value = entry,
+        display = entry,
+        ordinal = entry,
+        path = entry,
+      }
+    end}),
+    sorter = conf.generic_sorter({}),
     attach_mappings = function(prompt_bufnr, map)
-      map('i', '<CR>', function()
+      actions.select_default:replace(function()
         local selection = state.get_selected_entry(prompt_bufnr)
         actions.close(prompt_bufnr)
         
         -- Change directory to the selected path
         if selection and selection.path then
-          vim.cmd('cd ' .. selection.path)
+          vim.cmd('cd ' .. vim.fn.fnameescape(selection.path))
           -- Provide visual feedback to user
           vim.notify('Working directory changed to: ' .. selection.path, 
                     vim.log.levels.INFO, 
@@ -118,8 +132,8 @@ M.find_directory_and_cd = function()
         end
       end)
       return true
-    end
-  })
+    end,
+  }):find()
 end
 
 return M

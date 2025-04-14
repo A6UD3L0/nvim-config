@@ -16,14 +16,14 @@ local M = {}
 --
 -- Namespace structure for leader-prefixed commands:
 -- <leader>b  - Buffer operations (buffer navigation, management)
--- <leader>c  - Code actions (LSP, formatting, diagnostics)
--- <leader>d  - Debug operations (debugging workflow)
--- <leader>e  - Explorer operations (file explorer, project navigation)
+-- <leader>c  - Code editing (formatting, styling, refactoring)
+-- <leader>d  - Documentation (devdocs, help, guides) 
+-- <leader>e  - Explorer operations (file navigation, project structure)
 -- <leader>f  - Find/File operations (Telescope, file search, save)
 -- <leader>g  - Git operations (stage, commit, diff, blame)
 -- <leader>h  - Harpoon operations (file marking, quick navigation)
 -- <leader>k  - Keymaps (show key bindings, help)
--- <leader>l  - LSP operations (hover, definition, references)
+-- <leader>l  - LSP operations (diagnostics, actions, definitions, references)
 -- <leader>o  - Organize (Python Poetry package/environment management)
 -- <leader>p  - Project operations (project-wide actions)
 -- <leader>r  - Run/Requirements (run code, manage dependencies)
@@ -32,13 +32,16 @@ local M = {}
 -- <leader>u  - Utilities (undotree, misc helpers)
 -- <leader>v  - Virtual environment (Python venv management)
 -- <leader>w  - Window operations (splits, resize, navigation)
--- <leader>y  - Python code execution (run snippets, files)
+-- <leader>x  - Execute code operations (run snippets, files, REPL integration)
 -- <leader>z  - Zen/Focus mode (distraction-free coding)
 --
--- Non-leader keys use standard Vim-like bindings where possible
--- Additional special keys are documented in relevant sections
---
--- This structure ensures no namespace conflicts and provides logical grouping
+-- Non-leader keys follow standard Vim conventions where possible:
+-- g* - Navigation/Go to (gd = definition, gr = references)
+-- z* - Folding and view control
+-- []/() - Pair navigation and movement
+-- 
+-- This structure ensures categories are mutually exclusive (no overlap)
+-- while being collectively exhaustive (covering all needed functionality)
 
 -- =============================================
 -- TERMINAL OPERATIONS (t namespace)
@@ -201,7 +204,7 @@ map("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle Undotree" })
 -- Documentation operations
 map("n", "<leader>do", "<cmd>DevdocsOpenFloat<CR>", { desc = "Open documentation in float" })
 map("n", "<leader>dO", "<cmd>DevdocsOpen<CR>", { desc = "Open documentation in buffer" })
-map("n", "<leader>ds", "<cmd>Telescope devdocs search<CR>", { desc = "Search in documentation" })
+map("n", "<leader>ds", "<cmd>DevdocsOpenFloat<CR>", { desc = "Search in documentation" })
 map("n", "<leader>di", "<cmd>DevdocsInstall<CR>", { desc = "Install documentation" })
 map("n", "<leader>du", "<cmd>DevdocsUpdate<CR>", { desc = "Update documentation" })
 map("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all documentation" })
@@ -258,17 +261,17 @@ map("n", "<leader>vt", "<cmd>TestVenv<CR>", { desc = "Test current venv" })
 map("n", "<leader>vr", "<cmd>RunPythonWithEnv<CR>", { desc = "Run file with venv" })
 
 -- =============================================
--- PYTHON OPERATIONS (y namespace)
+-- EXECUTE CODE OPERATIONS (x namespace)
 -- =============================================
 
--- Python execution and file operations
-map("n", "<leader>yr", "<cmd>RunPythonWithEnv<CR>", { desc = "Run current file" })
-map("n", "<leader>ye", function() M._python_execute_snippet() end, { desc = "Execute selection" })
-map("n", "<leader>yi", function() M._python_execute_in_ipython() end, { desc = "Run in IPython" })
-map("n", "<leader>yn", function() M._python_new_file() end, { desc = "New Python file" })
-map("n", "<leader>yt", "<cmd>Telescope python_tests<CR>", { desc = "Run tests" })
-map("n", "<leader>yp", "<cmd>echo 'Use <leader>o for Poetry dependency management'<CR>", { desc = "Dependency management ⟶ <leader>o" })
-map("n", "<leader>yv", "<cmd>VenvActivate<CR>", { desc = "Activate virtual environment" })
+-- Python execution and file operations 
+map("n", "<leader>xr", "<cmd>RunPythonWithEnv<CR>", { desc = "Run current file" })
+map("n", "<leader>xe", function() M._python_execute_snippet() end, { desc = "Execute selection" })
+map("n", "<leader>xi", function() M._python_execute_in_ipython() end, { desc = "Run in IPython" })
+map("n", "<leader>xn", function() M._python_new_file() end, { desc = "New Python file" })
+map("n", "<leader>xt", "<cmd>Telescope python_tests<CR>", { desc = "Run tests" })
+map("n", "<leader>xp", "<cmd>echo 'Use <leader>o for Poetry dependency management'<CR>", { desc = "Dependency management ⟶ <leader>o" })
+map("n", "<leader>xv", "<cmd>VenvActivate<CR>", { desc = "Activate virtual environment" })
 
 -- =============================================
 -- KEYMAPS HELPER (k namespace)

@@ -933,6 +933,7 @@ return {
         build = "make",
       },
     },
+    build = ":TSUpdate",
     config = function()
       local wilder = require("wilder")
       wilder.setup({
@@ -941,6 +942,8 @@ return {
         previous_key = "<S-Tab>",
         accept_key = "<Down>",
         reject_key = "<Up>",
+        enable_python = false,  -- Disable Python features
+        use_python_remote_plugin = false,  -- Don't use Python remote plugin
       })
 
       -- Use only Lua-based functionality to avoid Python errors
@@ -987,19 +990,16 @@ return {
       -- Use native Lua-based fuzzy search and completion
       wilder.set_option("pipeline", {
         wilder.branch(
-          -- Use cmdline engine for command completion
+          -- Use lua_fzy_filter which doesn't rely on Python
           wilder.cmdline_pipeline({
+            language = "vim",
             fuzzy = 1,
             fuzzy_filter = wilder.lua_fzy_filter(),
-            file_completion = function(_, arg)
-              return wilder.vim_filepath_completion(arg)
-            end,
-            language = "lua",
+            debounce = 10,
           }),
-          
-          -- Use vim search for / and ? mode
+          -- Use Lua-based vim_search_pipeline for search
           wilder.vim_search_pipeline()
-        ),
+        )
       })
 
       -- Rose Pine color scheme for wilder.nvim

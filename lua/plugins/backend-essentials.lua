@@ -1111,59 +1111,12 @@ return {
       "nvim-telescope/telescope.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
-    build = function()
-      -- Force installation of required documentation on initial setup
-      -- Don't call vim.cmd here as the plugin may not be loaded yet
-      vim.defer_fn(function()
-        local py_doc_path = vim.fn.stdpath("data") .. "/devdocs/docs/python~3.11"
-        if not vim.loop.fs_stat(py_doc_path) then
-          pcall(vim.cmd, "DevdocsFetch")
-          pcall(vim.cmd, "DevdocsInstall python~3.11")
-        end
-      end, 3000)  -- Delay to ensure plugin is loaded
-    end,
+    build = ":lua require('nvim-devdocs.install').check_requirements()",
     config = function()
       local status_ok, devdocs = pcall(require, "nvim-devdocs")
       if not status_ok then
         vim.notify("Could not load nvim-devdocs plugin", vim.log.levels.ERROR)
         return
-      end
-      
-      -- Force installation for Python
-      local function install_python_docs()
-        -- Create a temporary buffer for output
-        local buf = vim.api.nvim_create_buf(false, true)
-        
-        -- Set up job to fetch documentation registry
-        vim.fn.jobstart("curl -s https://devdocs.io/docs.json", {
-          stdout_buffered = true,
-          on_stdout = function(_, data)
-            if data and data[1] ~= "" then
-              local success, json_data = pcall(vim.fn.json_decode, table.concat(data, "\n"))
-              if success then
-                -- Find Python documentation versions
-                local python_docs = {}
-                for _, doc in ipairs(json_data) do
-                  if doc.name:match("^Python") or doc.slug:match("^python") then
-                    table.insert(python_docs, doc.slug)
-                  end
-                end
-                
-                -- Install docs
-                if #python_docs > 0 then
-                  vim.defer_fn(function()
-                    pcall(vim.cmd, "DevdocsInstall " .. python_docs[1])
-                    vim.notify("Installing Python documentation: " .. python_docs[1], vim.log.levels.INFO)
-                  end, 500)
-                end
-              end
-            end
-          end,
-          on_exit = function()
-            -- Clean up
-            vim.api.nvim_buf_delete(buf, { force = true })
-          end
-        })
       end
       
       -- Setup DevDocs
@@ -1212,6 +1165,11 @@ return {
           "sql",
           "postgresql",
           "rust",
+          "scikit_learn",  -- Machine learning library
+          "numpy~1.24",    -- Data manipulation
+          "pandas~1",      -- Data analysis
+          "tensorflow~2.12", -- Deep learning framework
+          "matplotlib~3",  -- Data visualization
         },
         mappings = {
           open_in_split = "<C-s>",  -- Open in horizontal split
@@ -1219,55 +1177,6 @@ return {
           open_in_tab = "<C-t>",    -- Open in new tab
         },
       })
-      
-      -- Register commands manually to ensure they're available
-      vim.api.nvim_create_user_command("DevdocsFetch", function()
-        vim.cmd("lua require('nvim-devdocs.fetch').fetch_all_docs()")
-      end, {})
-      
-      vim.api.nvim_create_user_command("DevdocsInstall", function(opts)
-        vim.cmd("lua require('nvim-devdocs.install').install('" .. opts.args .. "')")
-      end, { nargs = 1 })
-      
-      vim.api.nvim_create_user_command("DevdocsUninstall", function(opts)
-        vim.cmd("lua require('nvim-devdocs.install').uninstall('" .. opts.args .. "')")
-      end, { nargs = 1 })
-      
-      vim.api.nvim_create_user_command("DevdocsOpen", function(opts)
-        if opts.args and opts.args ~= "" then
-          vim.cmd("lua require('nvim-devdocs').open('" .. opts.args .. "')")
-        else
-          vim.cmd("lua require('nvim-devdocs').open()")
-        end
-      end, { nargs = "?" })
-      
-      vim.api.nvim_create_user_command("DevdocsOpenFloat", function(opts)
-        if opts.args and opts.args ~= "" then
-          vim.cmd("lua require('nvim-devdocs').open_float('" .. opts.args .. "')")
-        else
-          vim.cmd("lua require('nvim-devdocs').open_float()")
-        end
-      end, { nargs = "?" })
-      
-      vim.api.nvim_create_user_command("DevdocsUpdate", function(opts)
-        vim.cmd("lua require('nvim-devdocs.update').update('" .. opts.args .. "')")
-      end, { nargs = 1 })
-      
-      vim.api.nvim_create_user_command("DevdocsUpdateAll", function()
-        vim.cmd("lua require('nvim-devdocs.update').update_all()")
-      end, {})
-      
-      vim.api.nvim_create_user_command("DevdocsSearch", function()
-        vim.cmd("lua require('telescope').extensions.devdocs.search()")
-      end, {})
-      
-      -- Check and install Python documentation
-      vim.defer_fn(function()
-        local py_doc_path = vim.fn.stdpath("data") .. "/devdocs/docs/python~3.11"
-        if not vim.loop.fs_stat(py_doc_path) then
-          install_python_docs()
-        end
-      end, 5000)
     end,
   },
   

@@ -1383,3 +1383,43 @@ end
 
 -- Export the module
 return M
+
+-- =============================================
+-- KEYBINDING CHEATSHEET
+-- =============================================
+
+-- Show all custom mappings in a Telescope window
+map("n", "<leader>?", function()
+  if pcall(require, "telescope.builtin") then
+    require('telescope.builtin').keymaps({
+      prompt_title = 'All Keymaps',
+      only_buf = false,
+    })
+  else
+    vim.cmd('map')
+    vim.notify("Telescope not found, showing default :map", vim.log.levels.INFO)
+  end
+end, { desc = "Show all keymaps (cheatsheet)" })
+
+-- =============================================
+-- GROUPED, MECE MAPPINGS
+-- =============================================
+-- All mappings are grouped by namespace and have clear, non-overlapping descriptions
+-- Buffer operations (b), File explorer (e), Terminal (t), Git (g), Docs (d), Venv (v), Window (w), Search (s), Tabs (tn), UndoTree (u)
+-- Each group is registered with which-key for discoverability
+if pcall(require, "which-key") then
+  local wk = require("which-key")
+  wk.register({
+    ["<leader>b"] = { name = "+buffer" },
+    ["<leader>e"] = { name = "+explorer" },
+    ["<leader>t"] = { name = "+terminal" },
+    ["<leader>g"] = { name = "+git" },
+    ["<leader>d"] = { name = "+docs" },
+    ["<leader>v"] = { name = "+venv" },
+    ["<leader>w"] = { name = "+window" },
+    ["<leader>s"] = { name = "+search" },
+    ["<leader>tn"] = { name = "+tabs" },
+    ["<leader>u"] = { name = "+undotree" },
+    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
+  })
+end

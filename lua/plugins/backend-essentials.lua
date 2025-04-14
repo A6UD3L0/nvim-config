@@ -1198,17 +1198,17 @@ return {
       
       vim.api.nvim_create_user_command("DevdocsOpen", function(opts)
         if opts.args and opts.args ~= "" then
-          devdocs.open(opts.args)
+          pcall(vim.cmd, "DevdocsOpen " .. vim.fn.shellescape(opts.args))
         else
-          devdocs.open()
+          pcall(vim.cmd, "DevdocsOpen")
         end
       end, { nargs = "?" })
       
       vim.api.nvim_create_user_command("DevdocsOpenFloat", function(opts)
         if opts.args and opts.args ~= "" then
-          devdocs.open_float(opts.args)
+          pcall(vim.cmd, "DevdocsOpenFloat " .. vim.fn.shellescape(opts.args))
         else
-          devdocs.open_float()
+          pcall(vim.cmd, "DevdocsOpenFloat")
         end
       end, { nargs = "?" })
       
@@ -1218,7 +1218,7 @@ return {
         else
           -- Fallback if search function is not available
           vim.notify("Search function not available in this version", vim.log.levels.WARN)
-          devdocs.open()
+          pcall(vim.cmd, "DevdocsOpen")
         end
       end, {})
     end,

@@ -473,6 +473,46 @@ return {
             "__pycache__/",
             "venv/",
             ".venv/",
+            "%.pyc",
+            "%.pyo",
+            "%.obj",
+            "%.o",
+            "%.a",
+            "%.bin",
+            "%.tar.gz",
+            "%.zip",
+            "%.7z",
+            "%.so",
+          },
+          path_display = { "truncate" },
+          sorting_strategy = "ascending",
+          layout_config = {
+            horizontal = {
+              prompt_position = "top",
+              preview_width = 0.55,
+            },
+            width = 0.87,
+            height = 0.80,
+            preview_cutoff = 120,
+          },
+        },
+        pickers = {
+          find_files = {
+            hidden = true, -- Show hidden files
+            find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
+          },
+          live_grep = {
+            additional_args = function()
+              return { "--hidden" }
+            end,
+          },
+        },
+        extensions = {
+          fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = "smart_case",
           },
         },
       })

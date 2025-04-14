@@ -101,15 +101,33 @@ M.find_directory_and_cd = function()
   local conf = require('telescope.config').values
   local actions = require('telescope.actions')
   local state = require('telescope.actions.state')
+  local previewers = require('telescope.previewers')
   
-  -- Use a more reliable method to find directories
-  local find_command = {'find', '.', '-type', 'd', '-not', '-path', '*/\\.git/*', '-not', '-path', '*/\\node_modules/*', '-not', '-path', '*/__pycache__/*'}
+  -- Use a more reliable method to find directories with better filtering
+  local find_command = {
+    'find', '.', '-type', 'd', 
+    '-not', '-path', '*/\\.git/*', 
+    '-not', '-path', '*/\\node_modules/*', 
+    '-not', '-path', '*/__pycache__/*',
+    '-not', '-path', '*/\\.pytest_cache/*',
+    '-not', '-path', '*/\\venv/*',
+    '-not', '-path', '*/\\.venv/*'
+  }
+  
+  -- Create custom previewer to show directory contents
+  local dir_previewer = previewers.new_termopen_previewer({
+    get_command = function(entry)
+      return { 'ls', '-la', '--color=always', entry[1] }
+    end
+  })
   
   pickers.new({}, {
     prompt_title = 'Find Directory',
     finder = finders.new_oneshot_job(find_command, {}),
     sorter = conf.generic_sorter({}),
+    previewer = dir_previewer,
     attach_mappings = function(prompt_bufnr, map)
+      -- Override default action to change directory and show feedback
       actions.select_default:replace(function()
         local selection = state.get_selected_entry(prompt_bufnr)
         actions.close(prompt_bufnr)
@@ -121,10 +139,19 @@ M.find_directory_and_cd = function()
           -- Validate that the path exists and is a directory
           if vim.fn.isdirectory(path) == 1 then
             vim.cmd('cd ' .. vim.fn.fnameescape(path))
+            
             -- Provide visual feedback to user
             vim.notify('Working directory changed to: ' .. path, 
                       vim.log.levels.INFO, 
                       {title = "Directory Changed"})
+            
+            -- Show files in new directory with Telescope
+            vim.defer_fn(function()
+              require('telescope.builtin').find_files({
+                cwd = path,
+                prompt_title = 'Files in ' .. path
+              })
+            end, 300) -- Small delay to ensure notification is visible
           else
             vim.notify('Invalid directory: ' .. path, 
                       vim.log.levels.ERROR, 

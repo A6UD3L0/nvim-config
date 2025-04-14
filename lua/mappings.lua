@@ -176,10 +176,16 @@ map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Find help tags"
 map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
 map("n", "<leader>fm", "<cmd>Telescope marks<CR>", { desc = "Find marks" })
 map("n", "<leader>fd", "<cmd>lua require('dashboard').find_directory_and_cd()<CR>", { desc = "Find directory and cd" })
+map("n", "<leader>fp", "<cmd>Telescope projects<CR>", { desc = "Find projects" })
+map("n", "<leader>fc", "<cmd>Telescope commands<CR>", { desc = "Find commands" })
+map("n", "<leader>f/", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { desc = "Find in current buffer" })
+map("n", "<leader>fs", "<cmd>Telescope lsp_document_symbols<CR>", { desc = "Find document symbols" })
+map("n", "<leader>fz", "<cmd>Telescope lsp_dynamic_workspace_symbols<CR>", { desc = "Find workspace symbols" })
 
 -- File operations
-map("n", "<leader>fs", "<cmd>w<CR>", { desc = "Save file" })
-map("n", "<leader>fS", "<cmd>wa<CR>", { desc = "Save all files" })
+map("n", "<leader>fw", "<cmd>w<CR>", { desc = "Save file" })
+map("n", "<leader>fW", "<cmd>wa<CR>", { desc = "Save all files" })
+map("n", "<leader>fn", "<cmd>enew<CR>", { desc = "New file" })
 
 -- =============================================
 -- WINDOW OPERATIONS (w namespace)

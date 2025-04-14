@@ -43,449 +43,105 @@ A comprehensive Neovim configuration optimized for backend development and data 
 - **Productivity Boosters**
   - Terminal integration with Toggleterm
   - Project management with Telescope
-  - Unified keybinding system with logical namespaces
+  - MECE-compliant keybinding system with logical namespaces
   - File navigation with Telescope fuzzy finder
   - Undotree for change history visualization
 
 ## 📋 System Requirements
 
-### Essential Requirements (All Platforms)
-- Neovim 0.9.0 or later
+- Neovim 0.9.0 or higher
 - Git
-- Node.js 14+ and npm (for LSP servers)
-- Python 3.8+ with pip
-- A Nerd Font installed and configured in your terminal
-- Ripgrep and fd for Telescope fuzzy finding
+- Node.js and npm (for LSP servers)
+- Python 3.8+ with pip (for Python language support)
+- Rust/Cargo (for language servers)
+- Ripgrep (for Telescope searches)
+- A Nerd Font (for icons)
 
-### Platform-Specific Requirements
+## ⚡ MECE Keybinding Structure
 
-#### Windows
-- Windows Terminal, Alacritty, or other modern terminal
-- PowerShell 7+ recommended
-- Git for Windows
-- Windows Subsystem for Linux (WSL2) recommended for best experience
-- Scoop or Chocolatey package managers (recommended)
+This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhaustive (MECE) keybinding structure for maximum efficiency and intuitiveness:
 
-#### macOS
-- Homebrew package manager
-- iTerm2 or Terminal.app
-- macOS Catalina (10.15) or newer
+| Namespace    | Purpose                                     |
+|--------------|---------------------------------------------|
+| `<leader>b`  | Buffer operations                           |
+| `<leader>c`  | Code editing (formatting, styling)          |
+| `<leader>d`  | Documentation (devdocs, help)               |
+| `<leader>e`  | Explorer operations                         |
+| `<leader>f`  | Find/File operations                        |
+| `<leader>g`  | Git operations                              |
+| `<leader>h`  | Harpoon operations                          |
+| `<leader>k`  | Keymaps (show key bindings, help)           |
+| `<leader>l`  | LSP operations (diagnostics, actions)       |
+| `<leader>o`  | Organize (Poetry package management)        |
+| `<leader>p`  | Project operations                          |
+| `<leader>r`  | Run/Requirements                            |
+| `<leader>s`  | Search/Replace operations                   |
+| `<leader>t`  | Terminal operations                         |
+| `<leader>u`  | Utilities (undotree, helpers)               |
+| `<leader>v`  | Virtual environment (Python venv)           |
+| `<leader>w`  | Window operations                           |
+| `<leader>x`  | Execute code (run scripts, REPL)            |
+| `<leader>z`  | Zen/Focus mode                              |
 
-#### Linux
-- Modern terminal emulator (Alacritty, Kitty, GNOME Terminal, etc.)
-- Your distribution's package manager (apt, pacman, dnf)
-- X11 or Wayland display server
+## 🔧 Installation
 
-## 🧹 Cleaning Previous Neovim Installations
-
-Before installing this configuration, it's recommended to clean up any existing Neovim setup to prevent conflicts.
-
-### Windows Cleanup
-
-```powershell
-# Stop any running Neovim instances
-taskkill /F /IM nvim.exe /T
-
-# Remove Neovim configuration
-Remove-Item -Recurse -Force ~\AppData\Local\nvim -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force ~\AppData\Local\nvim-data -ErrorAction SilentlyContinue
-
-# Clear plugin managers if used previously
-Remove-Item -Recurse -Force ~\.vim -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force ~\vimfiles -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force ~\.local\share\nvim -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force ~\AppData\Local\nvim-data -ErrorAction SilentlyContinue
-
-# Clear cache and state
-Remove-Item -Recurse -Force ~\.cache\nvim -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force ~\AppData\Local\State\nvim -ErrorAction SilentlyContinue
-```
-
-### macOS/Linux Cleanup
-
-```bash
-# Stop any running Neovim instances
-pkill -f nvim
-
-# Remove Neovim configuration
-rm -rf ~/.config/nvim
-rm -rf ~/.local/share/nvim
-rm -rf ~/.cache/nvim
-
-# Clear plugin managers if used previously
-rm -rf ~/.vim
-rm -rf ~/.local/share/nvim/site
-rm -rf ~/.local/share/nvim/lazy
-
-# Clear packer compiled files if used
-rm -rf ~/.local/share/nvim/site/pack
-rm -rf ~/.cache/nvim/packer*
-
-# Clear Mason packages if used
-rm -rf ~/.local/share/nvim/mason
-
-# LSP logs and cache
-rm -rf ~/.local/state/nvim
-rm -f ~/.cache/nvim/lsp.log
-```
-
-## ⌨️ Key Bindings
-
-This configuration includes a comprehensive set of keybindings organized into logical namespaces for easy discovery. All mappings use `<leader>` as the Space key.
-
-### General Navigation
-
-| Keybinding | Description |
-|------------|-------------|
-| `<C-d>` | Half-page down with cursor centered |
-| `<C-u>` | Half-page up with cursor centered |
-| `n` | Next search result and center |
-| `N` | Previous search result and center |
-| `J` | Join lines without moving cursor |
-| `Q` | Alias for 'q' (quit) |
-| `jk` | Exit insert mode (faster than Escape) |
-| `<C-c>` | Exit insert mode |
-
-### Text Manipulation
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>p` | Paste without losing register content |
-| `<leader>y` | Copy to system clipboard |
-| `<leader>Y` | Copy line to system clipboard |
-| `<leader>d` | Delete without yanking |
-| `=ap` | Format paragraph and return to position |
-| `J` (in visual mode) | Move selected lines down |
-| `K` (in visual mode) | Move selected lines up |
-| `<leader>s` | Search and replace word under cursor |
-| `<leader>x` | Make current file executable |
-
-### File Navigation
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>pv` | Open Netrw file explorer |
-| `<leader>e` | Toggle NvimTree file explorer |
-| `<leader>ef` | Focus file explorer |
-| `<leader>f` | Find files with Telescope |
-| `<leader>fg` | Live grep with Telescope |
-| `<leader>fb` | Browse buffers |
-| `<leader>fh` | Help tags |
-| `<leader>fr` | Recent files |
-| `<leader>cd` | Find and set working directory |
-
-### LSP and Code Intelligence
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>lf` | Format code |
-| `<leader>lr` | Rename symbol |
-| `<leader>la` | Code actions |
-| `<leader>ld` | Go to definition |
-| `<leader>li` | Go to implementation |
-| `<leader>lk` | Show hover information |
-| `<leader>ln` | Go to next diagnostic |
-| `<leader>lp` | Go to previous diagnostic |
-| `<leader>cf` | Format buffer with conform |
-
-### Documentation
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>do` | Open documentation in float window |
-| `<leader>dO` | Open documentation in buffer |
-| `<leader>ds` | Search in documentation |
-
-### Window Management
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>ww` | Save file |
-| `<leader>wv` | Split window vertically |
-| `<leader>wh` | Split window horizontally |
-| `<leader>wc` | Close window |
-| `<leader>wq` | Quit |
-| `<leader>wQ` | Quit all |
-| `<leader>w=` | Equal size windows |
-| `<leader>wL` | Increase window width |
-| `<leader>wH` | Decrease window width |
-| `<leader>wK` | Increase window height |
-| `<leader>wJ` | Decrease window height |
-
-### Buffer Management
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>bn` | Next buffer |
-| `<leader>bp` | Previous buffer |
-| `<leader>bd` | Delete buffer |
-| `<leader>bl` | List buffers |
-
-### Terminal Integration
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>tt` | Toggle horizontal terminal |
-| `<leader>tf` | Toggle float terminal |
-| `<leader>tv` | Toggle vertical terminal |
-| `<leader>tp` | Python terminal |
-| `<leader>ti` | IPython terminal |
-| `<leader>tr` | Run Python file |
-
-### Git Integration
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>gg` | Open LazyGit |
-| `<leader>gs` | Stage hunk |
-| `<leader>gu` | Undo stage hunk |
-| `<leader>gp` | Preview hunk |
-| `<leader>gb` | Blame line |
-| `<leader>gd` | Diff this |
-| `<leader>gc` | Git commits |
-| `<leader>gB` | Git branches |
-
-### Debugging
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>db` | Toggle breakpoint |
-| `<leader>dc` | Continue |
-| `<leader>di` | Step into |
-| `<leader>do` | Step over |
-| `<leader>dO` | Step out |
-| `<leader>dt` | Toggle UI |
-| `<leader>dr` | Open REPL |
-
-### Quickfix Navigation
-
-| Keybinding | Description |
-|------------|-------------|
-| `<C-k>` | Next quickfix item and center |
-| `<C-j>` | Previous quickfix item and center |
-| `<leader>qk` | Next location list item and center |
-| `<leader>qj` | Previous location list item and center |
-
-### Python Development
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>yr` | Run Python file |
-| `<leader>ye` | Execute visual selection |
-| `<leader>yi` | Execute in IPython |
-| `<leader>yv` | Select venv |
-| `<leader>yd` | Select cached venv |
-| `<leader>yt` | Python tests |
-
-### Poetry Management
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>oi` | Poetry install |
-| `<leader>oc` | Create .venv |
-| `<leader>oa` | Add package |
-| `<leader>or` | Remove package |
-| `<leader>ou` | Update packages |
-| `<leader>oo` | Show outdated packages |
-| `<leader>og` | Generate requirements.txt |
-| `<leader>on` | New project |
-| `<leader>ob` | Build package |
-| `<leader>os` | Poetry shell |
-| `<leader>oe` | Edit pyproject.toml |
-
-### Requirements Management
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>rc` | Create requirements.txt |
-| `<leader>ri` | Install from requirements.txt |
-| `<leader>re` | Edit requirements.txt |
-
-### Other Tools
-
-| Keybinding | Description |
-|------------|-------------|
-| `<leader>u` | Toggle Undotree |
-| `<leader>dbu` | Toggle database UI |
-| `<leader>dba` | Add database connection |
-| `<leader>dbf` | Find database buffer |
-
-## 💻 Installation Instructions
-
-### Windows Installation
-
-#### Option 1: PowerShell (Recommended)
-
-```powershell
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git $env:LOCALAPPDATA\nvim
-
-# Install dependencies using Scoop
-scoop install neovim gcc ripgrep fd nodejs python
-pip install pynvim
-
-# If using WSL
-wsl --install
-wsl --update
-
-# Start Neovim - plugins will be installed automatically
-nvim
-```
-
-#### Option 2: Windows with WSL
-
-```bash
-# In WSL terminal
-sudo apt update && sudo apt install -y neovim ripgrep fd-find nodejs npm python3 python3-pip
-pip3 install pynvim
-
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
-
-# Start Neovim - plugins will be installed automatically
-nvim
-```
-
-### macOS Installation
+### Prerequisites
 
 ```bash
 # Install required dependencies
-brew install neovim ripgrep fd node go python
+# On macOS
+brew install neovim ripgrep fd nodejs python3
+
+# On Ubuntu/Debian
+sudo apt install neovim ripgrep fd-find nodejs python3 python3-pip
+
+# Install Python provider for Neovim
 pip3 install pynvim
+```
 
-# For Poetry integration (optional but recommended)
-curl -sSL https://install.python-poetry.org | python3 -
+### Setup
+
+1. Clone this repository to your Neovim config directory:
+
+```bash
+# Backup your existing config if needed
+mv ~/.config/nvim ~/.config/nvim.bak
 
 # Clone the repository
 git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+```
 
-# Start Neovim - plugins will be installed automatically
+2. Launch Neovim and let it install plugins:
+
+```bash
 nvim
 ```
 
-### Linux Installation
+The plugin manager will automatically install all plugins on first launch.
 
-#### Ubuntu/Debian
+3. Install language servers:
 
-```bash
-# Install required dependencies
-sudo apt update
-sudo apt install -y neovim ripgrep fd-find nodejs npm golang python3 python3-pip
-pip3 install pynvim
-
-# For Poetry integration (optional but recommended)
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
-
-# Start Neovim - plugins will be installed automatically
-nvim
-```
-
-#### Arch Linux
-
-```bash
-# Install required dependencies
-sudo pacman -S neovim ripgrep fd nodejs npm go python python-pip
-pip install pynvim
-
-# For Poetry integration (optional but recommended)
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
-
-# Start Neovim - plugins will be installed automatically
-nvim
-```
-
-## 🔧 Configuration Structure
-
-The configuration is organized into modular files for easier maintenance:
-
-```
-📁 nvim-config/
-├── 📁 lua/                     # Lua configuration files
-│   ├── 📁 plugins/            # Plugin configurations
-│   │   └── 📄 backend-essentials.lua  # Core plugins
-│   ├── 📄 dashboard.lua       # Alpha dashboard setup
-│   ├── 📄 init.lua            # Main initialization
-│   ├── 📄 mappings.lua        # All keybindings in one place
-│   └── 📄 venv_diagnostics.lua # Python venv utilities
-├── 📁 plugin/                  # Autoload folder
-├── 📄 init.lua                 # Entry point
-└── 📄 README.md                # Documentation
-```
-
-## 🔄 Updating the Configuration
-
-To update to the latest version:
-
-```bash
-# Navigate to your config directory
-cd ~/.config/nvim    # Linux/macOS
-cd $env:LOCALAPPDATA\nvim    # Windows
-
-# Pull the latest changes
-git pull
-
-# Start Neovim to install any new plugins
-nvim
-```
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**Issue**: Plugins fail to install
-**Solution**: 
-```bash
-# Remove plugin directories and reinstall
-rm -rf ~/.local/share/nvim/lazy/
-# Or on Windows
-Remove-Item -Recurse -Force ~\AppData\Local\nvim-data\lazy
-# Then restart Neovim
-```
-
-**Issue**: Missing icons or broken UI
-**Solution**: Make sure you have a Nerd Font installed and configured in your terminal
-
-**Issue**: LSP not working for a specific language
-**Solution**: 
-```bash
-# Inside Neovim
-:LspInfo          # Check if LSP is attached
-:Mason            # Install missing language servers
-```
-
-**Issue**: Telescope not finding files
-**Solution**: Make sure ripgrep and fd are installed and in your PATH
-
-**Issue**: Virtual environment detection not working
-**Solution**: Run the virtual environment diagnostics
 ```
 # Inside Neovim
-<leader>vd        # Run virtual environment diagnostics
+:MasonInstall pyright gopls typescript-language-server lua-language-server
 ```
 
-## 📝 Contributing
+## 🧠 Recent Updates
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- Implemented MECE-compliant keybinding structure throughout the entire configuration
+- Fixed directory search functionality for better project navigation
+- Enhanced Telescope integration with improved filtering
+- Fixed issues with Telescope devdocs extension and wilder.nvim
+- Centralized all keybindings in mappings.lua for better organization
+- Added GitHub Copilot integration for AI-assisted coding
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## 🌟 Credits
 
-## 📜 License
+This configuration draws inspiration from:
+- ThePrimeagen's Neovim setup
+- NvChad's simplicity and speed
+- TJ DeVries' Neovim tutorials
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 📄 License
 
-## 🙏 Acknowledgements
-
-- [ThePrimeagen](https://github.com/ThePrimeagen/init.lua) for the keybinding inspiration
-- [NvChad](https://github.com/NvChad/NvChad) for UI simplicity concepts
-- [Neovim](https://neovim.io/) team for the incredible editor
-- All plugin authors who made this configuration possible
+MIT

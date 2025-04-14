@@ -21,34 +21,6 @@ function M.setup()
     [[                                                       ]],
   }
   
-  -- Directory finder function - allows selecting a directory to switch to
-  local function find_directory_and_cd()
-    local telescope = require('telescope.builtin')
-    local actions = require('telescope.actions')
-    local state = require('telescope.actions.state')
-    
-    telescope.find_files({
-      find_command = {'find', '.', '-type', 'd', '-not', '-path', '*/\\.*'},
-      prompt_title = 'Find Directory',
-      attach_mappings = function(prompt_bufnr, map)
-        map('i', '<CR>', function()
-          local selection = state.get_selected_entry(prompt_bufnr)
-          actions.close(prompt_bufnr)
-          
-          -- Change directory to the selected path
-          if selection and selection.path then
-            vim.cmd('cd ' .. selection.path)
-            -- Provide visual feedback to user
-            vim.notify('Working directory changed to: ' .. selection.path, 
-                      vim.log.levels.INFO, 
-                      {title = "Directory Changed"})
-          end
-        end)
-        return true
-      end
-    })
-  end
-  
   -- Define the menu buttons
   dashboard.section.buttons.val = {
     dashboard.button("f", "󰈞  Find file", ":Telescope find_files <CR>"),
@@ -92,6 +64,9 @@ function M.setup()
   
   -- Set the dashboard as the startup screen
   require("alpha").setup(dashboard.config)
+  
+  -- Make find_directory_and_cd accessible to the package/module
+  package.loaded['dashboard'] = M
 end
 
 -- Add helper functions to the module

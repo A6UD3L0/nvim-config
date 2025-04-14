@@ -424,49 +424,195 @@ function M.run_diagnostics()
   return results
 end
 
--- Register commands only (mappings are now in mappings.lua)
-vim.api.nvim_create_user_command('VenvDiagnostics', M.run_diagnostics, {})
-vim.api.nvim_create_user_command('TestVenv', function(opts)
-  local venv_path = opts.args
-  if venv_path == "" then
-    -- If no path provided, try to find a venv
-    local venv = M.check_venv()
-    if venv.found_venvs and #venv.found_venvs > 0 then
-      venv_path = venv.found_venvs[1].name
+-- Python virtual environment diagnostics and management for Neovim
+-- Enhances the virtual environment experience with smart detection and activation
+
+local VenvDiagnostics = {}
+
+-- Get current Python environment information
+VenvDiagnostics.get_current_env = function()
+  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+  local pyenv_path = vim.fn.finddir(".python-version", vim.fn.getcwd() .. ";")
+  local poetry_path = vim.fn.findfile("pyproject.toml", vim.fn.getcwd() .. ";")
+  
+  local env_info = {
+    has_venv = venv_path ~= "",
+    has_pyenv = pyenv_path ~= "",
+    has_poetry = poetry_path ~= "",
+    venv_path = venv_path,
+    pyenv_path = pyenv_path,
+    poetry_path = poetry_path,
+  }
+  
+  return env_info
+end
+
+-- Run diagnostics on the Python environment
+VenvDiagnostics.run_diagnostics = function()
+  local env_info = VenvDiagnostics.get_current_env()
+  local results = {}
+  
+  if env_info.has_venv then
+    table.insert(results, { status = "INFO", message = "Found local .venv directory: " .. env_info.venv_path })
+  else
+    table.insert(results, { status = "WARN", message = "No local .venv directory found" })
+  end
+  
+  if env_info.has_pyenv then
+    -- Check if pyenv is installed
+    local pyenv_installed = vim.fn.executable("pyenv") == 1
+    if pyenv_installed then
+      table.insert(results, { status = "INFO", message = "Found .python-version file with pyenv support" })
     else
-      vim.notify("No virtual environment path provided and none found", vim.log.levels.ERROR)
-      return
+      table.insert(results, { status = "WARN", message = "Found .python-version file but pyenv not installed" })
     end
   end
   
-  local results = M.activate_and_test_venv(venv_path)
+  if env_info.has_poetry then
+    -- Check if poetry is installed
+    local poetry_installed = vim.fn.executable("poetry") == 1
+    if poetry_installed then
+      table.insert(results, { status = "INFO", message = "Found Poetry project (pyproject.toml)" })
+    else
+      table.insert(results, { status = "WARN", message = "Found pyproject.toml but Poetry not installed" })
+    end
+  end
   
-  if not results.success then
-    vim.notify("Failed to activate venv: " .. (results.error or "Unknown error"), vim.log.levels.ERROR)
+  -- Display results
+  local title = "Python Environment Diagnostics"
+  local header = title .. "\n" .. string.rep("=", string.len(title))
+  
+  print(header)
+  for _, result in ipairs(results) do
+    local prefix = result.status == "INFO" and "[✓]" or "[!]"
+    print(prefix .. " " .. result.message)
+  end
+  
+  return results
+end
+
+-- Activate the best available Python environment
+VenvDiagnostics.smart_activate = function()
+  local env_info = VenvDiagnostics.get_current_env()
+  local term = require("toggleterm.terminal").Terminal
+  
+  if env_info.has_poetry then
+    -- Poetry takes precedence as it manages dependencies properly
+    local poetry_shell = term:new({
+      cmd = "poetry shell",
+      direction = "float",
+      close_on_exit = false,
+    })
+    poetry_shell:toggle()
+    vim.notify("Activated Poetry environment", vim.log.levels.INFO)
+    
+  elseif env_info.has_venv then
+    -- Use local venv if available
+    local venv_activate = term:new({
+      cmd = "source " .. env_info.venv_path .. "/bin/activate && python --version",
+      direction = "float",
+      close_on_exit = false,
+    })
+    venv_activate:toggle()
+    vim.notify("Activated local .venv environment", vim.log.levels.INFO)
+    
+  elseif env_info.has_pyenv then
+    -- Use pyenv if .python-version exists
+    local pyenv_activate = term:new({
+      cmd = "pyenv shell $(cat " .. env_info.pyenv_path .. ") && python --version",
+      direction = "float",
+      close_on_exit = false,
+    })
+    pyenv_activate:toggle()
+    vim.notify("Activated pyenv environment from .python-version", vim.log.levels.INFO)
+    
+  else
+    -- No environment found, use VenvSelect if available
+    local has_venv_select = pcall(require, "venv-selector")
+    if has_venv_select then
+      vim.cmd("VenvSelect")
+    else
+      -- Fallback to a helpful message
+      vim.notify("No Python environment found. Consider creating a virtual environment.", vim.log.levels.WARN)
+    end
+  end
+end
+
+-- Create a new Python virtual environment
+VenvDiagnostics.create_venv = function()
+  local venv_name = vim.fn.input("Virtual environment name (.venv): ", ".venv")
+  if venv_name == "" then
+    venv_name = ".venv"
+  end
+  
+  vim.notify("Creating Python virtual environment: " .. venv_name, vim.log.levels.INFO)
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "python -m venv " .. venv_name,
+    direction = "float",
+    close_on_exit = false,
+    on_exit = function() 
+      vim.notify("Virtual environment created: " .. venv_name, vim.log.levels.INFO)
+    end,
+  })
+  term:toggle()
+end
+
+-- Run current Python file with environment
+VenvDiagnostics.run_with_env = function()
+  local file = vim.fn.expand('%:p')
+  if vim.fn.filereadable(file) == 0 then
+    vim.notify("No file to run", vim.log.levels.ERROR)
     return
   end
   
-  vim.notify("Successfully activated venv: " .. venv_path, vim.log.levels.INFO)
-  
-  -- Display test results
-  local display_results = {
-    test_execution = results
-  }
-  M.display_results(display_results)
-end, {
-  nargs = "?",
-  complete = function()
-    local venv = M.check_venv()
-    local completions = {}
-    if venv.found_venvs then
-      for _, v in ipairs(venv.found_venvs) do
-        table.insert(completions, v.name)
-      end
-    end
-    return completions
+  if vim.fn.fnamemodify(file, ':e') ~= 'py' then
+    vim.notify("Not a Python file", vim.log.levels.ERROR)
+    return
   end
-})
+  
+  local env_info = VenvDiagnostics.get_current_env()
+  local python_cmd = "python"
+  
+  if env_info.has_poetry then
+    python_cmd = "poetry run python"
+  elseif env_info.has_venv then
+    python_cmd = "source " .. env_info.venv_path .. "/bin/activate && python"
+  elseif env_info.has_pyenv then
+    python_cmd = "pyenv shell $(cat " .. env_info.pyenv_path .. ") && python"
+  end
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = python_cmd .. " " .. file,
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
 
--- Keymappings have been centralized in mappings.lua
+-- Register module commands
+function VenvDiagnostics.setup()
+  vim.api.nvim_create_user_command("VenvDiagnostics", function()
+    VenvDiagnostics.run_diagnostics()
+  end, { desc = "Run diagnostics on Python environment" })
+  
+  vim.api.nvim_create_user_command("VenvActivate", function()
+    VenvDiagnostics.smart_activate()
+  end, { desc = "Activate Python environment" })
+  
+  vim.api.nvim_create_user_command("VenvCreate", function()
+    VenvDiagnostics.create_venv()
+  end, { desc = "Create a new Python virtual environment" })
+  
+  vim.api.nvim_create_user_command("RunPythonWithEnv", function()
+    VenvDiagnostics.run_with_env()
+  end, { desc = "Run Python file with current environment" })
+  
+  -- Make functions available globally
+  _G._VENV_DIAGNOSTICS = VenvDiagnostics.run_diagnostics
+  _G._VENV_ACTIVATE = VenvDiagnostics.smart_activate
+  _G._VENV_CREATE = VenvDiagnostics.create_venv
+  _G._PYTHON_RUN_WITH_ENV = VenvDiagnostics.run_with_env
+end
 
-return M
+return M, VenvDiagnostics

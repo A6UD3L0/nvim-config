@@ -424,13 +424,9 @@ function M.run_diagnostics()
   return results
 end
 
--- Add command to run diagnostics
-vim.api.nvim_create_user_command("VenvDiagnostics", function()
-  M.run_diagnostics()
-end, {})
-
--- Test a specific virtual environment
-vim.api.nvim_create_user_command("TestVenv", function(opts)
+-- Register commands and keybindings that follow our namespace structure
+vim.api.nvim_create_user_command('VenvDiagnostics', M.run_diagnostics, {})
+vim.api.nvim_create_user_command('TestVenv', function(opts)
   local venv_path = opts.args
   if venv_path == "" then
     -- If no path provided, try to find a venv
@@ -471,8 +467,9 @@ end, {
   end
 })
 
--- Add key mappings
+-- Use consistent namespace: leader v for "Virtual environment diagnostics"
 vim.api.nvim_set_keymap('n', '<leader>vd', ':VenvDiagnostics<CR>', { noremap = true, silent = true, desc = "Run venv diagnostics" })
 vim.api.nvim_set_keymap('n', '<leader>vt', ':TestVenv<CR>', { noremap = true, silent = true, desc = "Test current venv" })
+vim.api.nvim_set_keymap('n', '<leader>vs', ':VenvSelect<CR>', { noremap = true, silent = true, desc = "Select venv" })
 
 return M

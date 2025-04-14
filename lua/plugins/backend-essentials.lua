@@ -760,16 +760,18 @@ return {
           ["b"] = { name = "Buffers" },
           ["c"] = { name = "Code Actions" },
           ["cd"] = { name = "Change Directory" },
-          ["cc"] = { name = "Comments" },
           ["d"] = { name = "Debug" },
-          ["db"] = { name = "Database" },
-          ["D"] = { name = "Docker" },
-          ["f"] = { name = "Find" },
+          ["e"] = { name = "Explorer" },
+          ["f"] = { name = "Files/Find" },
           ["g"] = { name = "Git" },
           ["h"] = { name = "Harpoon" },
           ["l"] = { name = "LSP" },
           ["o"] = { name = "Poetry" },
           ["r"] = { name = "Requirements" },
+          ["t"] = { name = "Terminal" },
+          ["u"] = { name = "Undotree" },
+          ["v"] = { name = "Venv" },
+          ["w"] = { name = "Window" },
           ["y"] = { name = "Python" },
         },
         ["w"] = { name = "Window/Write" },
@@ -870,7 +872,7 @@ return {
           ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_snippet()<CR>", "Execute snippet" },
           ["i"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_in_ipython()<CR>", "Execute in IPython" },
           ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
-          ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
+          ["d"] = { "<cmd>VenvSelectCached<CR>", "Select cached venv" },
           ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
         },
         
@@ -941,17 +943,42 @@ return {
     end,
   },
   
-  -- Python environment management
+  -- Python environment management with improved regexp search
   {
     "linux-cultist/venv-selector.nvim",
+    branch = "regexp",  -- Use the latest 2024 version with regexp support
     cmd = "VenvSelect",
     keys = {
-      { "<leader>pv", "<cmd>VenvSelect<CR>", desc = "Select Python venv" },
+      { "<leader>yv", "<cmd>VenvSelect<CR>", desc = "Select Python venv" },
+      { "<leader>yd", "<cmd>VenvSelectCached<CR>", desc = "Select cached venv" },
     },
     opts = {
       name = { "venv", ".venv", "env", ".env" },
       auto_refresh = true,
+      search_venv_managers = true,
+      search_workspace = true,
+      search_patterns = {
+        -- Custom search patterns
+        { "venv", "env", ".venv", ".env" },                       -- Common venv folder names
+        { "*/venv", "*/env", "*/.venv", "*/.env" },               -- Search for venvs one level down
+        { "**/venv", "**/env", "**/.venv", "**/.env" },           -- Search for venvs anywhere below
+        { "global", "**/*venv*", "**/*env*" },                   -- Match any path with venv/env in the name
+      },
+      dap_enabled = true,  -- Enable DAP support
+      parents = 2,         -- Search 2 levels up for venvs
+      path_to_python = "bin/python",  -- Path to the python executable
+      change_venv_hooks = {
+        function(venv_path)
+          -- Update python3_host_prog
+          vim.g.python3_host_prog = venv_path .. "/bin/python"
+          -- Notify the user
+          vim.notify("Activated venv: " .. venv_path, vim.log.levels.INFO, { title = "Python Environment" })
+        end,
+      },
     },
+    init = function()
+      -- Setup quick access shortcuts, mapped already in mappings.lua
+    end,
   },
   
   -- Code formatting
@@ -1122,25 +1149,14 @@ return {
       }
 
       -- Create highlight groups for wilder
-      local highlight_colors = {
-        ["bg"] = { background = rose_pine_colors.bg },
-        ["fg"] = { foreground = rose_pine_colors.fg },
-        ["accent"] = { foreground = rose_pine_colors.accent },
-        ["accent_bg"] = { background = rose_pine_colors.accent, foreground = rose_pine_colors.bg },
-        ["selected"] = { background = rose_pine_colors.selected },
-        ["border"] = { foreground = rose_pine_colors.border },
-        ["error"] = { foreground = rose_pine_colors.error },
-      }
-
-      -- Add Rose Pine inspired border and better visual appearance
       local popupmenu_renderer = wilder.popupmenu_renderer(
         wilder.popupmenu_border_theme({
           highlights = {
-            default = wilder.make_hl("WilderDefault", "Pmenu", highlight_colors.bg, highlight_colors.fg),
-            border = wilder.make_hl("WilderBorder", "Pmenu", highlight_colors.bg, highlight_colors.border),
-            accent = wilder.make_hl("WilderAccent", "Pmenu", highlight_colors.bg, highlight_colors.accent),
-            selected = wilder.make_hl("WilderSelected", "PmenuSel", highlight_colors.selected),
-            error = wilder.make_hl("WilderError", "Pmenu", highlight_colors.bg, highlight_colors.error),
+            default = "Pmenu",
+            border = "WilderBorder",
+            accent = "WilderAccent",
+            selected = "PmenuSel",
+            error = "WilderError",
           },
           border = "rounded",
           left = {
@@ -1155,38 +1171,27 @@ return {
             " ",
             wilder.popupmenu_scrollbar({
               thumb_char = '┃',
-              thumb_hl = wilder.make_hl("WilderScrollbar", "Pmenu", {}, rose_pine_colors.accent),
-              track_hl = wilder.make_hl("WilderScrollbarTrack", "Pmenu", rose_pine_colors.bg),
+              minheight = 1,
             }),
           },
           empty_message = wilder.popupmenu_empty_message({
             message = " No matches ",
-            hl = wilder.make_hl("WilderEmptyMessage", "Pmenu", highlight_colors.bg, highlight_colors.gray),
           }),
           min_width = "15%",
           min_height = "10%",
           max_height = "30%",
-          reverse = false,
+          reverse = 0,
         })
       )
 
-      local wildmenu_renderer = wilder.wildmenu_renderer({
-        highlighter = wilder.basic_highlighter(),
-        highlights = {
-          default = wilder.make_hl("WilderMenuDefault", "Pmenu", {}, highlight_colors.fg),
-          accent = wilder.make_hl("WilderMenuAccent", "Pmenu", {}, highlight_colors.accent),
-          selected = wilder.make_hl("WilderMenuSelected", "PmenuSel", highlight_colors.selected),
-        },
-        separator = " · ",
-        left = { " ", wilder.wildmenu_spinner(), " " },
-        right = { " ", wilder.wildmenu_index() },
-      })
-
-      wilder.set_option("renderer", wilder.renderer_mux({
-        [":"] = popupmenu_renderer,
-        ["/"] = wildmenu_renderer,
-        ["?"] = wildmenu_renderer,
-      }))
+      -- Create highlight commands for wilder
+      vim.cmd(string.format("hi WilderBorder guifg=%s guibg=%s", rose_pine_colors.border, rose_pine_colors.bg))
+      vim.cmd(string.format("hi WilderAccent guifg=%s guibg=%s", rose_pine_colors.accent, rose_pine_colors.bg))
+      vim.cmd(string.format("hi WilderError guifg=%s guibg=%s", rose_pine_colors.error, rose_pine_colors.bg))
+      vim.cmd(string.format("hi WilderScrollbar guifg=%s", rose_pine_colors.accent))
+     
+      -- Set the renderer
+      wilder.set_option('renderer', popupmenu_renderer)
     end,
   },
   
@@ -1412,7 +1417,7 @@ return {
           ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_snippet()<CR>", "Execute snippet" },
           ["i"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_in_ipython()<CR>", "Execute in IPython" },
           ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
-          ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
+          ["d"] = { "<cmd>VenvSelectCached<CR>", "Select cached venv" },
           ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
         },
         
@@ -1463,6 +1468,16 @@ return {
           ["f"] = { "<cmd>DBUIFindBuffer<CR>", "Find buffer" },
         },
       })
+    end,
+  },
+  
+  -- Alpha dashboard for a beautiful welcome screen
+  {
+    "goolord/alpha-nvim",
+    event = "VimEnter",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("dashboard").setup()
     end,
   },
 }

@@ -863,6 +863,18 @@ return {
           ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
           ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
           ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
+          ["r"] = { "<cmd>lua require('mappings')._python_run_with_args()<CR>", "Run with args" },
+          ["e"] = { "<cmd>", "Execute selected" },
+          ["i"] = { "<cmd>lua require('mappings')._python_run_ipython()<CR>", "Run in IPython" },
+          ["n"] = { "<cmd>lua require('mappings')._python_new_file()<CR>", "New Python file" },
+        },
+        
+        -- Code related commands
+        ["<leader>c"] = {
+          ["v"] = { "<cmd>lua require('mappings')._python_activate_venv()<CR>", "Activate Python venv" },
+          ["a"] = { "<cmd>lua require('mappings')._python_activate_custom_venv()<CR>", "Activate custom venv" },
+          ["c"] = { name = "Comments" },
+          ["d"] = { name = "Change Directory" },
         },
         
         -- Database
@@ -1000,18 +1012,14 @@ return {
         reject_key = "<Up>",
       })
 
-      -- Enable fuzzy search
+      -- Use native Lua-based fuzzy search instead of Python to avoid errors
       wilder.set_option("pipeline", {
         wilder.branch(
           wilder.cmdline_pipeline({
             fuzzy = 1,
-            set_pcre2_pattern = 1,
+            fuzzy_filter = wilder.lua_fzy_filter(),
           }),
-          wilder.python_search_pipeline({
-            pattern = wilder.python_fuzzy_pattern(),
-            sorter = wilder.python_difflib_sorter(),
-            engine = "re",
-          })
+          wilder.vim_search_pipeline()
         ),
       })
 

@@ -7,6 +7,51 @@ vim.g.mapleader = " "
 -- Create a local mapping function to use whether or not which-key is available
 local map = vim.keymap.set
 
+-- Create a module for exported functions
+local M = {}
+
+-- Define global Python toggle functions
+-- These need to be global since they're called directly in keymappings
+_PYTHON_TOGGLE = function()
+  -- Create a persistent Python REPL terminal
+  local python_term = require("toggleterm.terminal").Terminal:new({
+    cmd = "python3",
+    direction = "horizontal",
+    hidden = true,
+    on_open = function(term)
+      vim.cmd("startinsert!")
+    end,
+  })
+  python_term:toggle()
+end
+
+_IPYTHON_TOGGLE = function()
+  -- Create a persistent IPython REPL terminal with enhanced features
+  local ipython_term = require("toggleterm.terminal").Terminal:new({
+    cmd = "ipython --matplotlib=auto --colors=Linux",
+    direction = "horizontal",
+    hidden = true,
+    on_open = function(term)
+      vim.cmd("startinsert!")
+    end,
+  })
+  ipython_term:toggle()
+end
+
+_PYTHON_RUN_FILE = function()
+  -- Run the current Python file
+  local file = vim.fn.expand("%:p")
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "python3 " .. file,
+    direction = "horizontal",
+    close_on_exit = false,
+    on_open = function(term)
+      vim.cmd("startinsert!")
+    end,
+  })
+  term:toggle()
+end
+
 -- Basic key mappings that work without which-key
 -- These key mappings will always work, even if which-key isn't loaded
 map("n", ";", ":", { desc = "CMD: Enter command mode" })
@@ -99,6 +144,189 @@ map("n", "<leader>tr", "<cmd>lua _PYTHON_RUN_FILE()<CR>", { desc = "Run Python f
 map("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", { desc = "Toggle Python REPL" })
 map("n", "<leader>ti", "<cmd>lua _IPYTHON_TOGGLE()<CR>", { desc = "Toggle IPython" })
 
+-- Virtual environment activation with improved feedback and error handling
+M._python_activate_venv = function()
+  local venv_path = vim.fn.finddir('.venv', vim.fn.getcwd() .. ';')
+  if venv_path ~= "" then
+    -- Use absolute path for better compatibility
+    local python_path = vim.fn.getcwd() .. '/' .. venv_path .. '/bin/python'
+    
+    -- Check if Python executable exists in venv
+    if vim.fn.executable(python_path) == 1 then
+      vim.g.python3_host_prog = python_path
+      -- Create visual notification
+      vim.notify('Virtual environment activated: ' .. venv_path, vim.log.levels.INFO, {
+        title = "Python Environment",
+        icon = "🐍"
+      })
+    else
+      vim.notify('Python executable not found in ' .. venv_path, vim.log.levels.ERROR, {
+        title = "Python Environment Error"
+      })
+    end
+  else
+    -- Try to find other common virtual environment directories
+    local alt_venvs = {'venv', 'env', '.env', 'virtualenv'}
+    for _, v in ipairs(alt_venvs) do
+      local alt_path = vim.fn.finddir(v, vim.fn.getcwd() .. ';')
+      if alt_path ~= "" then
+        vim.notify('Found alternative virtualenv: ' .. alt_path .. '\nUse <leader>ca to activate it.', vim.log.levels.INFO)
+        return
+      end
+    end
+    vim.notify('No virtual environment directory found. Try creating one with:\npython -m venv .venv', vim.log.levels.WARN)
+  end
+end
+
+map("n", "<leader>cv", function() M._python_activate_venv() end, { desc = "Activate Python venv" })
+
+-- Activate any specified virtual environment
+M._python_activate_custom_venv = function()
+  local venv_name = vim.fn.input("Virtual environment name: ", "", "file")
+  if venv_name == "" then
+    return
+  end
+  
+  local venv_path = vim.fn.finddir(venv_name, vim.fn.getcwd() .. ';')
+  if venv_path ~= "" then
+    local python_path = vim.fn.getcwd() .. '/' .. venv_path .. '/bin/python'
+    if vim.fn.executable(python_path) == 1 then
+      vim.g.python3_host_prog = python_path
+      vim.notify('Virtual environment activated: ' .. venv_path, vim.log.levels.INFO)
+    else
+      vim.notify('Python executable not found in ' .. venv_path, vim.log.levels.ERROR)
+    end
+  else
+    vim.notify('Virtual environment not found: ' .. venv_name, vim.log.levels.ERROR)
+  end
+end
+
+map("n", "<leader>ca", function() M._python_activate_custom_venv() end, { desc = "Activate custom venv" })
+
+-- Improved Python run with arguments support
+M._python_run_with_args = function()
+  local file = vim.fn.expand("%:p")
+  local args = vim.fn.input("Arguments: ")
+  local cmd = "python3 " .. file .. " " .. args
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "horizontal",
+    close_on_exit = false,
+    on_open = function(term)
+      vim.cmd("startinsert!")
+    end,
+  })
+  term:toggle()
+end
+
+map("n", "<leader>pr", function() M._python_run_with_args() end, { desc = "Run Python file with args" })
+
+-- Run Python file with default args (original behavior kept for convenience)
+map("n", "<leader>tr", "<cmd>lua _PYTHON_RUN_FILE()<CR>", { desc = "Run Python file" })
+
+-- Run selected Python code in terminal
+M._python_execute_selected = function()
+  -- Get selected text
+  local start_pos = vim.fn.getpos("'<")
+  local end_pos = vim.fn.getpos("'>")
+  local lines = vim.fn.getline(start_pos[2], end_pos[2])
+  
+  -- Handle partial line selections
+  if end_pos[3] < 2147483647 then  -- Not end of line
+    if #lines == 1 then
+      lines[1] = string.sub(lines[1], start_pos[3], end_pos[3])
+    else
+      lines[1] = string.sub(lines[1], start_pos[3])
+      lines[#lines] = string.sub(lines[#lines], 1, end_pos[3])
+    end
+  end
+  
+  -- Create temp file
+  local tmpfile = os.tmpname() .. ".py"
+  local f = io.open(tmpfile, "w")
+  f:write(table.concat(lines, "\n"))
+  f:close()
+  
+  -- Execute in terminal
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "python3 " .. tmpfile .. "; rm " .. tmpfile,
+    direction = "horizontal",
+    close_on_exit = false,
+    on_open = function(term)
+      vim.cmd("startinsert!")
+    end,
+  })
+  term:toggle()
+end
+
+map("v", "<leader>pe", function() M._python_execute_selected() end, { desc = "Execute selected Python" })
+
+-- Run current file in IPython
+M._python_run_ipython = function()
+  local file = vim.fn.expand("%:p")
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "ipython -i " .. file,
+    direction = "horizontal",
+    close_on_exit = false,
+    on_open = function(term)
+      vim.cmd("startinsert!")
+    end,
+  })
+  term:toggle()
+end
+
+map("n", "<leader>pi", function() M._python_run_ipython() end, { desc = "Run file in IPython" })
+
+-- Create Python file with boilerplate
+M._python_new_file = function()
+  local filename = vim.fn.input("New Python file name: ")
+  if filename == "" then return end
+  
+  -- Add .py extension if not present
+  if not string.match(filename, "%.py$") then
+    filename = filename .. ".py"
+  end
+  
+  -- Create the file with boilerplate
+  local file = io.open(filename, "w")
+  if file then
+    file:write([[#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on ]] .. os.date("%Y-%m-%d") .. [[
+
+Description: 
+
+"""
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()
+]])
+    file:close()
+    
+    -- Open the new file
+    vim.cmd("edit " .. filename)
+    vim.cmd("normal! G")  -- Move to end of file
+    vim.notify("Created new Python file: " .. filename, vim.log.levels.INFO)
+  else
+    vim.notify("Failed to create file: " .. filename, vim.log.levels.ERROR)
+  end
+end
+
+map("n", "<leader>pn", function() M._python_new_file() end, { desc = "New Python file" })
+
+-- Toggle Python terminal 
+map("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", { desc = "Toggle Python REPL" })
+
+-- Toggle IPython terminal
+map("n", "<leader>ti", "<cmd>lua _IPYTHON_TOGGLE()<CR>", { desc = "Toggle IPython" })
+
 -- NvimTree file explorer
 map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
 map("n", "<leader>o", "<cmd>NvimTreeFocus<CR>", { desc = "Focus file explorer" })
@@ -165,12 +393,5 @@ map("n", "<leader>cD", function()
   end
 end, { desc = "Change to git root" })
 
-map("n", "<leader>cv", function()
-  local venv_path = vim.fn.finddir('.venv', vim.fn.getcwd() .. ';')
-  if venv_path ~= "" then
-    vim.g.python3_host_prog = vim.fn.getcwd() .. '/' .. venv_path .. '/bin/python'
-    print('Virtual environment activated: ' .. venv_path)
-  else
-    print('No .venv directory found')
-  end
-end, { desc = "Activate virtual environment" })
+-- Return the module
+return M

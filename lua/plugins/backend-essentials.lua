@@ -869,6 +869,14 @@ return {
           ["n"] = { "<cmd>lua require('mappings')._python_new_file()<CR>", "New Python file" },
         },
         
+        -- Virtual Environment Diagnostics
+        ["<leader>v"] = {
+          name = "Python Venv",
+          ["d"] = { "<cmd>VenvDiagnostics<CR>", "Run diagnostics" },
+          ["t"] = { "<cmd>TestVenv<CR>", "Test current venv" },
+          ["s"] = { "<cmd>VenvSelect<CR>", "Select venv" },
+        },
+        
         -- Code related commands
         ["<leader>c"] = {
           ["v"] = { "<cmd>lua require('mappings')._python_activate_venv()<CR>", "Activate Python venv" },
@@ -1040,13 +1048,60 @@ return {
         reject_key = "<Up>",
       })
 
-      -- Use native Lua-based fuzzy search instead of Python to avoid errors
+      -- Use only Lua-based functionality to avoid Python errors
+      -- Create file finder function using Lua
+      local file_finder = function(prefix, check_dirname)
+        return function(path)
+          local base = vim.fn.fnamemodify(path.."x", ":h:r")  -- add a dummy 'x' to handle empty paths
+          base = base == "." and "" or base
+          base = base..(base == "" and "" or "/")
+          
+          local cmd = "find "..vim.fn.shellescape(base).." -maxdepth 1 -type f,l"
+          if prefix then
+            cmd = cmd.." -name "..vim.fn.shellescape(prefix.."*")
+          end
+          cmd = cmd.." 2>/dev/null"
+          
+          local handle = io.popen(cmd)
+          if not handle then return {} end
+          
+          local result = handle:read("*a")
+          handle:close()
+          
+          local names = {}
+          for name in string.gmatch(result, "[^\n]+") do
+            table.insert(names, name)
+          end
+          
+          return names
+        end
+      end
+      
+      -- Create custom file completion using Lua only
+      local file_completion = {
+        expand = function(arg)
+          if arg == nil then
+            return ""
+          end
+          return vim.fn.fnamemodify(arg, ":p")
+        end,
+        
+        dict = file_finder(),
+      }
+
+      -- Use native Lua-based fuzzy search and completion
       wilder.set_option("pipeline", {
         wilder.branch(
+          -- Use cmdline engine for command completion
           wilder.cmdline_pipeline({
             fuzzy = 1,
             fuzzy_filter = wilder.lua_fzy_filter(),
+            file_completion = function(_, arg)
+              return wilder.wildcard_expansion(arg, file_completion)
+            end,
           }),
+          
+          -- Use vim search for / and ? mode
           wilder.vim_search_pipeline()
         ),
       })
@@ -1146,5 +1201,19 @@ return {
     "norcalli/nvim-colorizer.lua",
     event = "BufReadPre",
     config = true,
+  },
+  
+  -- Python Environment Diagnostics
+  {
+    "A6UD3L0/venv-diagnostics.nvim",
+    dir = vim.fn.stdpath("config") .. "/lua/venv_diagnostics.lua",
+    ft = { "python" },
+    dependencies = {
+      "neovim/nvim-lspconfig",
+      "williamboman/mason.nvim",
+    },
+    config = function()
+      require("venv_diagnostics")
+    end,
   },
 }

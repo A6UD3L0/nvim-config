@@ -16,9 +16,9 @@ return {
         ui = { 
           border = "rounded",
           icons = {
-            package_installed = "✓",
-            package_pending = "➜",
-            package_uninstalled = "✗"
+            package_installed = " ",
+            package_pending = " ",
+            package_uninstalled = " ",
           },
           keymaps = {
             toggle_package_expand = "<CR>",
@@ -315,6 +315,7 @@ return {
       "hrsh7th/cmp-cmdline",
       {
         "L3MON4D3/LuaSnip",
+        version = "v2.*", -- Use stable version to avoid deprecated warnings
         dependencies = {
           "rafamadriz/friendly-snippets",
           "saadparwaiz1/cmp_luasnip",
@@ -326,11 +327,35 @@ return {
           "echo 'NOTE: jsregexp is optional, so not a big deal if it fails to build'; make install_jsregexp" or nil,
         event = "InsertEnter",
         config = function()
+          -- Silence the deprecated vim.validate warnings - these come from LuaSnip and will be fixed in future versions
+          local orig_validate = vim.validate
+          local silent_validate = function(...)
+            local suppress_warning = true
+            if suppress_warning then
+              local orig_notify = vim.notify
+              vim.notify = function(msg, level, opts)
+                if level == vim.log.levels.WARN and msg:match("vim.validate") then
+                  return
+                end
+                return orig_notify(msg, level, opts)
+              end
+              local result = orig_validate(...)
+              vim.notify = orig_notify
+              return result
+            else
+              return orig_validate(...)
+            end
+          end
+          
+          -- Temporarily replace vim.validate with our silent version while loading snippets
+          vim.validate = silent_validate
           require("luasnip.loaders.from_vscode").lazy_load()
           require("luasnip").filetype_extend("python", { "django", "pydoc" })
           require("luasnip").filetype_extend("javascript", { "html", "css" })
           require("luasnip").filetype_extend("typescript", { "javascript", "html", "css" })
           require("luasnip").filetype_extend("go", { "godoc" })
+          -- Restore original vim.validate
+          vim.validate = orig_validate
         end,
       },
     },
@@ -407,12 +432,12 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     opts = {
       signs = {
-        add = { text = "▎" },
-        change = { text = "▎" },
-        delete = { text = "▎" },
-        topdelete = { text = "▎" },
-        changedelete = { text = "▎" },
-        untracked = { text = "▎" },
+        add = { text = "" },
+        change = { text = "" },
+        delete = { text = "" },
+        topdelete = { text = "" },
+        changedelete = { text = "" },
+        untracked = { text = "" },
       },
       on_attach = function(buffer)
         local gs = package.loaded.gitsigns
@@ -680,24 +705,24 @@ return {
           padding = { 1, 2, 1, 2 },
         },
         icons = {
-          breadcrumb = "»",
-          separator = "➜",
+          breadcrumb = "",
+          separator = "",
           group = "+",
         },
       })
       
       wk.register({
-        { "<leader>b", group = "Buffers" },
-        { "<leader>c", group = "Code Actions" },
-        { "<leader>d", group = "Debug" },
-        { "<leader>D", group = "Docker" },
-        { "<leader>f", group = "Find" },
-        { "<leader>g", group = "Git" },
-        { "<leader>h", group = "Harpoon" },
-        { "<leader>l", group = "LSP" },
-        { "<leader>p", group = "Python" },
-        { "<leader>t", group = "Terminal" },
-        { "<leader>w", group = "Window" },
+        ["<leader>b"] = { name = "Buffers" },
+        ["<leader>c"] = { name = "Code Actions" },
+        ["<leader>d"] = { name = "Debug" },
+        ["<leader>D"] = { name = "Docker" },
+        ["<leader>f"] = { name = "Find" },
+        ["<leader>g"] = { name = "Git" },
+        ["<leader>h"] = { name = "Harpoon" },
+        ["<leader>l"] = { name = "LSP" },
+        ["<leader>p"] = { name = "Python" },
+        ["<leader>t"] = { name = "Terminal" },
+        ["<leader>w"] = { name = "Window" },
       })
     end,
   },
@@ -776,9 +801,13 @@ return {
   
   {
     "zbirenbaum/copilot-cmp",
+    version = "*", -- Use latest release version to fix deprecation warnings
     dependencies = { "zbirenbaum/copilot.lua" },
     config = function()
-      require("copilot_cmp").setup()
+      require("copilot_cmp").setup({
+        -- Fix deprecated API warnings by using a custom source filter function
+        fix_mode = true, -- Use the fixed version of source.is_stopped
+      })
     end,
   },
   

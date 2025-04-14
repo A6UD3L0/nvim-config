@@ -147,6 +147,9 @@ require("lazy").setup({
   change_detection = {
     notify = false,  -- Don't notify on config changes
   },
+  spec = {
+    { "luarocks", enabled = false },  -- Disable luarocks support
+  },
 })
 
 -- Initialize backend development tools after plugins are loaded

@@ -1381,9 +1381,6 @@ function vim.api.nvim_buf_get_visual_selection()
   return lines
 end
 
--- Export the module
-return M
-
 -- =============================================
 -- KEYBINDING CHEATSHEET
 -- =============================================
@@ -1423,3 +1420,6 @@ if pcall(require, "which-key") then
     ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
   })
 end
+
+-- Export the module
+return M

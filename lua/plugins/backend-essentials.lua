@@ -698,31 +698,179 @@ return {
     config = function()
       local wk = require("which-key")
       wk.setup({
-        win = {  
-          border = "single",
-          position = "top-right",
-          margin = { 1, 0, 2, 0 },
-          padding = { 1, 2, 1, 2 },
+        plugins = {
+          marks = true,      -- shows marks when pressing '
+          registers = true,  -- shows registers when pressing " in NORMAL or <C-r> in INSERT
+          spelling = {
+            enabled = false, -- enabling this will show WhichKey when pressing z= to select spelling suggestions
+          },
+          presets = {
+            operators = true,    -- adds help for operators like d, y, ...
+            motions = true,      -- adds help for motions
+            text_objects = true, -- help for text objects triggered after entering an operator
+            windows = true,      -- default bindings on <c-w>
+            nav = true,          -- misc bindings to work with windows
+            z = true,            -- bindings for folds, spelling and others prefixed with z
+            g = true,            -- bindings for prefixed with g
+          },
+        },
+        window = {
+          border = "single",       -- "single", "double", "shadow"
+          position = "bottom-right", -- "bottom", "top-right"
+          margin = { 0, 0, 0, 0 },  -- extra window margin [top, right, bottom, left]
+          padding = { 1, 1, 1, 1 }, -- extra window padding [top, right, bottom, left]
+          winblend = 0,            -- value between 0-100 0 for fully opaque and 100 for fully transparent
+        },
+        layout = {
+          height = { min = 5, max = 30 }, -- min and max height of the columns
+          width = { min = 30, max = 50 }, -- min and max width of the columns
+          spacing = 2,                    -- spacing between columns
+          align = "center",               -- align columns left, center or right
         },
         icons = {
-          breadcrumb = "",
-          separator = "",
-          group = "+",
+          breadcrumb = "»", -- symbol used in the command line area that shows your active key combo
+          separator = "→",  -- symbol used between a key and its label
+          group = "+",      -- symbol prepended to a group
+        },
+        show_help = true, -- show help message on the command line when the popup is visible
+        triggers = "auto", -- automatically setup triggers
+        triggers_nowait = {
+          -- marks
+          "`",
+          "'",
+          "g`",
+          "g'",
+          -- registers
+          '"',
+          "<c-r>",
+          -- spelling
+          "z=",
+        },
+        triggers_blacklist = {
+          -- list of mode / prefixes that should never be hooked by WhichKey
+          i = { "j", "k" },
+          v = { "j", "k" },
         },
       })
       
+      -- Register all keybinding groups
       wk.register({
-        ["<leader>b"] = { name = "Buffers" },
-        ["<leader>c"] = { name = "Code Actions" },
-        ["<leader>d"] = { name = "Debug" },
-        ["<leader>D"] = { name = "Docker" },
-        ["<leader>f"] = { name = "Find" },
-        ["<leader>g"] = { name = "Git" },
-        ["<leader>h"] = { name = "Harpoon" },
-        ["<leader>l"] = { name = "LSP" },
-        ["<leader>p"] = { name = "Python" },
-        ["<leader>t"] = { name = "Terminal" },
-        ["<leader>w"] = { name = "Window" },
+        ["<leader>"] = {
+          ["<leader>"] = { "<cmd>WhichKey<CR>", "Show all keybindings" },
+          ["b"] = { name = "Buffers" },
+          ["c"] = { name = "Code Actions" },
+          ["cd"] = { name = "Change Directory" },
+          ["cc"] = { name = "Comments" },
+          ["d"] = { name = "Debug" },
+          ["db"] = { name = "Database" },
+          ["D"] = { name = "Docker" },
+          ["f"] = { name = "Find" },
+          ["g"] = { name = "Git" },
+          ["h"] = { name = "Harpoon" },
+          ["l"] = { name = "LSP" },
+          ["p"] = { name = "Python" },
+          ["s"] = { name = "Search/Split" },
+          ["t"] = { name = "Terminal" },
+          ["w"] = { name = "Window/Write" },
+          ["x"] = { "<cmd>!chmod +x %<CR>", "Make file executable" },
+          ["y"] = { '"+y', "Yank to clipboard" },
+          ["Y"] = { '"+Y', "Yank line to clipboard" },
+          ["z"] = { name = "Folding" },
+        },
+      })
+      
+      -- Register all specific keybindings from mappings.lua
+      wk.register({
+        -- Buffer mappings
+        ["<leader>b"] = {
+          ["n"] = { "<cmd>bnext<CR>", "Next buffer" },
+          ["p"] = { "<cmd>bprevious<CR>", "Previous buffer" },
+          ["d"] = { "<cmd>bdelete<CR>", "Delete buffer" },
+          ["l"] = { "<cmd>buffers<CR>", "List buffers" },
+        },
+        
+        -- LSP mappings
+        ["<leader>l"] = {
+          ["f"] = { vim.lsp.buf.format, "Format" },
+          ["r"] = { vim.lsp.buf.rename, "Rename" },
+          ["a"] = { vim.lsp.buf.code_action, "Code action" },
+          ["d"] = { vim.lsp.buf.definition, "Go to definition" },
+          ["i"] = { vim.lsp.buf.implementation, "Go to implementation" },
+          ["k"] = { vim.lsp.buf.hover, "Show hover info" },
+          ["t"] = { vim.lsp.buf.type_definition, "Go to type definition" },
+          ["n"] = { vim.diagnostic.goto_next, "Next diagnostic" },
+          ["p"] = { vim.diagnostic.goto_prev, "Previous diagnostic" },
+        },
+        
+        -- Terminal mappings
+        ["<leader>t"] = {
+          ["t"] = { "<cmd>ToggleTerm direction=horizontal<CR>", "Toggle terminal" },
+          ["f"] = { "<cmd>ToggleTerm direction=float<CR>", "Floating terminal" },
+          ["v"] = { "<cmd>ToggleTerm direction=vertical<CR>", "Vertical terminal" },
+          ["p"] = { "<cmd>lua _PYTHON_TOGGLE()<CR>", "Python terminal" },
+          ["i"] = { "<cmd>lua _IPYTHON_TOGGLE()<CR>", "IPython terminal" },
+          ["r"] = { "<cmd>lua _PYTHON_RUN_FILE()<CR>", "Run Python file" },
+        },
+        
+        -- Window mappings
+        ["<leader>w"] = {
+          ["w"] = { "<cmd>w<CR>", "Save" },
+          ["v"] = { "<cmd>vsplit<CR>", "Vertical split" },
+          ["h"] = { "<cmd>split<CR>", "Horizontal split" },
+          ["e"] = { "<C-w>=", "Equal size" },
+          ["c"] = { "<cmd>close<CR>", "Close window" },
+          ["q"] = { "<cmd>q<CR>", "Quit" },
+          ["Q"] = { "<cmd>qa<CR>", "Quit all" },
+        },
+        
+        -- Find mappings with Telescope
+        ["<leader>f"] = {
+          ["f"] = { "<cmd>Telescope find_files<CR>", "Find files" },
+          ["g"] = { "<cmd>Telescope live_grep<CR>", "Live grep" },
+          ["b"] = { "<cmd>Telescope buffers<CR>", "Buffers" },
+          ["h"] = { "<cmd>Telescope help_tags<CR>", "Help tags" },
+          ["r"] = { "<cmd>Telescope oldfiles<CR>", "Recent files" },
+          ["m"] = { "<cmd>Telescope marks<CR>", "Marks" },
+          ["s"] = { "<cmd>Telescope lsp_document_symbols<CR>", "Document symbols" },
+          ["S"] = { "<cmd>Telescope lsp_workspace_symbols<CR>", "Workspace symbols" },
+        },
+        
+        -- Debug mappings
+        ["<leader>d"] = {
+          ["b"] = { "<cmd>lua require('dap').toggle_breakpoint()<CR>", "Toggle breakpoint" },
+          ["c"] = { "<cmd>lua require('dap').continue()<CR>", "Continue" },
+          ["i"] = { "<cmd>lua require('dap').step_into()<CR>", "Step into" },
+          ["o"] = { "<cmd>lua require('dap').step_over()<CR>", "Step over" },
+          ["O"] = { "<cmd>lua require('dap').step_out()<CR>", "Step out" },
+          ["t"] = { "<cmd>lua require('dapui').toggle()<CR>", "Toggle UI" },
+          ["r"] = { "<cmd>lua require('dap').repl.open()<CR>", "Open REPL" },
+        },
+        
+        -- Git mappings
+        ["<leader>g"] = {
+          ["g"] = { "<cmd>LazyGit<CR>", "LazyGit" },
+          ["s"] = { "<cmd>Gitsigns stage_hunk<CR>", "Stage hunk" },
+          ["u"] = { "<cmd>Gitsigns undo_stage_hunk<CR>", "Undo stage hunk" },
+          ["p"] = { "<cmd>Gitsigns preview_hunk<CR>", "Preview hunk" },
+          ["b"] = { "<cmd>Gitsigns blame_line<CR>", "Blame line" },
+          ["d"] = { "<cmd>Gitsigns diffthis<CR>", "Diff this" },
+          ["c"] = { "<cmd>Telescope git_commits<CR>", "Commits" },
+          ["B"] = { "<cmd>Telescope git_branches<CR>", "Branches" },
+        },
+        
+        -- Python specific mappings
+        ["<leader>p"] = {
+          ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
+          ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
+          ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
+        },
+        
+        -- Database
+        ["<leader>db"] = {
+          ["u"] = { "<cmd>DBUIToggle<CR>", "Toggle UI" },
+          ["a"] = { "<cmd>DBUIAddConnection<CR>", "Add connection" },
+          ["f"] = { "<cmd>DBUIFindBuffer<CR>", "Find buffer" },
+        },
       })
     end,
   },

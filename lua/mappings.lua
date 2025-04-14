@@ -421,5 +421,149 @@ map("n", "<leader>cD", function()
   end
 end, { desc = "Change to git root" })
 
+-- Python package management functions
+M._python_install_requirements = function()
+  local file = vim.fn.expand("%:p:h") .. "/requirements.txt"
+  
+  -- Check if requirements.txt exists
+  if vim.fn.filereadable(file) ~= 1 then
+    -- Try to find requirements.txt in project root
+    local root = vim.fn.finddir(".git/..", vim.fn.expand("%:p:h") .. ";")
+    if root ~= "" then
+      file = root .. "/requirements.txt"
+      if vim.fn.filereadable(file) ~= 1 then
+        vim.notify("No requirements.txt found in current directory or project root", vim.log.levels.ERROR)
+        return
+      end
+    else
+      vim.notify("No requirements.txt found in current directory or project root", vim.log.levels.ERROR)
+      return
+    end
+  end
+  
+  -- Ask user which installation method to use
+  local options = {"venv pip", "global pip", "poetry"}
+  local choice = vim.fn.confirm("Install requirements using:", table.concat(options, "\n"), 1)
+  
+  local cmd = ""
+  if choice == 1 then
+    -- venv pip
+    local venv_path = vim.fn.finddir('.venv', vim.fn.getcwd() .. ';')
+    if venv_path == "" then
+      local alt_venvs = {'venv', 'env', '.env'}
+      for _, v in ipairs(alt_venvs) do
+        venv_path = vim.fn.finddir(v, vim.fn.getcwd() .. ';')
+        if venv_path ~= "" then break end
+      end
+    end
+    
+    if venv_path == "" then
+      vim.notify("No virtual environment found. Creating .venv...", vim.log.levels.INFO)
+      venv_path = ".venv"
+      local term = require("toggleterm.terminal").Terminal:new({
+        cmd = "python -m venv " .. venv_path,
+        direction = "horizontal",
+        close_on_exit = false,
+        on_exit = function(t, job, exit_code)
+          if exit_code == 0 then
+            local pip_cmd = venv_path .. "/bin/pip install -r " .. file
+            t:send(pip_cmd)
+          end
+        end,
+      })
+      term:toggle()
+      return
+    else
+      cmd = venv_path .. "/bin/pip install -r " .. file
+    end
+  elseif choice == 2 then
+    -- global pip
+    cmd = "pip install -r " .. file
+  elseif choice == 3 then
+    -- poetry
+    local has_pyproject = vim.fn.filereadable(vim.fn.expand("%:p:h") .. "/pyproject.toml")
+    if has_pyproject == 0 then
+      has_pyproject = vim.fn.filereadable(vim.fn.finddir(".git/..", vim.fn.expand("%:p:h") .. ";") .. "/pyproject.toml")
+    end
+    
+    if has_pyproject == 0 then
+      vim.notify("Initializing new Poetry project...", vim.log.levels.INFO)
+      cmd = "poetry init -n && poetry add -r " .. file
+    else
+      cmd = "poetry add -r " .. file
+    end
+  else
+    return
+  end
+  
+  -- Execute the command in terminal
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Poetry commands
+M._poetry_add_package = function()
+  local package = vim.fn.input("Package name: ")
+  if package == "" then return end
+  
+  local dev = vim.fn.confirm("Add as dev dependency?", "Yes\nNo", 2) == 1
+  
+  local cmd = "poetry add " .. (dev and "--group dev " or "") .. package
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+M._poetry_remove_package = function()
+  local package = vim.fn.input("Package name to remove: ")
+  if package == "" then return end
+  
+  local cmd = "poetry remove " .. package
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+M._poetry_update = function()
+  local cmd = "poetry update"
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+M._poetry_show_outdated = function()
+  local cmd = "poetry show --outdated"
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Add key mappings for Python package management
+map("n", "<leader>pi", function() M._python_install_requirements() end, { desc = "Install requirements.txt" })
+map("n", "<leader>pp", function() M._poetry_add_package() end, { desc = "Poetry add package" })
+map("n", "<leader>pr", function() M._poetry_remove_package() end, { desc = "Poetry remove package" })
+map("n", "<leader>pu", function() M._poetry_update() end, { desc = "Poetry update" })
+map("n", "<leader>po", function() M._poetry_show_outdated() end, { desc = "Poetry show outdated" })
+
 -- Return the module
 return M

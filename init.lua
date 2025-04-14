@@ -82,31 +82,41 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Define a function to set colorscheme with Tokyo Night conditional switching
 local function set_colorscheme()
-  -- Add Tokyo Night theme if it's not already available
-  local has_tokyonight, _ = pcall(require, "tokyonight")
-  if not has_tokyonight then
-    vim.cmd [[packadd tokyonight.nvim]]
-  end
-
+  -- Check if tokyonight is available
+  local has_tokyonight = pcall(vim.cmd, "colorscheme tokyonight-night")
+  
   -- Get current filetype
   local filetype = vim.bo.filetype
   
-  -- Conditional switching based on filetype
-  if filetype == "python" then
-    vim.cmd.colorscheme("tokyonight-night") -- Use Tokyo Night for Python files
-  elseif filetype == "go" then
-    vim.cmd.colorscheme("tokyonight-storm") -- Use Tokyo Night Storm for Go files
-  elseif filetype == "lua" then 
-    vim.cmd.colorscheme("tokyonight-moon") -- Use Tokyo Night Moon for Lua files
-  elseif filetype == "javascript" or filetype == "typescript" then
-    vim.cmd.colorscheme("tokyonight-day") -- Use Tokyo Night Day for JS/TS
+  -- Apply appropriate theme based on filetype if tokyonight is available
+  if has_tokyonight then
+    if filetype == "python" then
+      vim.cmd.colorscheme("tokyonight-night") -- Use Tokyo Night for Python files
+    elseif filetype == "go" then
+      vim.cmd.colorscheme("tokyonight-storm") -- Use Tokyo Night Storm for Go files
+    elseif filetype == "lua" then 
+      vim.cmd.colorscheme("tokyonight-moon") -- Use Tokyo Night Moon for Lua files
+    elseif filetype == "javascript" or filetype == "typescript" then
+      vim.cmd.colorscheme("tokyonight-day") -- Use Tokyo Night Day for JS/TS
+    else
+      -- Fallback to original theme if tokyonight is available but no specific filetype match
+      vim.cmd.colorscheme("tokyonight-night")
+    end
   else
-    vim.cmd.colorscheme("rose-pine-moon") -- Use Rose Pine for other files
+    -- Fallback to rose-pine if tokyonight is not available
+    local has_rosepine = pcall(vim.cmd, "colorscheme rose-pine-moon")
+    if not has_rosepine then
+      -- If even rose-pine is not available, use a default colorscheme
+      pcall(vim.cmd, "colorscheme habamax")
+    end
   end
 end
 
--- Apply the colorscheme on startup
-set_colorscheme()
+-- Apply the colorscheme on startup (after plugins have loaded)
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LazyDone",
+  callback = set_colorscheme,
+})
 
 -- Set up an autocommand to change colorscheme when the filetype changes
 vim.api.nvim_create_autocmd("FileType", {

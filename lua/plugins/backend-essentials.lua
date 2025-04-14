@@ -1180,10 +1180,14 @@ return {
       -- Create command aliases for DevDocs to ensure compatibility
       vim.api.nvim_create_user_command("DevdocsFetch", function()
         vim.notify("Fetching documentation index...", vim.log.levels.INFO)
-        if devdocs.update_metadata then
-          devdocs.update_metadata()
-        else
-          vim.notify("DevDocs: update_metadata() not available in this version", vim.log.levels.WARN)
+        -- Use the plugin's native command instead of Lua API
+        local success, err = pcall(function()
+          -- Call the plugin's command directly
+          vim.cmd("DevdocsFetch")
+        end)
+        
+        if not success then
+          vim.notify("DevDocs metadata fetch failed: " .. tostring(err), vim.log.levels.WARN)
         end
       end, {})
       

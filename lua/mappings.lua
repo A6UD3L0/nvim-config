@@ -325,6 +325,88 @@ M._poetry_run = function()
   end)
 end
 
+-- Documentation functions
+M._toggle_documentation = function()
+  -- Check if DevDocs is available
+  local devdocs_ok, _ = pcall(require, "nvim-devdocs")
+  if not devdocs_ok then
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Check if a buffer with DevDocs is already open
+  local found = false
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buf) then
+      local buf_name = vim.api.nvim_buf_get_name(buf)
+      if buf_name:match("DevDocs") or buf_name:match("devdocs://") then
+        -- Find windows containing this buffer
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          if vim.api.nvim_win_get_buf(win) == buf then
+            vim.api.nvim_set_current_win(win)
+            found = true
+            break
+          end
+        end
+        
+        if found then
+          -- If found but not visible in a window, close it - this effectively toggles
+          vim.cmd("close")
+          return
+        end
+      end
+    end
+  end
+  
+  -- If not found or not visible, open new documentation
+  local ft = vim.bo.filetype
+  if ft == "" then
+    -- No filetype, just open general docs
+    vim.cmd("DevdocsOpenFloat")
+    return
+  end
+  
+  -- Map filetypes to their documentation types
+  local ft_map = {
+    python = "python~3.11",  -- Use specific Python version
+    javascript = "javascript",
+    typescript = "typescript",
+    go = "go",
+    rust = "rust",
+    lua = "lua",
+    c = "c",
+    cpp = "cpp",
+    bash = "bash",
+    sh = "bash",
+    html = "html",
+    css = "css",
+    markdown = "markdown",
+    sql = "sql",
+    postgresql = "postgresql",
+    docker = "docker",
+    json = "json",
+    yaml = "yaml",
+    toml = "toml",
+  }
+  
+  local doc_type = ft_map[ft] or ft
+  
+  -- Try to open documentation for the specific filetype
+  local success = pcall(vim.cmd, "DevdocsOpenFloat " .. vim.fn.shellescape(doc_type))
+  
+  -- If it fails, try to install the documentation
+  if not success then
+    vim.notify("Documentation for " .. doc_type .. " not found. Attempting to install...", vim.log.levels.INFO)
+    vim.cmd("DevdocsFetch")
+    vim.defer_fn(function()
+      pcall(vim.cmd, "DevdocsInstall " .. vim.fn.shellescape(doc_type))
+      vim.defer_fn(function()
+        pcall(vim.cmd, "DevdocsOpenFloat " .. vim.fn.shellescape(doc_type))
+      end, 2000)
+    end, 1000)
+  end
+end
+
 -- =============================================
 -- TERMINAL OPERATIONS (t namespace)
 -- =============================================
@@ -512,7 +594,7 @@ map("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle Undotree" })
 -- =============================================
 
 -- Documentation operations
-map("n", "<leader>do", "<cmd>DevdocsOpenFloat<CR>", { desc = "Open documentation in float" })
+map("n", "<leader>do", function() M._toggle_documentation() end, { desc = "Toggle documentation" })
 map("n", "<leader>dO", "<cmd>DevdocsOpen<CR>", { desc = "Open documentation in buffer" })
 map("n", "<leader>ds", "<cmd>DevdocsOpenFloat<CR>", { desc = "Search in documentation" })
 map("n", "<leader>di", "<cmd>DevdocsInstall<CR>", { desc = "Install documentation" })

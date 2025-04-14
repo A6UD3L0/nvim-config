@@ -1109,6 +1109,14 @@ return {
       "nvim-telescope/telescope.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
+    build = function()
+      -- Force installation of required documentation on initial setup
+      local py_doc_path = vim.fn.stdpath("data") .. "/devdocs/docs/python~3.11"
+      if not vim.loop.fs_stat(py_doc_path) then
+        vim.cmd("DevdocsFetch")
+        vim.cmd("DevdocsInstall python~3.11")
+      end
+    end,
     cmd = {
       "DevdocsFetch",
       "DevdocsInstall",
@@ -1117,12 +1125,52 @@ return {
       "DevdocsOpenFloat",
       "DevdocsUpdate",
       "DevdocsUpdateAll",
+      "DevdocsSearch",
     },
     keys = {
       -- Remove key mappings here as they're centralized in mappings.lua
     },
     config = function()
       local devdocs = require("nvim-devdocs")
+      
+      -- Force installation for Python
+      local function install_python_docs()
+        -- Create a temporary buffer for output
+        local buf = vim.api.nvim_create_buf(false, true)
+        
+        -- Set up job to fetch documentation registry
+        vim.fn.jobstart("curl -s https://devdocs.io/docs.json", {
+          stdout_buffered = true,
+          on_stdout = function(_, data)
+            if data and data[1] ~= "" then
+              local success, json_data = pcall(vim.fn.json_decode, table.concat(data, "\n"))
+              if success then
+                -- Find Python documentation versions
+                local python_docs = {}
+                for _, doc in ipairs(json_data) do
+                  if doc.name:match("^Python") or doc.slug:match("^python") then
+                    table.insert(python_docs, doc.slug)
+                  end
+                end
+                
+                -- Install docs
+                if #python_docs > 0 then
+                  vim.defer_fn(function()
+                    vim.cmd("DevdocsInstall " .. python_docs[1])
+                    vim.notify("Installing Python documentation: " .. python_docs[1], vim.log.levels.INFO)
+                  end, 500)
+                end
+              end
+            end
+          end,
+          on_exit = function()
+            -- Clean up
+            vim.api.nvim_buf_delete(buf, { force = true })
+          end
+        })
+      end
+      
+      -- Setup DevDocs
       devdocs.setup({
         dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
         telescope = {
@@ -1155,7 +1203,7 @@ return {
         end,
         ensure_installed = {
           -- Automatically install these documentations on startup
-          "python",
+          "python~3.11",  -- Specific Python version
           "javascript",
           "typescript",
           "go",
@@ -1175,6 +1223,14 @@ return {
           open_in_tab = "<C-t>",    -- Open in new tab
         },
       })
+      
+      -- Check and install Python documentation
+      vim.defer_fn(function()
+        local py_doc_path = vim.fn.stdpath("data") .. "/devdocs/docs/python~3.11"
+        if not vim.loop.fs_stat(py_doc_path) then
+          install_python_docs()
+        end
+      end, 1000)
     end,
   },
   

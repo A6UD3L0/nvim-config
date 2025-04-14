@@ -11,6 +11,13 @@ local map = vim.keymap.set
 local M = {}
 
 -- =============================================
+-- GLOBAL KEYBINDINGS (not namespace specific)
+-- =============================================
+
+-- Map jk to escape insert mode (faster alternative to Escape key)
+map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
+
+-- =============================================
 -- KEYBINDING ORGANIZATION REFERENCE (MECE)
 -- =============================================
 --

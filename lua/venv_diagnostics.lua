@@ -400,9 +400,8 @@ function M.display_results(results)
   vim.api.nvim_win_set_option(win, 'winblend', 0)
   vim.api.nvim_win_set_option(win, 'cursorline', true)
   
-  -- Add keybindings for the diagnostic window
-  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q<CR>', { noremap = true, silent = true })
-  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', ':q<CR>', { noremap = true, silent = true })
+  -- Use centralized mapping function from mappings.lua
+  require("mappings").setup_diagnostic_window_mappings(buf)
   
   return { buf = buf, win = win }
 end

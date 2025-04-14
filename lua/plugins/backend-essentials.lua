@@ -432,6 +432,21 @@ return {
     },
   },
   
+  -- LazyGit integration
+  {
+    "kdheepak/lazygit.nvim",
+    cmd = {
+      "LazyGit",
+      "LazyGitConfig",
+      "LazyGitCurrentFile",
+      "LazyGitFilter",
+      "LazyGitFilterCurrentFile",
+    },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+  },
+  
   -- Fuzzy finder
   {
     "nvim-telescope/telescope.nvim",

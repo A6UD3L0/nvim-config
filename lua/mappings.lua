@@ -294,6 +294,69 @@ map("n", "<leader>xv", "<cmd>VenvActivate<CR>", { desc = "Activate virtual envir
 map("n", "<leader>k", "<cmd>WhichKey<CR>", { desc = "Show all keybindings" })
 
 -- =============================================
+-- GIT OPERATIONS (g namespace)
+-- =============================================
+
+-- LazyGit mappings
+map("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "Open LazyGit" })
+map("n", "<leader>gc", "<cmd>LazyGitConfig<CR>", { desc = "LazyGit config" })
+map("n", "<leader>gf", "<cmd>LazyGitCurrentFile<CR>", { desc = "LazyGit current file" })
+map("n", "<leader>gF", "<cmd>LazyGitFilter<CR>", { desc = "LazyGit filter" })
+map("n", "<leader>gb", "<cmd>LazyGitFilterCurrentFile<CR>", { desc = "LazyGit branches" })
+
+-- Git window commands (telescope integration)
+map("n", "<leader>gB", "<cmd>Telescope git_branches<CR>", { desc = "Git branches" })
+map("n", "<leader>gC", "<cmd>Telescope git_commits<CR>", { desc = "Git commits" })
+map("n", "<leader>gS", "<cmd>Telescope git_status<CR>", { desc = "Git status" })
+map("n", "<leader>gd", "<cmd>Telescope git_bcommits<CR>", { desc = "Git diff this buffer" })
+
+-- Function for gitsigns keybindings setup
+M.setup_git_mappings = function(gitsigns)
+  -- Navigation
+  map("n", "]c", function()
+    if vim.wo.diff then
+      return "]c"
+    end
+    vim.schedule(function()
+      gitsigns.next_hunk()
+    end)
+    return "<Ignore>"
+  end, { expr = true, desc = "Next hunk" })
+
+  map("n", "[c", function()
+    if vim.wo.diff then
+      return "[c"
+    end
+    vim.schedule(function()
+      gitsigns.prev_hunk()
+    end)
+    return "<Ignore>"
+  end, { expr = true, desc = "Previous hunk" })
+
+  -- Actions
+  map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "Stage hunk" })
+  map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
+  map("v", "<leader>gs", function()
+    gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+  end, { desc = "Stage hunk" })
+  map("v", "<leader>gr", function()
+    gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+  end, { desc = "Reset hunk" })
+  map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "Stage buffer" })
+  map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "Undo stage hunk" })
+  map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
+  map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
+  map("n", "<leader>gl", function()
+    gitsigns.blame_line({ full = true })
+  end, { desc = "Blame line" })
+  map("n", "<leader>gL", gitsigns.toggle_current_line_blame, { desc = "Toggle line blame" })
+  map("n", "<leader>gD", gitsigns.diffthis, { desc = "Diff this" })
+  map("n", "<leader>gx", function()
+    gitsigns.toggle_deleted()
+  end, { desc = "Toggle deleted" })
+end
+
+-- =============================================
 -- LSP MAPPINGS
 -- =============================================
 

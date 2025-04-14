@@ -971,6 +971,34 @@ return {
     end,
   },
   
+  -- Tokyo Night colorscheme
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require("tokyonight").setup({
+        style = "night", -- The theme comes in four styles: storm, moon, night, day
+        transparent = true, -- Enable this to disable setting the background color
+        terminal_colors = true, -- Configure the colors used when opening a `:terminal`
+        styles = {
+          -- Style to be applied to different syntax groups
+          comments = { italic = true },
+          keywords = { italic = true },
+          functions = {},
+          variables = {},
+          sidebars = "dark", -- style for sidebars, see below
+          floats = "dark", -- style for floating windows
+        },
+        sidebars = { "qf", "help", "terminal", "packer" }, -- Set a darker background on sidebar-like windows
+        day_brightness = 0.3, -- Adjusts the brightness of the colors of the **Day** style
+        hide_inactive_statusline = false, -- Enabling this option will hide inactive statuslines
+        dim_inactive = true, -- dims inactive windows
+        lualine_bold = true, -- When `true`, section headers in the lualine theme will be bold
+      })
+    end,
+  },
+  
   -- Status line
   {
     "nvim-lualine/lualine.nvim",
@@ -1023,27 +1051,79 @@ return {
         ),
       })
 
-      -- Add border and better visual appearance
+      -- Tokyo Night color scheme for wilder.nvim
+      local tokyonight_colors = {
+        bg = "#1a1b26",
+        fg = "#c0caf5",
+        accent = "#7aa2f7",
+        selected = "#414868",
+        border = "#32344a",
+        gray = "#565f89",
+        error = "#f7768e",
+        warning = "#e0af68",
+        info = "#7dcfff",
+        hint = "#9ece6a",
+      }
+
+      -- Create highlight groups for wilder
+      local highlight_colors = {
+        ["bg"] = { background = tokyonight_colors.bg },
+        ["fg"] = { foreground = tokyonight_colors.fg },
+        ["accent"] = { foreground = tokyonight_colors.accent },
+        ["accent_bg"] = { background = tokyonight_colors.accent, foreground = tokyonight_colors.bg },
+        ["selected"] = { background = tokyonight_colors.selected },
+        ["border"] = { foreground = tokyonight_colors.border },
+        ["error"] = { foreground = tokyonight_colors.error },
+      }
+
+      -- Add Tokyo Night inspired border and better visual appearance
       local popupmenu_renderer = wilder.popupmenu_renderer(
         wilder.popupmenu_border_theme({
           highlights = {
-            border = "Normal",
-            accent = wilder.make_hl("WilderAccent", "Pmenu", {{a = 1}, {a = 1}, {foreground = "#f4468f"}}),
+            default = wilder.make_hl("WilderDefault", "Pmenu", highlight_colors.bg, highlight_colors.fg),
+            border = wilder.make_hl("WilderBorder", "Pmenu", highlight_colors.bg, highlight_colors.border),
+            accent = wilder.make_hl("WilderAccent", "Pmenu", highlight_colors.bg, highlight_colors.accent),
+            selected = wilder.make_hl("WilderSelected", "PmenuSel", highlight_colors.selected),
+            error = wilder.make_hl("WilderError", "Pmenu", highlight_colors.bg, highlight_colors.error),
           },
           border = "rounded",
-          left = {" ", wilder.popupmenu_devicons()},
-          right = {" ", wilder.popupmenu_scrollbar()},
+          left = {
+            " ",
+            wilder.popupmenu_devicons(),
+            wilder.popupmenu_buffer_flags({
+              flags = " a + ",
+              icons = { ["+"] = "", ["a"] = "", ["h"] = "" },
+            }),
+          },
+          right = {
+            " ",
+            wilder.popupmenu_scrollbar({
+              thumb_char = '┃',
+              thumb_hl = wilder.make_hl("WilderScrollbar", "Pmenu", {}, highlight_colors.accent),
+              track_hl = wilder.make_hl("WilderScrollbarTrack", "Pmenu", highlight_colors.bg),
+            }),
+          },
           empty_message = wilder.popupmenu_empty_message({
             message = " No matches ",
+            hl = wilder.make_hl("WilderEmptyMessage", "Pmenu", highlight_colors.bg, highlight_colors.gray),
           }),
+          min_width = "15%",
+          min_height = "10%",
+          max_height = "30%",
+          reverse = false,
         })
       )
 
       local wildmenu_renderer = wilder.wildmenu_renderer({
         highlighter = wilder.basic_highlighter(),
+        highlights = {
+          default = wilder.make_hl("WilderMenuDefault", "Pmenu", {}, highlight_colors.fg),
+          accent = wilder.make_hl("WilderMenuAccent", "Pmenu", {}, highlight_colors.accent),
+          selected = wilder.make_hl("WilderMenuSelected", "PmenuSel", highlight_colors.selected),
+        },
         separator = " · ",
-        left = {" ", wilder.wildmenu_spinner(), " "},
-        right = {" ", wilder.wildmenu_index()},
+        left = { " ", wilder.wildmenu_spinner(), " " },
+        right = { " ", wilder.wildmenu_index() },
       })
 
       wilder.set_option("renderer", wilder.renderer_mux({

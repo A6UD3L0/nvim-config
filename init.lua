@@ -19,22 +19,100 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- UI Settings
-vim.opt.termguicolors = true    -- True color support
-vim.opt.background = "dark"     -- Dark background
-vim.opt.number = true           -- Show line numbers
-vim.opt.relativenumber = true   -- Show relative line numbers
-vim.opt.cursorline = true       -- Highlight current line
-vim.opt.signcolumn = "yes"      -- Always show sign column
-vim.opt.showmode = false        -- Don't show mode, as it's in the statusline
-vim.opt.title = true            -- Show file title in terminal title
-vim.opt.splitbelow = true       -- Horizontal splits go below
-vim.opt.splitright = true       -- Vertical splits go right
-vim.opt.scrolloff = 10          -- Keep cursor 10 lines from screen edge
-vim.opt.sidescrolloff = 8       -- Keep cursor 8 columns from screen edge
-vim.opt.pumheight = 15          -- Maximum number of items to show in popup menu
-vim.opt.pumblend = 10           -- Make popup menu semi-transparent
-vim.opt.winblend = 10           -- Make floating windows semi-transparent
+-- UI Tweaks for a better experience
+vim.opt.termguicolors = true               -- Enable 24-bit RGB colors
+vim.opt.number = true                      -- Show line numbers
+vim.opt.relativenumber = true              -- Show relative line numbers
+vim.opt.cursorline = true                  -- Highlight the current line
+vim.opt.scrolloff = 8                      -- Keep 8 lines above/below cursor
+vim.opt.sidescrolloff = 8                  -- Keep 8 columns left/right of cursor
+vim.opt.showmode = false                   -- Don't show mode (shown in statusline)
+vim.opt.signcolumn = "yes"                 -- Always show the signcolumn
+vim.opt.wrap = false                       -- Don't wrap lines by default
+vim.opt.linebreak = true                   -- Wrap at word boundaries if wrap is on
+vim.opt.list = true                        -- Show whitespace characters
+vim.opt.listchars = {                      -- Configure whitespace characters
+  tab = "→ ",
+  trail = "·",
+  extends = "▶",
+  precedes = "◀",
+  nbsp = "␣",
+}
+vim.opt.fillchars:append({                 -- Make splits look nicer
+  horiz = "━",
+  horizup = "┻",
+  horizdown = "┳",
+  vert = "┃",
+  vertleft = "┫",
+  vertright = "┣",
+  verthoriz = "╋",
+})
+vim.opt.mouse = "a"                        -- Enable mouse in all modes
+vim.opt.splitbelow = true                  -- Open new horizontal splits below
+vim.opt.splitright = true                  -- Open new vertical splits to the right
+vim.opt.pumheight = 15                     -- Maximum number of items in popup menu
+vim.opt.pumblend = 10                      -- Pseudo-transparency for popup menu
+vim.opt.winblend = 10                      -- Pseudo-transparency for floating windows
+
+-- Better command-line experience
+vim.opt.cmdheight = 1                      -- Height of the command line
+vim.opt.laststatus = 3                     -- Global statusline
+vim.opt.showcmd = true                     -- Show commands as you type them
+vim.opt.wildmode = "longest:full,full"     -- Command line completion mode
+vim.opt.wildoptions = "pum"                -- Use popup menu for wildmode
+
+-- Searching
+vim.opt.hlsearch = true                    -- Highlight search matches
+vim.opt.incsearch = true                   -- Show matches as you type
+vim.opt.ignorecase = true                  -- Ignore case when searching
+vim.opt.smartcase = true                   -- Don't ignore case with capital letters
+
+-- Make backspace behave normally
+vim.opt.backspace = "indent,eol,start"
+
+-- Enable soft word wrapping for markdown and text files
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "markdown", "text" },
+  callback = function()
+    vim.opt_local.wrap = true
+  end,
+})
+
+-- Setup color scheme and theme manager
+
+-- Define a function to set colorscheme with Tokyo Night conditional switching
+local function set_colorscheme()
+  -- Add Tokyo Night theme if it's not already available
+  local has_tokyonight, _ = pcall(require, "tokyonight")
+  if not has_tokyonight then
+    vim.cmd [[packadd tokyonight.nvim]]
+  end
+
+  -- Get current filetype
+  local filetype = vim.bo.filetype
+  
+  -- Conditional switching based on filetype
+  if filetype == "python" then
+    vim.cmd.colorscheme("tokyonight-night") -- Use Tokyo Night for Python files
+  elseif filetype == "go" then
+    vim.cmd.colorscheme("tokyonight-storm") -- Use Tokyo Night Storm for Go files
+  elseif filetype == "lua" then 
+    vim.cmd.colorscheme("tokyonight-moon") -- Use Tokyo Night Moon for Lua files
+  elseif filetype == "javascript" or filetype == "typescript" then
+    vim.cmd.colorscheme("tokyonight-day") -- Use Tokyo Night Day for JS/TS
+  else
+    vim.cmd.colorscheme("rose-pine-moon") -- Use Rose Pine for other files
+  end
+end
+
+-- Apply the colorscheme on startup
+set_colorscheme()
+
+-- Set up an autocommand to change colorscheme when the filetype changes
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "*",
+  callback = set_colorscheme,
+})
 
 -- Editor settings
 vim.opt.tabstop = 4             -- Number of spaces tabs count for
@@ -42,7 +120,6 @@ vim.opt.softtabstop = 4         -- Number of spaces in tab when editing
 vim.opt.shiftwidth = 4          -- Number of spaces to use for autoindent
 vim.opt.expandtab = true        -- Tabs are spaces
 vim.opt.smartindent = true      -- Insert indents automatically
-vim.opt.wrap = false            -- Disable line wrap
 vim.opt.swapfile = false        -- Don't use swapfile
 vim.opt.backup = false          -- Don't create backup files
 vim.opt.undofile = true         -- Enable persistent undo

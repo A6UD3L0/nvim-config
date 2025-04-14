@@ -191,6 +191,7 @@ require("lazy").setup({
     "rose-pine/neovim",
     name = "rose-pine",
     priority = 1000,
+    lazy = false,
     config = function()
       require("rose-pine").setup({
         dark_variant = "main",
@@ -294,3 +295,62 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.cmd("startinsert")
   end,
 })
+
+-- Set up automatic filetype detection for backend files
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+  pattern = { "*.py", "*.go", "*.rs", "*.ts", "*.java", "*.c", "*.cpp", "*.h", "*.hpp" },
+  callback = function()
+    vim.opt_local.number = true
+    vim.opt_local.relativenumber = true
+  end,
+})
+
+-- Set easier to read tab settings for certain filetypes
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "html", "css", "javascript", "typescript", "json", "yaml", "lua" },
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
+    vim.opt_local.shiftwidth = 2
+  end,
+})
+
+-- Automatically format Go files on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.go",
+  callback = function()
+    vim.lsp.buf.format()
+  end,
+})
+
+-- Trim trailing whitespace on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*",
+  callback = function()
+    local save_cursor = vim.fn.getpos(".")
+    vim.cmd([[%s/\s\+$//e]])
+    vim.fn.setpos(".", save_cursor)
+  end,
+})
+
+-- Highlight yanked text briefly
+vim.api.nvim_create_autocmd("TextYankPost", {
+  pattern = "*",
+  callback = function()
+    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 150 })
+  end,
+})
+
+-- Fix common typos in command mode
+vim.cmd([[
+  cnoreabbrev W w
+  cnoreabbrev Q q
+  cnoreabbrev Wq wq
+  cnoreabbrev WQ wq
+  cnoreabbrev Qa qa
+  cnoreabbrev Wqa wqa
+]])
+
+-- Set shorter updatetime for faster response
+vim.opt.updatetime = 300
+vim.opt.timeoutlen = 500

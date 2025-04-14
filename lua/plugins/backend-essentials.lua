@@ -979,45 +979,6 @@ return {
     end,
   },
   
-  -- Rose Pine colorscheme - main theme
-  {
-    "rose-pine/neovim",
-    name = "rose-pine",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("rose-pine").setup({
-        variant = "moon", -- moon, main, or dawn
-        dark_variant = "main",
-        dim_inactive_windows = true,
-        extend_background_behind_borders = true,
-        
-        styles = {
-          bold = true,
-          italic = true,
-          transparency = true,
-        },
-        
-        highlight_groups = {
-          -- Enhance visibility for important elements
-          CursorLine = { bg = "foam", blend = 10 },
-          StatusLine = { fg = "love", bg = "pine", blend = 10 },
-          
-          -- Command line and UI tweaks
-          WildMenu = { fg = "gold", bg = "overlay" },
-          Pmenu = { bg = "overlay", blend = 10 },
-          PmenuSel = { fg = "text", bg = "foam" },
-          
-          -- Diagnostics with better visibility
-          DiagnosticError = { fg = "love" },
-          DiagnosticWarn = { fg = "gold" },
-          DiagnosticInfo = { fg = "foam" },
-          DiagnosticHint = { fg = "iris" },
-        }
-      })
-    end,
-  },
-  
   -- Status line
   {
     "nvim-lualine/lualine.nvim",

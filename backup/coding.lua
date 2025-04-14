@@ -267,9 +267,52 @@ return {
           autoformat = true -- Default to true
         end
         
-        return { timeout_ms = 500, lsp_fallback = true }
+        return { 
+          timeout_ms = 3000, -- Increased timeout to 3 seconds
+          lsp_fallback = true,
+          async = true, -- Run formatters asynchronously
+        }
       end,
+      formatters = {
+        black = {
+          command = "black",
+          args = { "--quiet", "-" },
+          stdin = true,
+          timeout = 3000, -- Specific timeout for black
+        },
+        isort = {
+          command = "isort",
+          args = { "--quiet", "-" },
+          stdin = true,
+          timeout = 3000, -- Specific timeout for isort
+        },
+      },
     },
+    config = function(_, opts)
+      require("conform").setup(opts)
+      
+      -- Add error handling for formatters
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        pattern = "*",
+        callback = function(args)
+          local bufnr = args.buf
+          local filetype = vim.bo[bufnr].filetype
+          
+          -- Skip if autoformat is disabled
+          if vim.b[bufnr].autoformat == false then
+            return
+          end
+          
+          -- Format the buffer
+          require("conform").format({
+            bufnr = bufnr,
+            timeout_ms = 3000,
+            lsp_fallback = true,
+            async = true,
+          })
+        end,
+      })
+    end,
   },
   
   -- Completion system with LSP support
@@ -414,19 +457,53 @@ return {
     opts = {},
   },
   
-  -- Doc string generator
+  -- Neogen for documentation generation
   {
     "danymat/neogen",
-    keys = { 
-      { "<leader>cd", function() require("neogen").generate() end, desc = "Generate doc string" },
-    },
-    opts = {
-      languages = {
-        python = {
-          template = {
-            annotation_convention = "google_docstrings"
-          }
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    config = function()
+      require("neogen").setup({
+        enabled = true,
+        languages = {
+          python = {
+            template = {
+              annotation_convention = "google_docstrings",
+            },
+          },
+          lua = {
+            template = {
+              annotation_convention = "emmylua",
+            },
+          },
+          typescript = {
+            template = {
+              annotation_convention = "tsdoc",
+            },
+          },
+          javascript = {
+            template = {
+              annotation_convention = "jsdoc",
+            },
+          },
         },
+        input_after_comment = true,
+        snippet_engine = "luasnip",
+      })
+    end,
+    keys = {
+      {
+        "<leader>cc",
+        function()
+          require("neogen").generate({ type = "func" })
+        end,
+        desc = "Generate function documentation",
+      },
+      {
+        "<leader>cC",
+        function()
+          require("neogen").generate({ type = "class" })
+        end,
+        desc = "Generate class documentation",
       },
     },
   },

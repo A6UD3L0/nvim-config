@@ -123,3 +123,141 @@ map("n", "<leader>ds", function() require("dap").step_over() end, { desc = "Step
 map("n", "<leader>di", function() require("dap").step_into() end, { desc = "Step into" })
 map("n", "<leader>do", function() require("dap").step_out() end, { desc = "Step out" })
 map("n", "<leader>du", function() require("dapui").toggle() end, { desc = "Toggle DAP UI" })
+
+local M = {}
+
+M.general = {
+  n = {
+    -- Basic file operations
+    ["<leader>cd"] = { "<cmd>cd %:p:h<CR>", "Change to current file directory" },
+    ["<leader>ch"] = { "<cmd>cd ~<CR>", "Change to home directory" },
+    ["<leader>cp"] = { "<cmd>cd ..<CR>", "Change to parent directory" },
+    ["<leader>cx"] = { "<cmd>!chmod +x %<CR>", "Make file executable" },
+    ["<leader>cr"] = { "<cmd>!chmod -x %<CR>", "Remove file executable permission" },
+    
+    -- Terminal operations
+    ["<leader>tt"] = { "<cmd>terminal<CR>", "Open terminal" },
+    ["<leader>tv"] = { "<cmd>vsplit | terminal<CR>", "Open vertical terminal" },
+    ["<leader>th"] = { "<cmd>split | terminal<CR>", "Open horizontal terminal" },
+    
+    -- Buffer operations
+    ["<leader>bn"] = { "<cmd>enew<CR>", "New buffer" },
+    ["<leader>bd"] = { "<cmd>bd<CR>", "Delete buffer" },
+    ["<leader>ba"] = { "<cmd>%bd|e#|bd#<CR>", "Delete all buffers except current" },
+    ["<leader>bp"] = { "<cmd>bp<CR>", "Previous buffer" },
+    ["<leader>bn"] = { "<cmd>bn<CR>", "Next buffer" },
+    
+    -- Quickfix and location list
+    ["<leader>co"] = { "<cmd>copen<CR>", "Open quickfix" },
+    ["<leader>cc"] = { "<cmd>cclose<CR>", "Close quickfix" },
+    ["<leader>cn"] = { "<cmd>cnext<CR>", "Next quickfix item" },
+    ["<leader>cp"] = { "<cmd>cprev<CR>", "Previous quickfix item" },
+    ["<leader>lo"] = { "<cmd>lopen<CR>", "Open location list" },
+    ["<leader>lc"] = { "<cmd>lclose<CR>", "Close location list" },
+    
+    -- Search and replace
+    ["<leader>sr"] = { ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>", "Search and replace word under cursor" },
+    ["<leader>sw"] = { "/\\<<C-r><C-w>\\><CR>", "Search word under cursor" },
+    
+    -- Code navigation
+    ["<leader>j"] = { "<cmd>m .+1<CR>==", "Move line down" },
+    ["<leader>k"] = { "<cmd>m .-2<CR>==", "Move line up" },
+    ["<leader>y"] = { '"+y', "Copy to system clipboard" },
+    ["<leader>p"] = { '"+p', "Paste from system clipboard" },
+    
+    -- Indentation
+    ["<"] = { "<<", "Decrease indent" },
+    [">"] = { ">>", "Increase indent" },
+    
+    -- Window management
+    ["<C-h>"] = { "<C-w>h", "Move to left window" },
+    ["<C-j>"] = { "<C-w>j", "Move to bottom window" },
+    ["<C-k>"] = { "<C-w>k", "Move to top window" },
+    ["<C-l>"] = { "<C-w>l", "Move to right window" },
+    
+    -- Resize windows
+    ["<C-Up>"] = { "<cmd>resize -2<CR>", "Resize window up" },
+    ["<C-Down>"] = { "<cmd>resize +2<CR>", "Resize window down" },
+    ["<C-Left>"] = { "<cmd>vertical resize -2<CR>", "Resize window left" },
+    ["<C-Right>"] = { "<cmd>vertical resize +2<CR>", "Resize window right" },
+  },
+  
+  v = {
+    -- Visual mode mappings
+    ["<leader>y"] = { '"+y', "Copy to system clipboard" },
+    ["<leader>p"] = { '"+p', "Paste from system clipboard" },
+    ["<"] = { "<gv", "Decrease indent" },
+    [">"] = { ">gv", "Increase indent" },
+    ["J"] = { ":m '>+1<CR>gv=gv", "Move selection down" },
+    ["K"] = { ":m '<-2<CR>gv=gv", "Move selection up" },
+  },
+  
+  i = {
+    -- Insert mode mappings
+    ["<C-h>"] = { "<Left>", "Move left" },
+    ["<C-j>"] = { "<Down>", "Move down" },
+    ["<C-k>"] = { "<Up>", "Move up" },
+    ["<C-l>"] = { "<Right>", "Move right" },
+  },
+  
+  t = {
+    -- Terminal mode mappings
+    ["<Esc>"] = { "<C-\\><C-n>", "Exit terminal mode" },
+    ["<C-h>"] = { "<C-\\><C-n><C-w>h", "Move to left window" },
+    ["<C-j>"] = { "<C-\\><C-n><C-w>j", "Move to bottom window" },
+    ["<C-k>"] = { "<C-\\><C-n><C-w>k", "Move to top window" },
+    ["<C-l>"] = { "<C-\\><C-n><C-w>l", "Move to right window" },
+  },
+}
+
+M.whichkey = {
+  n = {
+    name = "File Operations",
+    c = {
+      name = "Change Directory",
+      d = "Change to current file directory",
+      h = "Change to home directory",
+      p = "Change to parent directory",
+    },
+    x = "Make file executable",
+    r = "Remove file executable permission",
+    
+    t = {
+      name = "Terminal",
+      t = "Open terminal",
+      v = "Open vertical terminal",
+      h = "Open horizontal terminal",
+    },
+    
+    b = {
+      name = "Buffer",
+      n = "New buffer",
+      d = "Delete buffer",
+      a = "Delete all buffers except current",
+      p = "Previous buffer",
+      n = "Next buffer",
+    },
+    
+    c = {
+      name = "Quickfix",
+      o = "Open quickfix",
+      c = "Close quickfix",
+      n = "Next quickfix item",
+      p = "Previous quickfix item",
+    },
+    
+    l = {
+      name = "Location List",
+      o = "Open location list",
+      c = "Close location list",
+    },
+    
+    s = {
+      name = "Search",
+      r = "Search and replace word under cursor",
+      w = "Search word under cursor",
+    },
+  },
+}
+
+return M

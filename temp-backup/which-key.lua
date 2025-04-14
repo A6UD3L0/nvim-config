@@ -24,18 +24,27 @@ local M = {
       },
     },
     triggers = { "<leader>" },
-    win = {
-      border = "rounded",
-      position = "bottom",
-      margin = { 1, 0, 1, 0 },
-      padding = { 2, 2, 2, 2 },
-      winblend = 0,
+    window = {
+      border = "single",      -- none, single, double, shadow
+      position = "top-right", -- bottom, top, left, right, top-left, etc.
+      margin = { 1, 0, 2, 0 }, -- top, right, bottom, left margins
+      padding = { 1, 2, 1, 2 }, -- top, right, bottom, left padding
+      winblend = 0,           -- transparency (0-100)
     },
     layout = {
       height = { min = 4, max = 25 },
       width = { min = 20, max = 50 },
       spacing = 3,
-      align = "left",
+      align = "center",
+    },
+    icons = {
+      breadcrumb = "»", -- symbol used in the command line area that shows your active key combo
+      separator = "➜", -- symbol used between a key and its label
+      group = "+", -- symbol prepended to a group
+    },
+    popup_mappings = {
+      scroll_down = "<c-d>", -- binding to scroll down inside the popup
+      scroll_up = "<c-u>",   -- binding to scroll up inside the popup
     },
   },
   config = function(_, opts)
@@ -149,4 +158,4 @@ local M = {
   end,
 }
 
-return M 
+return M

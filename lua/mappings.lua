@@ -21,6 +21,10 @@ M._command_exists = function(cmd)
   return result and #result > 0
 end
 
+-- Global keybindings (not namespace specific)
+-- Map jk to escape insert mode (faster alternative to Escape key)
+map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
+
 -- Helper to run a command in a toggleterm window
 M._run_in_terminal = function(cmd, direction)
   direction = direction or "horizontal"
@@ -473,6 +477,28 @@ map("n", "<leader>wL", "<cmd>vertical resize +10<CR>", { desc = "Increase width"
 map("n", "<leader>wH", "<cmd>vertical resize -10<CR>", { desc = "Decrease width" })
 map("n", "<leader>wK", "<cmd>resize +5<CR>", { desc = "Increase height" })
 map("n", "<leader>wJ", "<cmd>resize -5<CR>", { desc = "Decrease height" })
+
+-- Window navigation (without leader key for frequent operations)
+map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Move to window below" })
+map("n", "<C-k>", "<C-w>k", { desc = "Move to window above" })
+map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
+
+-- Additional window navigation with leader key
+map("n", "<leader>ww", "<C-w>w", { desc = "Cycle through windows" })
+map("n", "<leader>wp", "<C-w>p", { desc = "Go to previous window" })
+map("n", "<leader>wo", "<cmd>only<CR>", { desc = "Close all other windows" })
+map("n", "<leader>wt", "<C-w>T", { desc = "Move window to new tab" })
+map("n", "<leader>w=", "<C-w>=", { desc = "Equalize window sizes" })
+map("n", "<leader>ws", "<cmd>split<CR>", { desc = "Split window horizontally" })
+map("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Split window vertically" })
+
+-- Tab management
+map("n", "<leader>tn", "<cmd>tabnew<CR>", { desc = "New tab" })
+map("n", "<leader>tc", "<cmd>tabclose<CR>", { desc = "Close tab" })
+map("n", "<leader>to", "<cmd>tabonly<CR>", { desc = "Close all other tabs" })
+map("n", "<leader>tl", "<cmd>tabnext<CR>", { desc = "Next tab" })
+map("n", "<leader>th", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
 
 -- =============================================
 -- UNDOTREE OPERATION (u namespace)

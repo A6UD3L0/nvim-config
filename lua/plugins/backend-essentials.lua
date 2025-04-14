@@ -1126,17 +1126,33 @@ return {
       devdocs.setup({
         dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
         telescope = {
-          width = 0.8, -- 80% of the screen width
-          height = 0.7, -- 70% of the screen height
+          width = 0.85, -- 85% of the screen width
+          height = 0.75, -- 75% of the screen height
           previewer_width = 0.6, -- 60% of the telescope width for the document previewer
         },
         float_win = {
           relative = "editor",
-          height = 0.8, -- 80% of the screen height
-          width = 0.8, -- 80% of the screen width
+          height = 0.9, -- 90% of the screen height
+          width = 0.9, -- 90% of the screen width
           border = "rounded",
         },
         wrap = true, -- Wrap content in devdocs buffer
+        after_open = function(bufnr)
+          -- Set buffer options for better reading experience
+          vim.api.nvim_buf_set_option(bufnr, "foldenable", false)
+          vim.api.nvim_buf_set_option(bufnr, "spell", false)
+          
+          -- Add keymappings specific to documentation buffer
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':close<CR>', { noremap = true, silent = true })
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<Esc>', ':close<CR>', { noremap = true, silent = true })
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', ':DevdocsOpenFloat<CR>', { noremap = true, silent = true })
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', '/', '/', { noremap = true })
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'n', 'n', { noremap = true })
+          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'N', 'N', { noremap = true })
+          
+          -- Notify user about search capabilities
+          vim.notify("Use '/' to search within documentation. Press 'q' to close.", vim.log.levels.INFO)
+        end,
         ensure_installed = {
           -- Automatically install these documentations on startup
           "python",
@@ -1149,22 +1165,16 @@ return {
           "http",
           "git",
           "docker",
-          "markdown",
           "sql",
+          "postgresql",
+          "rust",
         },
-        after_setup = function()
-          -- Auto-fetch registry on setup if it doesn't exist
-          if not devdocs.registry_exists() then
-            vim.notify("DevDocs registry not found. Fetching registry...", vim.log.levels.INFO, {title = "DevDocs"})
-            vim.cmd("DevdocsFetch")
-          end
-        end
+        mappings = {
+          open_in_split = "<C-s>",  -- Open in horizontal split
+          open_in_vsplit = "<C-v>", -- Open in vertical split
+          open_in_tab = "<C-t>",    -- Open in new tab
+        },
       })
-      
-      -- Only try to register the extension if Telescope is already loaded
-      if package.loaded["telescope"] then
-        pcall(require("telescope").load_extension, "devdocs")
-      end
     end,
   },
   

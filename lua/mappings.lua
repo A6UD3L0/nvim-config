@@ -139,19 +139,236 @@ map("t", "<C-j>", "<C-\\><C-n><C-w>j", { desc = "Terminal: move to below window"
 map("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Terminal: move to above window" })
 map("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Terminal: move to right window" })
 
--- Python specific mappings for direct access (without requiring which-key)
-map("n", "<leader>pr", function() M._python_run_with_args() end, { desc = "Run Python file with args" })
-map("v", "<leader>pe", function() M._python_execute_selected() end, { desc = "Execute selected Python" })
-map("n", "<leader>pi", function() M._python_run_ipython() end, { desc = "Run file in IPython" })
-map("n", "<leader>pn", function() M._python_new_file() end, { desc = "New Python file" })
-map("n", "<leader>pv", function() require("venv-selector").open() end, { desc = "Select Python venv" })
-map("n", "<leader>pt", "<cmd>Telescope python_tests<CR>", { desc = "Python tests" })
-map("n", "<leader>pd", function() require("dap-python").debug_selection() end, { desc = "Debug Python selection" })
+-- POETRY FUNCTIONS
 
--- Python REPL and file execution
-map("n", "<leader>tr", function() _PYTHON_RUN_FILE() end, { desc = "Run Python file" })
-map("n", "<leader>tp", function() _PYTHON_TOGGLE() end, { desc = "Toggle Python REPL" })
-map("n", "<leader>ti", function() _IPYTHON_TOGGLE() end, { desc = "Toggle IPython" })
+-- Generate requirements.txt from Poetry dependencies
+M._poetry_generate_requirements = function()
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = "poetry export -f requirements.txt --output requirements.txt --without-hashes",
+    direction = "horizontal",
+    close_on_exit = false,
+    on_exit = function(t, job, exit_code)
+      if exit_code == 0 then
+        vim.notify("Generated requirements.txt from Poetry dependencies", vim.log.levels.INFO)
+      else
+        vim.notify("Failed to generate requirements.txt", vim.log.levels.ERROR)
+      end
+    end,
+  })
+  term:toggle()
+end
+
+-- Install from requirements.txt
+M._install_from_requirements = function()
+  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+  local pip_cmd = ""
+  
+  if venv_path ~= "" then
+    -- Use venv pip if it exists
+    pip_cmd = venv_path .. "/bin/pip"
+  else
+    pip_cmd = "pip"
+  end
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = pip_cmd .. " install -r requirements.txt",
+    direction = "horizontal",
+    close_on_exit = false,
+    on_exit = function(t, job, exit_code)
+      if exit_code == 0 then
+        vim.notify("Successfully installed requirements", vim.log.levels.INFO)
+      else
+        vim.notify("Failed to install requirements", vim.log.levels.ERROR)
+      end
+    end,
+  })
+  term:toggle()
+end
+
+-- Create requirements.txt if it doesn't exist
+M._create_requirements = function()
+  local req_path = vim.fn.getcwd() .. "/requirements.txt"
+  if vim.fn.filereadable(req_path) == 0 then
+    local file = io.open(req_path, "w")
+    if file then
+      file:write("# Python requirements\n# Generated on " .. os.date("%Y-%m-%d %H:%M:%S") .. "\n\n")
+      file:close()
+      vim.notify("Created empty requirements.txt", vim.log.levels.INFO)
+      vim.cmd("edit " .. req_path)
+    else
+      vim.notify("Failed to create requirements.txt", vim.log.levels.ERROR)
+    end
+  else
+    vim.notify("requirements.txt already exists", vim.log.levels.WARN)
+    vim.cmd("edit " .. req_path)
+  end
+end
+
+-- Edit requirements.txt function
+M._edit_requirements = function()
+  local req_path = vim.fn.getcwd() .. "/requirements.txt"
+  if vim.fn.filereadable(req_path) == 1 then
+    vim.cmd("edit " .. req_path)
+  else
+    -- Offer to create requirements.txt if it doesn't exist
+    if vim.fn.confirm("requirements.txt doesn't exist. Create it?", "Yes\nNo", 1) == 1 then
+      M._create_requirements()
+    end
+  end
+end
+
+-- PYTHON EXECUTION FUNCTIONS
+
+-- Run current Python file
+M._python_run_file = function()
+  local file = vim.fn.expand('%:p')
+  if vim.fn.filereadable(file) == 0 then
+    vim.notify("No file to run", vim.log.levels.ERROR)
+    return
+  end
+  
+  if vim.fn.fnamemodify(file, ':e') ~= 'py' then
+    vim.notify("Not a Python file", vim.log.levels.ERROR)
+    return
+  end
+  
+  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+  local python_cmd = ""
+  
+  if venv_path ~= "" then
+    -- Use venv python if it exists
+    python_cmd = venv_path .. "/bin/python"
+  else
+    python_cmd = "python"
+  end
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = python_cmd .. " " .. file,
+    direction = "horizontal",
+    close_on_exit = false,
+  })
+  term:toggle()
+end
+
+-- Execute selected Python code in IPython
+M._python_execute_in_ipython = function()
+  local visual_selection = vim.fn.getreg("v")
+  if visual_selection == "" then
+    vim.notify("No code selected", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Check if IPython terminal exists and is running
+  local Terminal = require("toggleterm.terminal").Terminal
+  local ipython = Terminal:new({
+    cmd = "ipython",
+    direction = "horizontal",
+    close_on_exit = false,
+    hidden = true,
+  })
+  
+  -- Function to send code to IPython
+  local function send_to_ipython()
+    ipython:send(visual_selection)
+  end
+  
+  -- Check if terminal exists
+  if ipython:is_open() then
+    send_to_ipython()
+  else
+    ipython:toggle()
+    -- Wait for IPython to start before sending code
+    vim.defer_fn(function()
+      send_to_ipython()
+    end, 1000)
+  end
+end
+
+-- Python snippet execution in terminal
+M._python_execute_snippet = function()
+  local lines = vim.api.nvim_buf_get_visual_selection()
+  if #lines == 0 then
+    vim.notify("No code selected", vim.log.levels.ERROR)
+    return
+  end
+  
+  local code = table.concat(lines, "\n")
+  
+  -- Create temporary file
+  local tmp_file = os.tmpname() .. ".py"
+  local file = io.open(tmp_file, "w")
+  if file then
+    file:write(code)
+    file:close()
+    
+    local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+    local python_cmd = ""
+    
+    if venv_path ~= "" then
+      -- Use venv python if it exists
+      python_cmd = venv_path .. "/bin/python"
+    else
+      python_cmd = "python"
+    end
+    
+    local term = require("toggleterm.terminal").Terminal:new({
+      cmd = python_cmd .. " " .. tmp_file,
+      direction = "horizontal",
+      close_on_exit = false,
+      on_exit = function()
+        -- Remove temp file after execution
+        os.remove(tmp_file)
+      end,
+    })
+    term:toggle()
+  else
+    vim.notify("Failed to create temporary file", vim.log.levels.ERROR)
+  end
+end
+
+-- Helper function to get visual selection
+function vim.api.nvim_buf_get_visual_selection()
+  local start_pos = vim.fn.getpos("'<")
+  local end_pos = vim.fn.getpos("'>")
+  local start_line, start_col = start_pos[2], start_pos[3]
+  local end_line, end_col = end_pos[2], end_pos[3]
+  
+  -- Get lines in the selection
+  local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+  
+  -- Adjust selection boundaries
+  if #lines == 0 then
+    return {}
+  elseif #lines == 1 then
+    lines[1] = string.sub(lines[1], start_col, end_col)
+  else
+    lines[1] = string.sub(lines[1], start_col)
+    lines[#lines] = string.sub(lines[#lines], 1, end_col)
+  end
+  
+  return lines
+end
+
+-- Map Python and Poetry functions to keys
+-- PYTHON KEY MAPPINGS (leader y prefix for "pYthon")
+map("n", "<leader>yr", function() M._python_run_file() end, { desc = "Run Python file" })
+map("v", "<leader>ye", function() M._python_execute_snippet() end, { desc = "Execute selected Python code" })
+map("v", "<leader>yi", function() M._python_execute_in_ipython() end, { desc = "Execute in IPython" })
+map("n", "<leader>yv", function() vim.cmd("VenvSelect") end, { desc = "Select Python venv" })
+
+-- POETRY KEY MAPPINGS (leader o prefix for "pOetry")
+map("n", "<leader>oi", function() vim.cmd("TermExec cmd='poetry install'") end, { desc = "Poetry install" })
+map("n", "<leader>oc", function() M._poetry_create_venv() end, { desc = "Create Poetry .venv" })
+map("n", "<leader>oa", function() M._poetry_add_package() end, { desc = "Add Poetry package" })
+map("n", "<leader>or", function() M._poetry_remove_package() end, { desc = "Remove Poetry package" })
+map("n", "<leader>ou", function() M._poetry_update() end, { desc = "Update Poetry packages" })
+map("n", "<leader>oo", function() M._poetry_show_outdated() end, { desc = "Show outdated packages" })
+map("n", "<leader>og", function() M._poetry_generate_requirements() end, { desc = "Generate requirements.txt" })
+
+-- REQUIREMENTS.TXT MAPPINGS (leader r prefix)
+map("n", "<leader>rc", function() M._create_requirements() end, { desc = "Create requirements.txt" })
+map("n", "<leader>ri", function() M._install_from_requirements() end, { desc = "Install from requirements.txt" })
+map("n", "<leader>re", function() M._edit_requirements() end, { desc = "Edit requirements.txt" })
 
 -- Virtual environment activation with improved feedback and error handling
 M._python_activate_venv = function()
@@ -164,14 +381,9 @@ M._python_activate_venv = function()
     if vim.fn.executable(python_path) == 1 then
       vim.g.python3_host_prog = python_path
       -- Create visual notification
-      vim.notify('Virtual environment activated: ' .. venv_path, vim.log.levels.INFO, {
-        title = "Python Environment",
-        icon = "🐍"
-      })
+      vim.notify('Virtual environment activated: ' .. venv_path, vim.log.levels.INFO)
     else
-      vim.notify('Python executable not found in ' .. venv_path, vim.log.levels.ERROR, {
-        title = "Python Environment Error"
-      })
+      vim.notify('Python executable not found in ' .. venv_path, vim.log.levels.ERROR)
     end
   else
     -- Try to find other common virtual environment directories
@@ -650,6 +862,215 @@ map("n", "<leader>pp", function() M._poetry_add_package() end, { desc = "Poetry 
 map("n", "<leader>pr", function() M._poetry_remove_package() end, { desc = "Poetry remove package" })
 map("n", "<leader>pu", function() M._poetry_update() end, { desc = "Poetry update" })
 map("n", "<leader>po", function() M._poetry_show_outdated() end, { desc = "Poetry show outdated" })
+
+-- Enhanced UI notification with icons
+local function notify_with_icon(message, level, title, icon)
+  local notify_opts = {
+    title = title or "",
+    icon = icon or "",
+  }
+  vim.notify(message, level, notify_opts)
+end
+
+-- Nicer UI for Poetry operations
+M._poetry_add_package = function()
+  vim.ui.input({
+    prompt = " Enter package name: ",
+    completion = "custom,v:lua.require'mappings'._python_package_completion",
+  }, function(package)
+    if not package or package == "" then return end
+    
+    notify_with_icon("Installing " .. package .. "...", vim.log.levels.INFO, "Poetry", "")
+    
+    -- Check if it's a dev dependency
+    vim.ui.select({"Regular", "Development"}, {
+      prompt = "Dependency type:",
+    }, function(choice)
+      if not choice then return end
+      
+      local cmd = "poetry add " .. package
+      if choice == "Development" then
+        cmd = cmd .. " --group dev"
+      end
+      
+      local term = require("toggleterm.terminal").Terminal:new({
+        cmd = cmd,
+        direction = "horizontal",
+        close_on_exit = false,
+        on_exit = function(t, job, exit_code)
+          if exit_code == 0 then
+            notify_with_icon("Package " .. package .. " installed successfully!", vim.log.levels.INFO, "Poetry", "")
+          else
+            notify_with_icon("Failed to install " .. package, vim.log.levels.ERROR, "Poetry", "")
+          end
+        end,
+      })
+      term:toggle()
+    end)
+  end)
+end
+
+-- Nicer UI for Python execution
+M._python_run_file = function()
+  local file = vim.fn.expand('%:p')
+  if vim.fn.filereadable(file) == 0 then
+    notify_with_icon("No file to run", vim.log.levels.ERROR, "Python", "")
+    return
+  end
+  
+  if vim.fn.fnamemodify(file, ':e') ~= 'py' then
+    notify_with_icon("Not a Python file", vim.log.levels.ERROR, "Python", "")
+    return
+  end
+  
+  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+  local python_cmd = ""
+  
+  if venv_path ~= "" then
+    -- Use venv python if it exists
+    python_cmd = venv_path .. "/bin/python"
+    notify_with_icon("Running with venv Python", vim.log.levels.INFO, "Python", "")
+  else
+    python_cmd = "python"
+    notify_with_icon("Running with system Python", vim.log.levels.INFO, "Python", "")
+  end
+  
+  -- Create a floating terminal for better UI
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = python_cmd .. " " .. file,
+    direction = "float",
+    float_opts = {
+      border = "curved",
+      width = math.floor(vim.o.columns * 0.8),
+      height = math.floor(vim.o.lines * 0.8),
+    },
+    close_on_exit = false,
+    on_open = function()
+      notify_with_icon("Running " .. vim.fn.fnamemodify(file, ':t'), vim.log.levels.INFO, "Python", "")
+    end
+  })
+  term:toggle()
+end
+
+-- Enhanced Poetry venv creation with better UI
+M._poetry_create_venv = function()
+  -- Check if pyproject.toml exists first
+  local has_pyproject = vim.fn.filereadable(vim.fn.expand("%:p:h") .. "/pyproject.toml")
+  if has_pyproject == 0 then
+    has_pyproject = vim.fn.filereadable(vim.fn.finddir(".git/..", vim.fn.expand("%:p:h") .. ";") .. "/pyproject.toml")
+  end
+  
+  local cmd = ""
+  
+  if has_pyproject == 0 then
+    -- No pyproject.toml - need to initialize a new Poetry project
+    if vim.fn.confirm(" No pyproject.toml found. Initialize a new Poetry project?", "Yes\nNo", 1) == 2 then
+      return
+    end
+    
+    notify_with_icon("Initializing new Poetry project...", vim.log.levels.INFO, "Poetry", "")
+    cmd = "poetry init -n && poetry config virtualenvs.in-project true && poetry install"
+  else
+    -- pyproject.toml exists - just ensure .venv is created in-project
+    notify_with_icon("Setting up Poetry environment...", vim.log.levels.INFO, "Poetry", "")
+    cmd = "poetry config virtualenvs.in-project true && poetry install"
+  end
+  
+  -- Create a floating terminal for better UI
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "float",
+    float_opts = {
+      border = "curved",
+      width = math.floor(vim.o.columns * 0.8),
+      height = math.floor(vim.o.lines * 0.8),
+      title = "Poetry Environment Setup",
+      title_pos = "center",
+    },
+    close_on_exit = false,
+    on_exit = function(t, job, exit_code)
+      if exit_code == 0 then
+        notify_with_icon("Poetry environment created successfully!", vim.log.levels.INFO, "Poetry", "")
+        -- Update Python host program
+        local python_path = vim.fn.getcwd() .. '/.venv/bin/python'
+        if vim.fn.filereadable(python_path) == 1 then
+          vim.g.python3_host_prog = python_path
+          notify_with_icon("Virtual environment activated: .venv", vim.log.levels.INFO, "Poetry", "")
+        end
+      else
+        notify_with_icon("Failed to create Poetry environment", vim.log.levels.ERROR, "Poetry", "")
+      end
+    end,
+  })
+  term:toggle()
+end
+
+-- Prettier requirements.txt management
+M._create_requirements = function()
+  local req_path = vim.fn.getcwd() .. "/requirements.txt"
+  if vim.fn.filereadable(req_path) == 0 then
+    local file = io.open(req_path, "w")
+    if file then
+      file:write("# Python requirements\n# Generated on " .. os.date("%Y-%m-%d %H:%M:%S") .. "\n\n")
+      file:close()
+      notify_with_icon("Created empty requirements.txt", vim.log.levels.INFO, "Python", "")
+      vim.cmd("edit " .. req_path)
+    else
+      notify_with_icon("Failed to create requirements.txt", vim.log.levels.ERROR, "Python", "")
+    end
+  else
+    notify_with_icon("requirements.txt already exists", vim.log.levels.WARN, "Python", "")
+    vim.cmd("edit " .. req_path)
+  end
+end
+
+-- Enhanced Python snippet execution in IPython
+M._python_execute_in_ipython = function()
+  -- Get visual selection
+  local lines = vim.api.nvim_buf_get_visual_selection()
+  if #lines == 0 then
+    notify_with_icon("No code selected", vim.log.levels.ERROR, "IPython", "")
+    return
+  end
+  
+  local code = table.concat(lines, "\n")
+  
+  -- Check if IPython terminal exists and is running
+  local Terminal = require("toggleterm.terminal").Terminal
+  local ipython = Terminal:new({
+    cmd = "ipython",
+    direction = "float",
+    float_opts = {
+      border = "curved",
+      width = math.floor(vim.o.columns * 0.8),
+      height = math.floor(vim.o.lines * 0.8),
+      title = "IPython Interactive",
+      title_pos = "center",
+    },
+    close_on_exit = false,
+    hidden = true,
+    on_open = function()
+      notify_with_icon("IPython started", vim.log.levels.INFO, "IPython", "")
+    end
+  })
+  
+  -- Function to send code to IPython
+  local function send_to_ipython()
+    notify_with_icon("Executing code in IPython...", vim.log.levels.INFO, "IPython", "")
+    ipython:send(code)
+  end
+  
+  -- Check if terminal exists
+  if ipython:is_open() then
+    send_to_ipython()
+  else
+    ipython:toggle()
+    -- Wait for IPython to start before sending code
+    vim.defer_fn(function()
+      send_to_ipython()
+    end, 1000)
+  end
+end
 
 -- Return the module
 return M

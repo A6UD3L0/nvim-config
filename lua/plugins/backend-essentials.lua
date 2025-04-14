@@ -768,31 +768,9 @@ return {
           ["g"] = { name = "Git" },
           ["h"] = { name = "Harpoon" },
           ["l"] = { name = "LSP" },
-          ["p"] = { 
-            name = "Python",
-            ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
-            ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
-            ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
-            ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_selected()<CR>", "Execute selected" },
-            ["i"] = { "<cmd>lua require('mappings')._python_install_requirements()<CR>", "Install requirements" },
-            ["n"] = { "<cmd>lua require('mappings')._python_new_file()<CR>", "New Python file" },
-            ["r"] = { "<cmd>lua require('mappings')._python_run_with_args()<CR>", "Run with args" },
-            
-            -- Poetry commands submenu
-            ["p"] = { 
-              name = "Poetry",
-              ["a"] = { "<cmd>lua require('mappings')._poetry_add_package()<CR>", "Add package" },
-              ["r"] = { "<cmd>lua require('mappings')._poetry_remove_package()<CR>", "Remove package" },
-              ["u"] = { "<cmd>lua require('mappings')._poetry_update()<CR>", "Update packages" },
-              ["o"] = { "<cmd>lua require('mappings')._poetry_show_outdated()<CR>", "Show outdated" },
-              ["n"] = { "<cmd>TermExec cmd='poetry new'<CR>", "New project" },
-              ["i"] = { "<cmd>TermExec cmd='poetry install'<CR>", "Install dependencies" },
-              ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
-              ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
-              ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
-              ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
-            },
-          },
+          ["o"] = { name = "Poetry" },
+          ["r"] = { name = "Requirements" },
+          ["y"] = { name = "Python" },
         },
         ["w"] = { name = "Window/Write" },
         ["x"] = { "<cmd>!chmod +x %<CR>", "Make file executable" },
@@ -886,29 +864,38 @@ return {
         },
         
         -- Python specific mappings
-        ["<leader>p"] = {
+        ["<leader>y"] = {
+          name = "Python",
+          ["r"] = { "<cmd>lua require('mappings')._python_run_file()<CR>", "Run Python file" },
+          ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_snippet()<CR>", "Execute snippet" },
+          ["i"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_in_ipython()<CR>", "Execute in IPython" },
           ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
-          ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
           ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
-          ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_selected()<CR>", "Execute selected" },
-          ["i"] = { "<cmd>lua require('mappings')._python_install_requirements()<CR>", "Install requirements" },
-          ["n"] = { "<cmd>lua require('mappings')._python_new_file()<CR>", "New Python file" },
-          ["r"] = { "<cmd>lua require('mappings')._python_run_with_args()<CR>", "Run with args" },
-          
-          -- Poetry commands submenu
-          ["p"] = { 
-            name = "Poetry",
-            ["a"] = { "<cmd>lua require('mappings')._poetry_add_package()<CR>", "Add package" },
-            ["r"] = { "<cmd>lua require('mappings')._poetry_remove_package()<CR>", "Remove package" },
-            ["u"] = { "<cmd>lua require('mappings')._poetry_update()<CR>", "Update packages" },
-            ["o"] = { "<cmd>lua require('mappings')._poetry_show_outdated()<CR>", "Show outdated" },
-            ["n"] = { "<cmd>TermExec cmd='poetry new'<CR>", "New project" },
-            ["i"] = { "<cmd>TermExec cmd='poetry install'<CR>", "Install dependencies" },
-            ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
-            ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
-            ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
-            ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
-          },
+          ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
+        },
+        
+        -- Poetry specific mappings
+        ["<leader>o"] = {
+          name = "Poetry",
+          ["i"] = { "<cmd>TermExec cmd='poetry install'<CR>", "Poetry install" },
+          ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
+          ["a"] = { "<cmd>lua require('mappings')._poetry_add_package()<CR>", "Add package" },
+          ["r"] = { "<cmd>lua require('mappings')._poetry_remove_package()<CR>", "Remove package" },
+          ["u"] = { "<cmd>lua require('mappings')._poetry_update()<CR>", "Update packages" },
+          ["o"] = { "<cmd>lua require('mappings')._poetry_show_outdated()<CR>", "Show outdated" },
+          ["g"] = { "<cmd>lua require('mappings')._poetry_generate_requirements()<CR>", "Generate requirements.txt" },
+          ["n"] = { "<cmd>TermExec cmd='poetry new'<CR>", "New project" },
+          ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
+          ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
+          ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
+        },
+        
+        -- Requirements.txt mappings
+        ["<leader>r"] = {
+          name = "Requirements",
+          ["c"] = { "<cmd>lua require('mappings')._create_requirements()<CR>", "Create requirements.txt" },
+          ["i"] = { "<cmd>lua require('mappings')._install_from_requirements()<CR>", "Install from requirements.txt" },
+          ["e"] = { "<cmd>lua require('mappings')._edit_requirements()<CR>", "Edit requirements.txt" },
         },
         
         -- Virtual Environment Diagnostics
@@ -1323,31 +1310,9 @@ return {
           ["g"] = { name = "Git" },
           ["h"] = { name = "Harpoon" },
           ["l"] = { name = "LSP" },
-          ["p"] = { 
-            name = "Python",
-            ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
-            ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
-            ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
-            ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_selected()<CR>", "Execute selected" },
-            ["i"] = { "<cmd>lua require('mappings')._python_install_requirements()<CR>", "Install requirements" },
-            ["n"] = { "<cmd>lua require('mappings')._python_new_file()<CR>", "New Python file" },
-            ["r"] = { "<cmd>lua require('mappings')._python_run_with_args()<CR>", "Run with args" },
-            
-            -- Poetry commands submenu
-            ["p"] = { 
-              name = "Poetry",
-              ["a"] = { "<cmd>lua require('mappings')._poetry_add_package()<CR>", "Add package" },
-              ["r"] = { "<cmd>lua require('mappings')._poetry_remove_package()<CR>", "Remove package" },
-              ["u"] = { "<cmd>lua require('mappings')._poetry_update()<CR>", "Update packages" },
-              ["o"] = { "<cmd>lua require('mappings')._poetry_show_outdated()<CR>", "Show outdated" },
-              ["n"] = { "<cmd>TermExec cmd='poetry new'<CR>", "New project" },
-              ["i"] = { "<cmd>TermExec cmd='poetry install'<CR>", "Install dependencies" },
-              ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
-              ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
-              ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
-              ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
-            },
-          },
+          ["o"] = { name = "Poetry" },
+          ["r"] = { name = "Requirements" },
+          ["y"] = { name = "Python" },
         },
         ["w"] = { name = "Window/Write" },
         ["x"] = { "<cmd>!chmod +x %<CR>", "Make file executable" },
@@ -1441,29 +1406,38 @@ return {
         },
         
         -- Python specific mappings
-        ["<leader>p"] = {
+        ["<leader>y"] = {
+          name = "Python",
+          ["r"] = { "<cmd>lua require('mappings')._python_run_file()<CR>", "Run Python file" },
+          ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_snippet()<CR>", "Execute snippet" },
+          ["i"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_in_ipython()<CR>", "Execute in IPython" },
           ["v"] = { "<cmd>VenvSelect<CR>", "Select venv" },
-          ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
           ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
-          ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_selected()<CR>", "Execute selected" },
-          ["i"] = { "<cmd>lua require('mappings')._python_install_requirements()<CR>", "Install requirements" },
-          ["n"] = { "<cmd>lua require('mappings')._python_new_file()<CR>", "New Python file" },
-          ["r"] = { "<cmd>lua require('mappings')._python_run_with_args()<CR>", "Run with args" },
-          
-          -- Poetry commands submenu
-          ["p"] = { 
-            name = "Poetry",
-            ["a"] = { "<cmd>lua require('mappings')._poetry_add_package()<CR>", "Add package" },
-            ["r"] = { "<cmd>lua require('mappings')._poetry_remove_package()<CR>", "Remove package" },
-            ["u"] = { "<cmd>lua require('mappings')._poetry_update()<CR>", "Update packages" },
-            ["o"] = { "<cmd>lua require('mappings')._poetry_show_outdated()<CR>", "Show outdated" },
-            ["n"] = { "<cmd>TermExec cmd='poetry new'<CR>", "New project" },
-            ["i"] = { "<cmd>TermExec cmd='poetry install'<CR>", "Install dependencies" },
-            ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
-            ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
-            ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
-            ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
-          },
+          ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
+        },
+        
+        -- Poetry specific mappings
+        ["<leader>o"] = {
+          name = "Poetry",
+          ["i"] = { "<cmd>TermExec cmd='poetry install'<CR>", "Poetry install" },
+          ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
+          ["a"] = { "<cmd>lua require('mappings')._poetry_add_package()<CR>", "Add package" },
+          ["r"] = { "<cmd>lua require('mappings')._poetry_remove_package()<CR>", "Remove package" },
+          ["u"] = { "<cmd>lua require('mappings')._poetry_update()<CR>", "Update packages" },
+          ["o"] = { "<cmd>lua require('mappings')._poetry_show_outdated()<CR>", "Show outdated" },
+          ["g"] = { "<cmd>lua require('mappings')._poetry_generate_requirements()<CR>", "Generate requirements.txt" },
+          ["n"] = { "<cmd>TermExec cmd='poetry new'<CR>", "New project" },
+          ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
+          ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
+          ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
+        },
+        
+        -- Requirements.txt mappings
+        ["<leader>r"] = {
+          name = "Requirements",
+          ["c"] = { "<cmd>lua require('mappings')._create_requirements()<CR>", "Create requirements.txt" },
+          ["i"] = { "<cmd>lua require('mappings')._install_from_requirements()<CR>", "Install from requirements.txt" },
+          ["e"] = { "<cmd>lua require('mappings')._edit_requirements()<CR>", "Edit requirements.txt" },
         },
         
         -- Virtual Environment Diagnostics

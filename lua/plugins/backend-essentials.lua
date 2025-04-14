@@ -1059,7 +1059,8 @@ return {
       -- Remove key mappings here as they're centralized in mappings.lua
     },
     config = function()
-      require("nvim-devdocs").setup({
+      local devdocs = require("nvim-devdocs")
+      devdocs.setup({
         dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
         telescope = {
           width = 0.8, -- 80% of the screen width
@@ -1088,6 +1089,13 @@ return {
           "markdown",
           "sql",
         },
+        after_setup = function()
+          -- Auto-fetch registry on setup if it doesn't exist
+          if not devdocs.registry_exists() then
+            vim.notify("DevDocs registry not found. Fetching registry...", vim.log.levels.INFO, {title = "DevDocs"})
+            vim.cmd("DevdocsFetch")
+          end
+        end
       })
       
       -- Only try to register the extension if Telescope is already loaded

@@ -139,10 +139,19 @@ map("t", "<C-j>", "<C-\\><C-n><C-w>j", { desc = "Terminal: move to below window"
 map("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Terminal: move to above window" })
 map("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Terminal: move to right window" })
 
--- Python specific mappings
-map("n", "<leader>tr", "<cmd>lua _PYTHON_RUN_FILE()<CR>", { desc = "Run Python file" })
-map("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", { desc = "Toggle Python REPL" })
-map("n", "<leader>ti", "<cmd>lua _IPYTHON_TOGGLE()<CR>", { desc = "Toggle IPython" })
+-- Python specific mappings for direct access (without requiring which-key)
+map("n", "<leader>pr", function() M._python_run_with_args() end, { desc = "Run Python file with args" })
+map("v", "<leader>pe", function() M._python_execute_selected() end, { desc = "Execute selected Python" })
+map("n", "<leader>pi", function() M._python_run_ipython() end, { desc = "Run file in IPython" })
+map("n", "<leader>pn", function() M._python_new_file() end, { desc = "New Python file" })
+map("n", "<leader>pv", function() require("venv-selector").open() end, { desc = "Select Python venv" })
+map("n", "<leader>pt", "<cmd>Telescope python_tests<CR>", { desc = "Python tests" })
+map("n", "<leader>pd", function() require("dap-python").debug_selection() end, { desc = "Debug Python selection" })
+
+-- Python REPL and file execution
+map("n", "<leader>tr", function() _PYTHON_RUN_FILE() end, { desc = "Run Python file" })
+map("n", "<leader>tp", function() _PYTHON_TOGGLE() end, { desc = "Toggle Python REPL" })
+map("n", "<leader>ti", function() _IPYTHON_TOGGLE() end, { desc = "Toggle IPython" })
 
 -- Virtual environment activation with improved feedback and error handling
 M._python_activate_venv = function()
@@ -225,8 +234,15 @@ map("n", "<leader>pr", function() M._python_run_with_args() end, { desc = "Run P
 -- Run Python file with default args (original behavior kept for convenience)
 map("n", "<leader>tr", "<cmd>lua _PYTHON_RUN_FILE()<CR>", { desc = "Run Python file" })
 
--- Run selected Python code in terminal
+-- Run selected Python code in terminal - Improved for visual mode
 M._python_execute_selected = function()
+  -- Use explicit visual mode selection
+  local mode = vim.api.nvim_get_mode().mode
+  if mode ~= 'v' and mode ~= 'V' and mode ~= '' then
+    vim.notify("This function must be used in visual mode", vim.log.levels.ERROR)
+    return
+  end
+
   -- Get selected text
   local start_pos = vim.fn.getpos("'<")
   local end_pos = vim.fn.getpos("'>")
@@ -245,8 +261,16 @@ M._python_execute_selected = function()
   -- Create temp file
   local tmpfile = os.tmpname() .. ".py"
   local f = io.open(tmpfile, "w")
+  if not f then
+    vim.notify("Failed to create temporary file", vim.log.levels.ERROR)
+    return
+  end
+  
   f:write(table.concat(lines, "\n"))
   f:close()
+  
+  -- Show notification
+  vim.notify("Executing selected Python code...", vim.log.levels.INFO)
   
   -- Execute in terminal
   local term = require("toggleterm.terminal").Terminal:new({
@@ -260,7 +284,11 @@ M._python_execute_selected = function()
   term:toggle()
 end
 
-map("v", "<leader>pe", function() M._python_execute_selected() end, { desc = "Execute selected Python" })
+-- Visual mode mapping for Python code execution
+map("v", "<leader>pe", function() 
+  -- Preserve visual selection and execute
+  M._python_execute_selected()
+end, { desc = "Execute selected Python" })
 
 -- Run current file in IPython
 M._python_run_ipython = function()

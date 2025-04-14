@@ -864,7 +864,7 @@ return {
           ["t"] = { "<cmd>Telescope python_tests<CR>", "Python tests" },
           ["d"] = { "<cmd>lua require('dap-python').debug_selection()<CR>", "Debug selection" },
           ["r"] = { "<cmd>lua require('mappings')._python_run_with_args()<CR>", "Run with args" },
-          ["e"] = { "<cmd>", "Execute selected" },
+          ["e"] = { "<cmd>lua vim.cmd('normal! gv'); require('mappings')._python_execute_selected()<CR>", "Execute selected" },
           ["i"] = { "<cmd>lua require('mappings')._python_run_ipython()<CR>", "Run in IPython" },
           ["n"] = { "<cmd>lua require('mappings')._python_new_file()<CR>", "New Python file" },
         },

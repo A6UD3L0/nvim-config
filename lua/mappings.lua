@@ -404,22 +404,108 @@ map("n", "<leader>dba", "<cmd>DBUIAddConnection<CR>", { desc = "Add DB Connectio
 
 -- Working directory mappings for Python projects
 -- Mapping for changing directories and activating virtual environments
-map("n", "<leader>cd", function()
+M._change_to_file_directory = function()
   local file_path = vim.fn.expand('%:p:h')
   vim.cmd('cd ' .. file_path)
-  print('Working directory changed to: ' .. file_path)
-end, { desc = "Change to file's directory" })
+  vim.notify('Working directory changed to: ' .. file_path, vim.log.levels.INFO)
+  
+  -- Refresh and focus nvim-tree to the new directory
+  -- Delay slightly to ensure the change is registered
+  vim.defer_fn(function()
+    -- Check if nvim-tree is available
+    local status_ok, _ = pcall(require, "nvim-tree")
+    if status_ok then
+      -- If NvimTree is open, refresh it to show the new directory
+      if vim.fn.exists(":NvimTreeRefresh") > 0 then
+        vim.cmd("NvimTreeRefresh")
+      end
+      -- Focus NvimTree to make it zoom to the current directory
+      if vim.fn.exists(":NvimTreeFocus") > 0 then
+        vim.cmd("NvimTreeFocus")
+      end
+    end
+  end, 100) -- 100ms delay
+end
 
-map("n", "<leader>cD", function()
+M._change_to_git_root = function()
   local file_path = vim.fn.expand('%:p:h')
   local repo_root = vim.fn.system('git -C ' .. file_path .. ' rev-parse --show-toplevel 2>/dev/null'):gsub('\n', '')
+  
   if repo_root ~= "" then
     vim.cmd('cd ' .. repo_root)
-    print('Working directory changed to: ' .. repo_root)
+    vim.notify('Working directory changed to: ' .. repo_root, vim.log.levels.INFO)
+    
+    -- Refresh and focus nvim-tree to the new directory
+    vim.defer_fn(function()
+      -- Check if nvim-tree is available
+      local status_ok, _ = pcall(require, "nvim-tree")
+      if status_ok then
+        -- If NvimTree is open, refresh it to show the new directory
+        if vim.fn.exists(":NvimTreeRefresh") > 0 then
+          vim.cmd("NvimTreeRefresh")
+        end
+        -- Focus NvimTree to make it zoom to the current directory
+        if vim.fn.exists(":NvimTreeFocus") > 0 then
+          vim.cmd("NvimTreeFocus")
+        end
+      end
+    end, 100) -- 100ms delay
   else
-    print('Not a git repository')
+    vim.notify('Not a git repository', vim.log.levels.WARN)
   end
-end, { desc = "Change to git root" })
+end
+
+map("n", "<leader>cd", function() M._change_to_file_directory() end, { desc = "Change to file's directory" })
+map("n", "<leader>cD", function() M._change_to_git_root() end, { desc = "Change to git root" })
+
+-- Poetry create virtual environment with .venv
+M._poetry_create_venv = function()
+  -- Check if pyproject.toml exists first
+  local has_pyproject = vim.fn.filereadable(vim.fn.expand("%:p:h") .. "/pyproject.toml")
+  if has_pyproject == 0 then
+    has_pyproject = vim.fn.filereadable(vim.fn.finddir(".git/..", vim.fn.expand("%:p:h") .. ";") .. "/pyproject.toml")
+  end
+  
+  local cmd = ""
+  
+  if has_pyproject == 0 then
+    -- No pyproject.toml - need to initialize a new Poetry project
+    if vim.fn.confirm("No pyproject.toml found. Initialize a new Poetry project?", "Yes\nNo", 1) == 2 then
+      return
+    end
+    
+    cmd = "poetry init -n && poetry config virtualenvs.in-project true && poetry install"
+  else
+    -- pyproject.toml exists - just ensure .venv is created in-project
+    cmd = "poetry config virtualenvs.in-project true && poetry install"
+  end
+  
+  vim.notify("Creating Poetry environment in .venv...", vim.log.levels.INFO)
+  
+  local term = require("toggleterm.terminal").Terminal:new({
+    cmd = cmd,
+    direction = "horizontal",
+    close_on_exit = false,
+    on_exit = function(t, job, exit_code)
+      if exit_code == 0 then
+        vim.notify("Poetry environment created successfully!", vim.log.levels.INFO)
+        -- Update Python host program
+        local python_path = vim.fn.getcwd() .. '/.venv/bin/python'
+        if vim.fn.filereadable(python_path) == 1 then
+          vim.g.python3_host_prog = python_path
+          vim.notify("Virtual environment activated: .venv", vim.log.levels.INFO)
+        end
+      else
+        vim.notify("Failed to create Poetry environment", vim.log.levels.ERROR)
+      end
+    end,
+  })
+  term:toggle()
+end
+
+-- Map Poetry create venv function with a different key to avoid conflict
+-- Using <leader>ppc for "Poetry create" instead of <leader>pv which is used for venv selection
+map("n", "<leader>ppc", function() M._poetry_create_venv() end, { desc = "Create Poetry .venv" })
 
 -- Python package management functions
 M._python_install_requirements = function()

@@ -790,6 +790,7 @@ return {
               ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
               ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
               ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
+              ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
             },
           },
         },
@@ -833,12 +834,12 @@ return {
           ["r"] = { "<cmd>lua _PYTHON_RUN_FILE()<CR>", "Run Python file" },
         },
         
-        -- Window mappings
+        -- Window and pane management
         ["<leader>w"] = {
           ["w"] = { "<cmd>w<CR>", "Save" },
           ["v"] = { "<cmd>vsplit<CR>", "Split vertically" },
           ["h"] = { "<cmd>split<CR>", "Split horizontally" },
-          ["e"] = { "<C-w>=", "Equal size" },
+          ["e"] = { "<C-w>=", "Make splits equal" },
           ["c"] = { "<cmd>close<CR>", "Close window" },
           ["q"] = { "<cmd>q<CR>", "Quit" },
           ["Q"] = { "<cmd>qa<CR>", "Quit all" },
@@ -906,6 +907,7 @@ return {
             ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
             ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
             ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
+            ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
           },
         },
         
@@ -1343,6 +1345,7 @@ return {
               ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
               ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
               ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
+              ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
             },
           },
         },
@@ -1459,6 +1462,7 @@ return {
             ["b"] = { "<cmd>TermExec cmd='poetry build'<CR>", "Build package" },
             ["s"] = { "<cmd>TermExec cmd='poetry shell'<CR>", "Poetry shell" },
             ["e"] = { "<cmd>edit pyproject.toml<CR>", "Edit pyproject.toml" },
+            ["c"] = { "<cmd>lua require('mappings')._poetry_create_venv()<CR>", "Create .venv" },
           },
         },
         

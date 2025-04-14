@@ -370,6 +370,82 @@ M.setup_lsp_mappings = function(bufnr)
 end
 
 -- =============================================
+-- GENERAL NAVIGATION IMPROVEMENTS
+-- =============================================
+
+-- Keep cursor centered when jumping half-pages or when searching
+map("n", "<C-d>", "<C-d>zz", { desc = "Half-page down and center" })
+map("n", "<C-u>", "<C-u>zz", { desc = "Half-page up and center" })
+map("n", "n", "nzzzv", { desc = "Next search result and center" })
+map("n", "N", "Nzzzv", { desc = "Previous search result and center" })
+
+-- Better J - join lines without moving cursor
+map("n", "J", "mzJ`z", { desc = "Join lines without moving cursor" })
+
+-- Disable Ex mode (avoid accidental activation)
+map("n", "Q", "<nop>", { desc = "Disable Ex mode" })
+
+-- =============================================
+-- TEXT MANIPULATION & EDITING
+-- =============================================
+
+-- Move selected lines up and down in visual mode
+map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selected lines down" })
+map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selected lines up" })
+
+-- Reformat paragraph and return to position
+map("n", "=ap", "ma=ap'a", { desc = "Format paragraph and return to position" })
+
+-- Escape from insert mode with Ctrl+c
+map("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
+
+-- =============================================
+-- CLIPBOARD OPERATIONS
+-- =============================================
+
+-- Paste without losing register content
+map("x", "<leader>p", [["_dP]], { desc = "Paste over without yanking" })
+
+-- Copy to system clipboard
+map({ "n", "v" }, "<leader>y", [["+y]], { desc = "Copy to system clipboard" })
+map("n", "<leader>Y", [["+Y]], { desc = "Copy line to system clipboard" })
+
+-- Delete without yanking
+map({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete without yanking" })
+
+-- =============================================
+-- FILE EXPLORER
+-- =============================================
+
+-- Quick access to built-in file explorer (complements NvimTree)
+map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
+
+-- =============================================
+-- TESTING & DEBUGGING
+-- =============================================
+
+-- Run Plenary test file
+vim.api.nvim_set_keymap("n", "<leader>tf", "<Plug>PlenaryTestFile", { noremap = false, silent = false, desc = "Run Plenary test file" })
+
+-- Restart LSP (useful for Zig development)
+map("n", "<leader>lr", "<cmd>LspRestart<cr>", { desc = "Restart LSP server" })
+
+-- =============================================
+-- COLLABORATIVE EDITING (Optional)
+-- =============================================
+
+-- Optional vim-with-me integration if the plugin is installed
+if pcall(require, "vim-with-me") then
+  map("n", "<leader>vwm", function()
+      require("vim-with-me").StartVimWithMe()
+  end, { desc = "Start Vim-with-me session" })
+  
+  map("n", "<leader>svwm", function()
+      require("vim-with-me").StopVimWithMe()
+  end, { desc = "Stop Vim-with-me session" })
+end
+
+-- =============================================
 -- HELPER FUNCTIONS
 -- =============================================
 

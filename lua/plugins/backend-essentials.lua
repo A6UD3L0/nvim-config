@@ -1171,16 +1171,93 @@ return {
   -- Undotree
   {
     "mbbill/undotree",
+    cmd = "UndotreeToggle",
     keys = {
-      { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle undotree" },
+      { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
     },
     config = function()
-      vim.g.undotree_SetFocusWhenToggle = 1
-      vim.g.undotree_SplitWidth = 24
-      vim.g.undotree_DiffAutoOpen = 1
-      vim.g.undotree_HighlightChanged = 1
-      vim.g.undotree_HighlightDiff = 1
+      vim.g.undotree_WindowLayout = 2  -- Layout 2 puts the tree on the left and diff below
+      vim.g.undotree_SplitWidth = 30   -- Set the width of undotree window
+      vim.g.undotree_DiffpanelHeight = 10  -- Set height of the diff panel
+      vim.g.undotree_SetFocusWhenToggle = 1  -- Focus undotree when opened
+      vim.g.undotree_ShortIndicators = 1  -- Use short indicators
     end,
+  },
+  
+  -- DevDocs integration for programming language documentation
+  {
+    "luckasRanarison/nvim-devdocs",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    cmd = {
+      "DevdocsFetch",
+      "DevdocsInstall",
+      "DevdocsUninstall",
+      "DevdocsOpen",
+      "DevdocsOpenFloat",
+      "DevdocsUpdate",
+      "DevdocsUpdateAll",
+    },
+    keys = {
+      { "<leader>do", "<cmd>DevdocsOpenFloat<CR>", desc = "Open documentation in float" },
+      { "<leader>dO", "<cmd>DevdocsOpen<CR>", desc = "Open documentation in buffer" },
+      { "<leader>ds", "<cmd>Telescope devdocs search<CR>", desc = "Search in documentation" },
+    },
+    opts = {
+      dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
+      telescope = {
+        width = 0.8, -- 80% of the screen width
+        height = 0.7, -- 70% of the screen height
+        previewer_width = 0.6, -- 60% of the telescope width for the document previewer
+      },
+      float_win = {
+        relative = "editor",
+        height = 0.8, -- 80% of the screen height
+        width = 0.8, -- 80% of the screen width
+        border = "rounded",
+      },
+      wrap = true, -- Wrap content in devdocs buffer
+      ensure_installed = {
+        -- Automatically install these documentations on startup
+        "python",
+        "javascript",
+        "typescript",
+        "go",
+        "bash",
+        "css",
+        "html",
+        "http",
+        "git",
+        "docker",
+        "markdown",
+        "sql",
+      },
+    },
+  },
+  
+  -- File explorer
+  {
+    "nvim-tree/nvim-tree.lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+    keys = {
+      { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
+      { "<leader>o", "<cmd>NvimTreeFocus<CR>", desc = "Focus file explorer" },
+    },
+    opts = {
+      filters = { dotfiles = false },
+      disable_netrw = true,
+      hijack_netrw = true,
+      hijack_cursor = true,
+      git = { enable = true, ignore = false },
+      renderer = {
+        highlight_git = true,
+        indent_markers = { enable = true },
+      },
+    },
   },
   
   -- Which-key for keybinding help

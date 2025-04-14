@@ -17,8 +17,9 @@ local M = {}
 -- Namespace structure for leader-prefixed commands:
 -- <leader>b  - Buffer operations
 -- <leader>c  - Code actions (LSP related)
--- <leader>cd - Change directory
+-- <leader>cd - Change directory operations
 -- <leader>d  - Debug operations
+-- <leader>do - Documentation view
 -- <leader>e  - File explorer operations
 -- <leader>f  - File operations (Telescope/find)
 -- <leader>g  - Git operations
@@ -250,6 +251,15 @@ map("v", "<leader>ye", function() M._python_execute_snippet() end, { desc = "Exe
 map("v", "<leader>yi", function() M._python_execute_in_ipython() end, { desc = "Execute in IPython" })
 map("n", "<leader>yt", function() vim.cmd("Telescope python_tests") end, { desc = "Python tests" })
 map("n", "<leader>yn", function() M._python_new_file() end, { desc = "New Python file" })
+
+-- Documentation operations (do namespace)
+map("n", "<leader>do", "<cmd>DevdocsOpenFloat<CR>", { desc = "Open documentation in float" })
+map("n", "<leader>dO", "<cmd>DevdocsOpen<CR>", { desc = "Open documentation in buffer" })
+map("n", "<leader>ds", "<cmd>Telescope devdocs search<CR>", { desc = "Search in documentation" })
+map("n", "<leader>di", "<cmd>DevdocsInstall<CR>", { desc = "Install documentation" })
+map("n", "<leader>du", "<cmd>DevdocsUpdate<CR>", { desc = "Update documentation" })
+map("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all documentation" })
+map("n", "<leader>df", "<cmd>DevdocsFetch<CR>", { desc = "Fetch documentation index" })
 
 -- =============================================
 -- VIRTUAL ENV OPERATIONS (v namespace)

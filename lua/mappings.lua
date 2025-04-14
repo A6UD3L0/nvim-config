@@ -21,19 +21,109 @@ M._command_exists = function(cmd)
   return result and #result > 0
 end
 
--- Global keybindings (not namespace specific)
--- Map jk to escape insert mode (faster alternative to Escape key)
-map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
+-- Generic plugin availability check function
+M._has_plugin = function(plugin_name)
+  local status_ok, _ = pcall(require, plugin_name)
+  return status_ok
+end
 
 -- Helper to run a command in a toggleterm window
 M._run_in_terminal = function(cmd, direction)
   direction = direction or "horizontal"
-  local term = require("toggleterm.terminal").Terminal:new({
+  
+  -- Check that toggleterm is available
+  local toggleterm_ok, toggleterm = pcall(require, "toggleterm.terminal")
+  if not toggleterm_ok then
+    vim.notify("ToggleTerm plugin not found. Please install akinsho/toggleterm.nvim", vim.log.levels.ERROR)
+    return
+  end
+  
+  local term = toggleterm.Terminal:new({
     cmd = cmd,
     direction = direction,
     close_on_exit = false,
   })
   term:toggle()
+end
+
+-- IPython terminal toggle implementation
+M._toggle_ipython = function()
+  -- Check if ipython is installed
+  if not M._command_exists("ipython") then
+    vim.notify("IPython is not installed. Please install it first.", vim.log.levels.ERROR)
+    return
+  end
+  
+  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+  local cmd = ""
+  
+  if venv_path ~= "" then
+    cmd = "source " .. venv_path .. "/bin/activate && ipython"
+  elseif vim.fn.filereadable(".python-version") == 1 then
+    cmd = "pyenv shell $(cat .python-version) && ipython"  
+  else
+    cmd = "ipython"
+  end
+  
+  M._run_in_terminal(cmd)
+end
+
+-- Docker terminal implementation
+M._toggle_docker_terminal = function()
+  -- Check if docker is installed
+  if not M._command_exists("docker") then
+    vim.notify("Docker is not installed. Please install it first.", vim.log.levels.ERROR)
+    return
+  end
+  
+  M._run_in_terminal("docker ps")
+end
+
+-- Database terminal implementation
+M._toggle_database_terminal = function()
+  -- Try to determine which database tools are available
+  local db_clients = {
+    { cmd = "psql", name = "PostgreSQL" },
+    { cmd = "mysql", name = "MySQL" },
+    { cmd = "sqlite3", name = "SQLite" },
+    { cmd = "mongosh", name = "MongoDB" },
+  }
+  
+  local available_clients = {}
+  for _, client in ipairs(db_clients) do
+    if M._command_exists(client.cmd) then
+      table.insert(available_clients, client)
+    end
+  end
+  
+  if #available_clients == 0 then
+    vim.notify("No database clients found. Please install a database client.", vim.log.levels.ERROR)
+    return
+  elseif #available_clients == 1 then
+    -- Only one client available, use it directly
+    local client = available_clients[1]
+    vim.notify("Opening " .. client.name .. " terminal", vim.log.levels.INFO)
+    M._run_in_terminal(client.cmd)
+  else
+    -- Multiple clients available, let user choose
+    local choices = {}
+    for _, client in ipairs(available_clients) do
+      table.insert(choices, client.name)
+    end
+    
+    vim.ui.select(choices, {
+      prompt = "Select database client:",
+    }, function(choice)
+      if not choice then return end
+      
+      for _, client in ipairs(available_clients) do
+        if client.name == choice then
+          M._run_in_terminal(client.cmd)
+          break
+        end
+      end
+    end)
+  end
 end
 
 -- Python venv smart activation
@@ -479,6 +569,13 @@ end, { desc = "Browse ML documentation" })
 
 -- Smart Terminal - automatically uses local virtual environment if available
 M._smart_terminal = function()
+  -- Check that toggleterm is available
+  local toggleterm_ok, toggleterm = pcall(require, "toggleterm.terminal")
+  if not toggleterm_ok then
+    vim.notify("ToggleTerm plugin not found. Please install akinsho/toggleterm.nvim", vim.log.levels.ERROR)
+    return
+  end
+
   local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
   local cmd = ""
   
@@ -492,7 +589,7 @@ M._smart_terminal = function()
     cmd = "clear"
   end
   
-  local term = require("toggleterm.terminal").Terminal:new({
+  local term = toggleterm.Terminal:new({
     cmd = cmd,
     direction = "horizontal",
     close_on_exit = false,
@@ -501,66 +598,75 @@ M._smart_terminal = function()
 end
 
 -- Generic terminal toggle (from ToggleTerm plugin)
-map("n", "<leader>tt", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Toggle horizontal terminal" })
-map("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", { desc = "Toggle floating terminal" })
-map("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Toggle vertical terminal" })
+map("n", "<leader>tt", function()
+  -- Check that toggleterm is available
+  local toggleterm_ok, _ = pcall(require, "toggleterm")
+  if not toggleterm_ok then
+    vim.notify("ToggleTerm plugin not found. Please install akinsho/toggleterm.nvim", vim.log.levels.ERROR)
+    return
+  end
+  vim.cmd("ToggleTerm direction=horizontal")
+end, { desc = "Toggle horizontal terminal" })
+
+map("n", "<leader>tf", function()
+  -- Check that toggleterm is available
+  local toggleterm_ok, _ = pcall(require, "toggleterm")
+  if not toggleterm_ok then
+    vim.notify("ToggleTerm plugin not found. Please install akinsho/toggleterm.nvim", vim.log.levels.ERROR)
+    return
+  end
+  vim.cmd("ToggleTerm direction=float")
+end, { desc = "Toggle floating terminal" })
+
+map("n", "<leader>tv", function()
+  -- Check that toggleterm is available
+  local toggleterm_ok, _ = pcall(require, "toggleterm")
+  if not toggleterm_ok then
+    vim.notify("ToggleTerm plugin not found. Please install akinsho/toggleterm.nvim", vim.log.levels.ERROR)
+    return
+  end
+  vim.cmd("ToggleTerm direction=vertical")
+end, { desc = "Toggle vertical terminal" })
+
 map("n", "<leader>ts", function() M._smart_terminal() end, { desc = "Smart terminal (with venv)" })
 
 -- Python terminal instances
-if _G._PYTHON_TOGGLE then
-  map("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", { desc = "Toggle Python Terminal" })
-else
-  -- Fallback to our local implementation
-  map("n", "<leader>tp", function() 
-    M._venv_smart_activate()
-    vim.defer_fn(function() 
-      local term = require("toggleterm.terminal").Terminal:new({
-        cmd = "python",
-        direction = "horizontal",
-        close_on_exit = false,
-      })
-      term:toggle()
-    end, 500)
-  end, { desc = "Python Terminal" })
-end
+map("n", "<leader>tp", function() 
+  -- Check that python is available
+  if not M._command_exists("python") then
+    vim.notify("Python is not installed or not in PATH", vim.log.levels.ERROR)
+    return
+  end
 
-if _G._IPYTHON_TOGGLE then
-  map("n", "<leader>ti", "<cmd>lua _IPYTHON_TOGGLE()<CR>", { desc = "Toggle IPython Terminal" })
-else
-  -- Fallback to our local implementation using IPython
-  map("n", "<leader>ti", function() 
-    local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
-    local cmd = ""
-    
-    if venv_path ~= "" then
-      cmd = "source " .. venv_path .. "/bin/activate && ipython"
-    elseif vim.fn.filereadable(".python-version") == 1 then
-      cmd = "pyenv shell $(cat .python-version) && ipython"  
-    else
-      cmd = "ipython"
-    end
-    
-    local term = require("toggleterm.terminal").Terminal:new({
-      cmd = cmd,
+  -- Check that toggleterm is available
+  local toggleterm_ok, toggleterm = pcall(require, "toggleterm.terminal")
+  if not toggleterm_ok then
+    vim.notify("ToggleTerm plugin not found. Please install akinsho/toggleterm.nvim", vim.log.levels.ERROR)
+    return
+  end
+
+  M._venv_smart_activate()
+  vim.defer_fn(function() 
+    local term = toggleterm.Terminal:new({
+      cmd = "python",
       direction = "horizontal",
       close_on_exit = false,
     })
     term:toggle()
-  end, { desc = "IPython Terminal" })
-end
+  end, 500)
+end, { desc = "Python Terminal" })
+
+-- IPython terminal
+map("n", "<leader>ti", function() M._toggle_ipython() end, { desc = "IPython Terminal" })
 
 -- Run current Python file
 map("n", "<leader>tr", function() M._python_run_file() end, { desc = "Run current Python file" })
 
 -- Docker terminal
-if _G._DOCKER_TERM then
-  map("n", "<leader>td", "<cmd>lua _DOCKER_TERM()<CR>", { desc = "Docker Terminal" })
-end
+map("n", "<leader>td", function() M._toggle_docker_terminal() end, { desc = "Docker Terminal" })
 
 -- Database terminal
-if _G._DATABASE_TERM then
-  map("n", "<leader>tb", "<cmd>lua _DATABASE_TERM()<CR>", { desc = "Database Terminal" })
-end
+map("n", "<leader>tb", function() M._toggle_database_terminal() end, { desc = "Database Terminal" })
 
 -- Terminal mode mappings
 map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
@@ -580,9 +686,27 @@ map("n", "<leader>bl", "<cmd>buffers<CR>", { desc = "List buffers" })
 -- FILE EXPLORER OPERATIONS (e namespace)
 -- =============================================
 
+-- Check if NvimTree is available
+M._has_nvim_tree = function()
+  if not M._has_plugin("nvim-tree") then
+    vim.notify("NvimTree plugin not found. Please install nvim-tree/nvim-tree.lua", vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
 -- File explorer mappings
-map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
-map("n", "<leader>ef", "<cmd>NvimTreeFocus<CR>", { desc = "Focus file explorer" })
+map("n", "<leader>e", function()
+  if M._has_nvim_tree() then
+    vim.cmd("NvimTreeToggle")
+  end
+end, { desc = "Toggle file explorer" })
+
+map("n", "<leader>ef", function()
+  if M._has_nvim_tree() then
+    vim.cmd("NvimTreeFocus")
+  end
+end, { desc = "Focus file explorer" })
 
 -- Quick access to built-in file explorer (complements NvimTree)
 map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
@@ -591,19 +715,91 @@ map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
 -- FILE/FIND OPERATIONS (f namespace)
 -- =============================================
 
+-- Check if Telescope is available
+M._has_telescope = function()
+  if not M._has_plugin("telescope") then
+    vim.notify("Telescope plugin not found. Please install nvim-telescope/telescope.nvim", vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
 -- Telescope/find mappings
-map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
-map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Find in files (grep)" })
-map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
-map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Find help tags" })
-map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
-map("n", "<leader>fm", "<cmd>Telescope marks<CR>", { desc = "Find marks" })
-map("n", "<leader>fd", "<cmd>lua require('dashboard').find_directory_and_cd()<CR>", { desc = "Find directory and cd" })
-map("n", "<leader>fp", "<cmd>Telescope projects<CR>", { desc = "Find projects" })
-map("n", "<leader>fc", "<cmd>Telescope commands<CR>", { desc = "Find commands" })
-map("n", "<leader>f/", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { desc = "Find in current buffer" })
-map("n", "<leader>fs", "<cmd>Telescope lsp_document_symbols<CR>", { desc = "Find document symbols" })
-map("n", "<leader>fz", "<cmd>Telescope lsp_dynamic_workspace_symbols<CR>", { desc = "Find workspace symbols" })
+map("n", "<leader>ff", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope find_files")
+  end
+end, { desc = "Find files" })
+
+map("n", "<leader>fg", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope live_grep")
+  end
+end, { desc = "Find in files (grep)" })
+
+map("n", "<leader>fb", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope buffers")
+  end
+end, { desc = "Find buffers" })
+
+map("n", "<leader>fh", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope help_tags")
+  end
+end, { desc = "Find help tags" })
+
+map("n", "<leader>fr", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope oldfiles")
+  end
+end, { desc = "Recent files" })
+
+map("n", "<leader>fm", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope marks")
+  end
+end, { desc = "Find marks" })
+
+map("n", "<leader>fd", function()
+  if M._has_plugin("dashboard") then
+    require('dashboard').find_directory_and_cd()
+  else
+    vim.notify("Dashboard plugin not found", vim.log.levels.ERROR)
+  end
+end, { desc = "Find directory and cd" })
+
+map("n", "<leader>fp", function()
+  if M._has_telescope() and M._has_plugin("telescope") and pcall(require, "telescope").extensions.projects then
+    vim.cmd("Telescope projects")
+  else
+    vim.notify("Telescope projects extension not available", vim.log.levels.ERROR)
+  end
+end, { desc = "Find projects" })
+
+map("n", "<leader>fc", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope commands")
+  end
+end, { desc = "Find commands" })
+
+map("n", "<leader>f/", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope current_buffer_fuzzy_find")
+  end
+end, { desc = "Find in current buffer" })
+
+map("n", "<leader>fs", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope lsp_document_symbols")
+  end
+end, { desc = "Find document symbols" })
+
+map("n", "<leader>fz", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope lsp_dynamic_workspace_symbols")
+  end
+end, { desc = "Find workspace symbols" })
 
 -- File operations
 map("n", "<leader>fw", "<cmd>w<CR>", { desc = "Save file" })
@@ -652,8 +848,21 @@ map("n", "<leader>th", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
 -- UNDOTREE OPERATION (u namespace)
 -- =============================================
 
+-- Check if Undotree is available
+M._has_undotree = function()
+  if vim.fn.exists(':UndotreeToggle') ~= 2 then
+    vim.notify("Undotree plugin not found. Please install mbbill/undotree", vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
 -- Undotree toggle
-map("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle Undotree" })
+map("n", "<leader>u", function()
+  if M._has_undotree() then
+    vim.cmd("UndotreeToggle")
+  end
+end, { desc = "Toggle Undotree" })
 
 -- =============================================
 -- DOCUMENTATION (d namespace)
@@ -661,15 +870,62 @@ map("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle Undotree" })
 
 -- Documentation operations
 map("n", "<leader>do", function() M._toggle_documentation() end, { desc = "Toggle documentation" })
-map("n", "<leader>dO", "<cmd>DevdocsOpen<CR>", { desc = "Open documentation in buffer" })
-map("n", "<leader>df", "<cmd>DevdocsFetch<CR>", { desc = "Fetch documentation index" })
-map("n", "<leader>di", "<cmd>DevdocsInstall<CR>", { desc = "Install documentation" })
-map("n", "<leader>du", "<cmd>DevdocsUpdate<CR>", { desc = "Update documentation" })
-map("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all documentation" })
-map("n", "<leader>dh", "<cmd>DevdocsSearch<CR>", { desc = "Search in documentation" })
+
+map("n", "<leader>dO", function()
+  if M._has_plugin("nvim-devdocs") then
+    vim.cmd("DevdocsOpen")
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Open documentation in buffer" })
+
+map("n", "<leader>df", function()
+  if M._has_plugin("nvim-devdocs") then
+    vim.cmd("DevdocsFetch")
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Fetch documentation index" })
+
+map("n", "<leader>di", function()
+  if M._has_plugin("nvim-devdocs") then
+    vim.cmd("DevdocsInstall")
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Install documentation" })
+
+map("n", "<leader>du", function()
+  if M._has_plugin("nvim-devdocs") then
+    vim.cmd("DevdocsUpdate")
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Update documentation" })
+
+map("n", "<leader>dU", function()
+  if M._has_plugin("nvim-devdocs") then
+    vim.cmd("DevdocsUpdateAll")
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Update all documentation" })
+
+map("n", "<leader>dh", function()
+  if M._has_plugin("nvim-devdocs") then
+    vim.cmd("DevdocsSearch")
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Search in documentation" })
 
 -- Machine learning documentation (d + m subfolder)
-map("n", "<leader>dm", function() 
+map("n", "<leader>dm", function()
+  if not M._has_plugin("nvim-devdocs") then
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+    return
+  end
+  
   vim.ui.select(
     { "sklearn", "numpy", "pandas", "tensorflow", "pytorch", "matplotlib" },
     { prompt = "Select ML Documentation:" },
@@ -679,13 +935,54 @@ map("n", "<leader>dm", function()
   )
 end, { desc = "Browse ML documentation" })
 
--- Specific ML docs shortcuts
-map("n", "<leader>dmn", function() M._open_ml_docs("numpy") end, { desc = "NumPy docs" })
-map("n", "<leader>dmp", function() M._open_ml_docs("pandas") end, { desc = "Pandas docs" })
-map("n", "<leader>dmt", function() M._open_ml_docs("tensorflow") end, { desc = "TensorFlow docs" })
-map("n", "<leader>dmy", function() M._open_ml_docs("pytorch") end, { desc = "PyTorch docs" })
-map("n", "<leader>dmm", function() M._open_ml_docs("matplotlib") end, { desc = "Matplotlib docs" })
-map("n", "<leader>dmk", function() M._open_ml_docs("scikit-learn") end, { desc = "Scikit-learn docs" })
+-- Specific ML docs shortcuts with proper error checking
+map("n", "<leader>dmn", function() 
+  if M._has_plugin("nvim-devdocs") then 
+    M._open_ml_docs("numpy") 
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "NumPy docs" })
+
+map("n", "<leader>dmp", function() 
+  if M._has_plugin("nvim-devdocs") then 
+    M._open_ml_docs("pandas") 
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Pandas docs" })
+
+map("n", "<leader>dmt", function() 
+  if M._has_plugin("nvim-devdocs") then 
+    M._open_ml_docs("tensorflow") 
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "TensorFlow docs" })
+
+map("n", "<leader>dmy", function() 
+  if M._has_plugin("nvim-devdocs") then 
+    M._open_ml_docs("pytorch") 
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "PyTorch docs" })
+
+map("n", "<leader>dmm", function() 
+  if M._has_plugin("nvim-devdocs") then 
+    M._open_ml_docs("matplotlib") 
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Matplotlib docs" })
+
+map("n", "<leader>dmk", function() 
+  if M._has_plugin("nvim-devdocs") then 
+    M._open_ml_docs("scikit-learn") 
+  else
+    vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
+  end
+end, { desc = "Scikit-learn docs" })
 
 -- =============================================
 -- POETRY OPERATIONS (o namespace)
@@ -712,66 +1009,253 @@ map("n", "<leader>oR", function() M._poetry_run() end, { desc = "Poetry run comm
 -- Requirements management with Poetry integration
 map("n", "<leader>rg", function() M._poetry_generate_requirements() end, { desc = "Generate from Poetry (recommended)" })
 map("n", "<leader>re", "<cmd>edit requirements.txt<CR>", { desc = "Edit requirements.txt" })
-map("n", "<leader>ri", "<cmd>TermExec cmd='pip install -r requirements.txt'<CR>", { desc = "Install from requirements.txt" })
+
+map("n", "<leader>ri", function()
+  if M._has_plugin("toggleterm") then
+    vim.cmd("TermExec cmd='pip install -r requirements.txt'")
+  else
+    if M._command_exists("pip") then
+      M._run_in_terminal("pip install -r requirements.txt")
+    else
+      vim.notify("pip command not found", vim.log.levels.ERROR)
+    end
+  end
+end, { desc = "Install from requirements.txt" })
+
 map("n", "<leader>rp", "<cmd>echo 'Use Poetry for dependency management with <leader>o'<CR>", { desc = "Use Poetry (<leader>o)" })
 
 -- =============================================
 -- VIRTUAL ENV OPERATIONS (v namespace)
 -- =============================================
 
+-- Check if VenvSelector plugin is available
+M._has_venv_selector = function()
+  if not M._has_plugin("venv-selector") then
+    -- If we don't have venv-selector, check if we have our own implementation
+    if _G.VenvDiagnostics then
+      return true
+    end
+    vim.notify("VenvSelector plugin not found and VenvDiagnostics is not available", vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
 -- Smart activation that checks for common environment patterns
-map("n", "<leader>va", "<cmd>VenvActivate<CR>", { desc = "Smart activate Python environment" })
+map("n", "<leader>va", function()
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
+    vim.cmd("VenvActivate")
+  elseif M._has_venv_selector() then
+    vim.cmd("VenvSelectCached")
+  end
+end, { desc = "Smart activate Python environment" })
+
 -- Standard VenvSelect for choosing any environment
-map("n", "<leader>vs", "<cmd>VenvSelect<CR>", { desc = "Select Python environment" })
+map("n", "<leader>vs", function()
+  if M._has_venv_selector() then
+    vim.cmd("VenvSelect")
+  end
+end, { desc = "Select Python environment" })
+
 -- Cached environment selection
-map("n", "<leader>vc", "<cmd>VenvSelectCached<CR>", { desc = "Select cached environment" })
+map("n", "<leader>vc", function()
+  if M._has_venv_selector() then
+    vim.cmd("VenvSelectCached")
+  end
+end, { desc = "Select cached environment" })
+
 -- Create a new virtual environment
-map("n", "<leader>vn", "<cmd>VenvCreate<CR>", { desc = "Create new venv" })
+map("n", "<leader>vn", function()
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.create_venv then
+    vim.cmd("VenvCreate")
+  elseif M._has_command("python") then
+    local venv_name = vim.fn.input("Virtual environment name (.venv): ", ".venv")
+    if venv_name == "" then
+      venv_name = ".venv"
+    end
+    M._run_in_terminal("python -m venv " .. venv_name)
+  else
+    vim.notify("Python not found", vim.log.levels.ERROR)
+  end
+end, { desc = "Create new venv" })
+
 -- Show environment info
-map("n", "<leader>vi", "<cmd>VenvDiagnostics<CR>", { desc = "Show environment info" })
+map("n", "<leader>vi", function()
+  if _G.VenvDiagnostics then
+    vim.cmd("VenvDiagnostics")
+  else
+    vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR)
+  end
+end, { desc = "Show environment info" })
+
 -- Run diagnostics on current environment
-map("n", "<leader>vd", "<cmd>VenvDiagnostics<CR>", { desc = "Run venv diagnostics" })
+map("n", "<leader>vd", function()
+  if _G.VenvDiagnostics then
+    vim.cmd("VenvDiagnostics")
+  else
+    vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR)
+  end
+end, { desc = "Run venv diagnostics" })
+
 -- Test current environment
-map("n", "<leader>vt", "<cmd>TestVenv<CR>", { desc = "Test current venv" })
+map("n", "<leader>vt", function()
+  if _G.VenvDiagnostics and vim.api.nvim_command_exists("TestVenv") then
+    vim.cmd("TestVenv")
+  else
+    vim.notify("TestVenv command not available", vim.log.levels.ERROR)
+  end
+end, { desc = "Test current venv" })
+
 -- Run current file with venv
-map("n", "<leader>vr", "<cmd>RunPythonWithEnv<CR>", { desc = "Run file with venv" })
+map("n", "<leader>vr", function()
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then
+    vim.cmd("RunPythonWithEnv")
+  else
+    M._python_run_file()
+  end
+end, { desc = "Run file with venv" })
 
 -- =============================================
 -- EXECUTE CODE OPERATIONS (x namespace)
 -- =============================================
 
 -- Python execution and file operations 
-map("n", "<leader>xr", "<cmd>RunPythonWithEnv<CR>", { desc = "Run current file" })
+map("n", "<leader>xr", function()
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then
+    vim.cmd("RunPythonWithEnv")
+  else
+    M._python_run_file()
+  end
+end, { desc = "Run current file" })
+
 map("n", "<leader>xe", function() M._python_execute_snippet() end, { desc = "Execute selection" })
-map("n", "<leader>xi", function() M._python_execute_in_ipython() end, { desc = "Run in IPython" })
+
+map("n", "<leader>xi", function() 
+  if M._command_exists("ipython") then
+    M._python_execute_in_ipython() 
+  else
+    vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR)
+  end
+end, { desc = "Run in IPython" })
+
 map("n", "<leader>xn", function() M._python_new_file() end, { desc = "New Python file" })
-map("n", "<leader>xt", "<cmd>Telescope python_tests<CR>", { desc = "Run tests" })
+
+map("n", "<leader>xt", function()
+  if M._has_telescope() and pcall(require, "telescope").extensions.python_tests then
+    vim.cmd("Telescope python_tests")
+  else
+    vim.notify("Telescope python_tests extension not available", vim.log.levels.ERROR)
+    -- Fall back to running pytest directly if available
+    if M._command_exists("pytest") then
+      M._run_in_terminal("pytest")
+    end
+  end
+end, { desc = "Run tests" })
+
 map("n", "<leader>xp", "<cmd>echo 'Use <leader>o for Poetry dependency management'<CR>", { desc = "Dependency management ⟶ <leader>o" })
-map("n", "<leader>xv", "<cmd>VenvActivate<CR>", { desc = "Activate virtual environment" })
+
+map("n", "<leader>xv", function()
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
+    vim.cmd("VenvActivate")
+  elseif M._has_venv_selector() then
+    vim.cmd("VenvSelectCached")
+  end
+end, { desc = "Activate virtual environment" })
 
 -- =============================================
 -- KEYMAPS HELPER (k namespace)
 -- =============================================
 
+-- Check if which-key is available
+M._has_which_key = function()
+  if not M._has_plugin("which-key") then
+    vim.notify("Which-key plugin not found. Please install folke/which-key.nvim", vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
 -- Register whichkey specific activate command
-map("n", "<leader>k", "<cmd>WhichKey<CR>", { desc = "Show all keybindings" })
+map("n", "<leader>k", function()
+  if M._has_which_key() then
+    vim.cmd("WhichKey")
+  end
+end, { desc = "Show all keybindings" })
 
 -- =============================================
 -- GIT OPERATIONS (g namespace)
 -- =============================================
 
+-- Check if LazyGit is available
+M._has_lazygit = function()
+  if vim.fn.executable("lazygit") ~= 1 then
+    vim.notify("LazyGit executable not found. Please install lazygit", vim.log.levels.ERROR)
+    return false
+  end
+  
+  if not M._has_plugin("lazygit.nvim") then
+    vim.notify("LazyGit plugin not found. Please install kdheepak/lazygit.nvim", vim.log.levels.ERROR)
+    return false
+  end
+  
+  return true
+end
+
 -- LazyGit mappings
-map("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "Open LazyGit" })
-map("n", "<leader>gc", "<cmd>LazyGitConfig<CR>", { desc = "LazyGit config" })
-map("n", "<leader>gf", "<cmd>LazyGitCurrentFile<CR>", { desc = "LazyGit current file" })
-map("n", "<leader>gF", "<cmd>LazyGitFilter<CR>", { desc = "LazyGit filter" })
-map("n", "<leader>gb", "<cmd>LazyGitFilterCurrentFile<CR>", { desc = "LazyGit branches" })
+map("n", "<leader>gg", function()
+  if M._has_lazygit() then
+    vim.cmd("LazyGit")
+  end
+end, { desc = "Open LazyGit" })
+
+map("n", "<leader>gc", function()
+  if M._has_lazygit() then
+    vim.cmd("LazyGitConfig")
+  end
+end, { desc = "LazyGit config" })
+
+map("n", "<leader>gf", function()
+  if M._has_lazygit() then
+    vim.cmd("LazyGitCurrentFile")
+  end
+end, { desc = "LazyGit current file" })
+
+map("n", "<leader>gF", function()
+  if M._has_lazygit() then
+    vim.cmd("LazyGitFilter")
+  end
+end, { desc = "LazyGit filter" })
+
+map("n", "<leader>gb", function()
+  if M._has_lazygit() then
+    vim.cmd("LazyGitFilterCurrentFile")
+  end
+end, { desc = "LazyGit branches" })
 
 -- Git window commands (telescope integration)
-map("n", "<leader>gB", "<cmd>Telescope git_branches<CR>", { desc = "Git branches" })
-map("n", "<leader>gC", "<cmd>Telescope git_commits<CR>", { desc = "Git commits" })
-map("n", "<leader>gS", "<cmd>Telescope git_status<CR>", { desc = "Git status" })
-map("n", "<leader>gd", "<cmd>Telescope git_bcommits<CR>", { desc = "Git diff this buffer" })
+map("n", "<leader>gB", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope git_branches")
+  end
+end, { desc = "Git branches" })
+
+map("n", "<leader>gC", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope git_commits")
+  end
+end, { desc = "Git commits" })
+
+map("n", "<leader>gS", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope git_status")
+  end
+end, { desc = "Git status" })
+
+map("n", "<leader>gd", function()
+  if M._has_telescope() then
+    vim.cmd("Telescope git_bcommits")
+  end
+end, { desc = "Git diff this buffer" })
 
 -- Function for gitsigns keybindings setup
 M.setup_git_mappings = function(gitsigns)

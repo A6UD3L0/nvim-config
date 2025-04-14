@@ -519,7 +519,22 @@ return {
       git = { enable = true, ignore = false },
       view = {
         width = 30, -- Match the width of undotree
-        side = "right", -- Position on the right side
+        side = "left", -- Position on the left side
+        preserve_window_proportions = true, -- Keep editing window large
+        signcolumn = "yes",
+      },
+      actions = {
+        open_file = {
+          resize_window = true, -- Resize the window upon file open
+          window_picker = {
+            enable = true,
+            chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+            exclude = {
+              filetype = { "notify", "packer", "qf", "diff", "fugitive", "fugitiveblame" },
+              buftype = { "terminal", "help" },
+            },
+          },
+        },
       },
       renderer = {
         highlight_git = true,
@@ -1008,10 +1023,10 @@ return {
       { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
     },
     config = function()
-      vim.g.undotree_WindowLayout = 2  -- Layout 2 puts the tree on the left and diff below
+      vim.g.undotree_WindowLayout = 3  -- Layout 3 puts tree on the right, diff on the bottom
       vim.g.undotree_SplitWidth = 30   -- Set the width of undotree window
       vim.g.undotree_DiffpanelHeight = 10  -- Set height of the diff panel
-      vim.g.undotree_SetFocusWhenToggle = 1  -- Focus undotree when opened
+      vim.g.undotree_SetFocusWhenToggle = 0  -- Don't focus undotree when opened (stay in the file)
       vim.g.undotree_ShortIndicators = 1  -- Use short indicators
     end,
   },
@@ -1066,28 +1081,6 @@ return {
         "docker",
         "markdown",
         "sql",
-      },
-    },
-  },
-  
-  -- File explorer
-  {
-    "nvim-tree/nvim-tree.lua",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
-    keys = {
-      { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
-      { "<leader>o", "<cmd>NvimTreeFocus<CR>", desc = "Focus file explorer" },
-    },
-    opts = {
-      filters = { dotfiles = false },
-      disable_netrw = true,
-      hijack_netrw = true,
-      hijack_cursor = true,
-      git = { enable = true, ignore = false },
-      renderer = {
-        highlight_git = true,
-        indent_markers = { enable = true },
       },
     },
   },

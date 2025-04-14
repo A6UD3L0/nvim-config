@@ -147,13 +147,8 @@ M.setup_tools = function()
     db_term:toggle()
   end
   
-  -- Create keymappings for all terminal commands
-  vim.keymap.set("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", {desc = "Toggle Python Terminal"})
-  vim.keymap.set("n", "<leader>ti", "<cmd>lua _IPYTHON_TOGGLE()<CR>", {desc = "Toggle IPython Terminal"})
-  vim.keymap.set("n", "<leader>tr", "<cmd>lua _PYTHON_RUN_FILE()<CR>", {desc = "Run Python File"})
-  vim.keymap.set("n", "<leader>tv", "<cmd>lua _VENV_ACTIVATE()<CR>", {desc = "Activate Virtual Environment"})
-  vim.keymap.set("n", "<leader>td", "<cmd>lua _DOCKER_TERM()<CR>", {desc = "Docker Terminal"})
-  vim.keymap.set("n", "<leader>tb", "<cmd>lua _DATABASE_TERM()<CR>", {desc = "Database Terminal"})
+  -- All terminal keymappings moved to mappings.lua for centralized management
+  -- Do not define keymappings here to avoid redundancy
 end
 
 -- Configure debugging for backend development

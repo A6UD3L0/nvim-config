@@ -36,59 +36,42 @@ local M = {}
 -- This structure ensures no key conflict and provides logical grouping
 
 -- =============================================
--- TERMINAL OPERATIONS (t namespace)
+-- TERMINAL OPERATIONS
 -- =============================================
 
--- Define global Python toggle functions
--- These need to be global since they're called directly in keymappings
-_PYTHON_TOGGLE = function()
-  -- Create a persistent Python REPL terminal
-  local python_term = require("toggleterm.terminal").Terminal:new({
-    cmd = "python3",
-    direction = "float",
-    float_opts = {
-      border = "curved",
-      width = math.floor(vim.o.columns * 0.8),
-      height = math.floor(vim.o.lines * 0.8),
-      title = "Python REPL",
-      title_pos = "center",
-    },
-    hidden = true,
-    on_open = function(term)
-      vim.cmd("startinsert!")
-      vim.notify("Python REPL started", vim.log.levels.INFO, { title = "Python" })
-    end,
-  })
-  python_term:toggle()
+-- Generic terminal toggle (from ToggleTerm plugin)
+map("n", "<leader>tt", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Toggle horizontal terminal" })
+map("n", "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", { desc = "Toggle floating terminal" })
+map("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Toggle vertical terminal" })
+
+-- Toggle terminal instances (these rely on functions in backend-essentials)
+if _G._PYTHON_TOGGLE then
+  map("n", "<leader>tp", "<cmd>lua _PYTHON_TOGGLE()<CR>", { desc = "Toggle Python Terminal" })
 end
 
-_IPYTHON_TOGGLE = function()
-  -- Create a persistent IPython REPL terminal with enhanced features
-  local ipython_term = require("toggleterm.terminal").Terminal:new({
-    cmd = "ipython --matplotlib=auto --colors=Linux",
-    direction = "float",
-    float_opts = {
-      border = "curved",
-      width = math.floor(vim.o.columns * 0.8),
-      height = math.floor(vim.o.lines * 0.8),
-      title = "IPython Interactive",
-      title_pos = "center",
-    },
-    hidden = true,
-    on_open = function(term)
-      vim.cmd("startinsert!")
-      vim.notify("IPython started", vim.log.levels.INFO, { title = "Python" })
-    end,
-  })
-  ipython_term:toggle()
+if _G._IPYTHON_TOGGLE then
+  map("n", "<leader>ti", "<cmd>lua _IPYTHON_TOGGLE()<CR>", { desc = "Toggle IPython Terminal" })
 end
 
--- Terminal mappings
-map("n", "<leader>tp", function() _PYTHON_TOGGLE() end, { desc = "Toggle Python REPL" })
-map("n", "<leader>ti", function() _IPYTHON_TOGGLE() end, { desc = "Toggle IPython" })
-map("n", "<leader>tt", "<cmd>ToggleTerm direction=float<CR>", { desc = "Toggle terminal (float)" })
-map("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Toggle terminal (horiz)" })
-map("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", { desc = "Toggle terminal (vert)" })
+if _G._PYTHON_RUN_FILE then
+  map("n", "<leader>tr", "<cmd>lua _PYTHON_RUN_FILE()<CR>", { desc = "Run Python File" })
+end
+
+if _G._VENV_ACTIVATE then
+  map("n", "<leader>va", "<cmd>lua _VENV_ACTIVATE()<CR>", { desc = "Activate Virtual Environment" })
+end
+
+if _G._DOCKER_TERM then
+  map("n", "<leader>td", "<cmd>lua _DOCKER_TERM()<CR>", { desc = "Docker Terminal" })
+end
+
+if _G._DATABASE_TERM then
+  map("n", "<leader>tb", "<cmd>lua _DATABASE_TERM()<CR>", { desc = "Database Terminal" })
+end
+
+-- Terminal mode mappings
+map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+map("t", "jk", "<C-\\><C-n>", { desc = "Exit terminal mode with jk" })
 
 -- =============================================
 -- PYTHON OPERATIONS (y namespace)
@@ -422,6 +405,16 @@ map("n", "=ap", "ma=ap'a", { desc = "Format paragraph and return" })
 -- Move selected lines up and down in visual mode
 map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+
+-- =============================================
+-- INSERT MODE MAPPINGS
+-- =============================================
+
+-- Exit insert mode with jk (faster than Escape)
+map("i", "jk", "<Esc>", { desc = "Exit insert mode with jk" })
+
+-- Alternative escape with Ctrl+c
+map("i", "<C-c>", "<Esc>", { desc = "Exit insert mode with Ctrl-c" })
 
 -- =============================================
 -- CLIPBOARD OPERATIONS

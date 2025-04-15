@@ -214,6 +214,15 @@ M._venv_smart_activate = function()
   return false
 end
 
+-- Helper to check if venv-selector is available
+M._has_venv_selector = function()
+  if not M._has_plugin("venv-selector") then
+    vim.notify("venv-selector plugin not found. Please install linux-cultist/venv-selector.nvim", vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
 -- Function to get visual selection text
 vim.api.nvim_buf_get_visual_selection = function()
   local _, line_start, col_start, _ = unpack(vim.fn.getpos("'<"))
@@ -1390,29 +1399,35 @@ M._has_harpoon = function()
 end
 
 -- Add current file to Harpoon (use new API)
-map("n", "<leader>ha", function()
-  if not M._has_harpoon() then return end
-  require("harpoon.mark").add_file()
-  vim.notify("File added to Harpoon", vim.log.levels.INFO)
+map("n", "<leader>a", function()
+  if not M._has_harpoon() then
+    vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
+    return
+  end
+  -- Use the updated Harpoon v2 API
+  require("harpoon"):list():add()
 end, { desc = "Harpoon add file" })
 
--- Toggle Harpoon quick menu (fix modifiable bug)
-map("n", "<leader>hh", function()
-  if not M._has_harpoon() then return end
-  vim.schedule(function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    if not vim.bo[bufnr].modifiable then
-      vim.bo[bufnr].modifiable = true
-    end
-    require("harpoon.ui").toggle_quick_menu()
-  end)
+map("n", "<leader>h", function()
+  if not M._has_harpoon() then
+    vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
+    return
+  end
+  
+  local harpoon = require("harpoon")
+  harpoon.ui:toggle_quick_menu(harpoon:list())
 end, { desc = "Harpoon menu" })
 
 -- Dynamically create jump mappings for Harpoon files, using static string for desc
 for i = 1, 4 do
-  map("n", string.format("<leader>h%d", i), function()
-    if not M._has_harpoon() then return end
-    require("harpoon.ui").nav_file(i)
+  map("n", string.format("<leader>%d", i), function()
+    if not M._has_harpoon() then
+      vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
+      return
+    end
+    
+    -- Use the updated Harpoon v2 API
+    require("harpoon"):list():select(i)
   end, {
     desc = "Harpoon file " .. i
   })

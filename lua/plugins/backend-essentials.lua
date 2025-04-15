@@ -450,6 +450,15 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
+    init = function()
+      vim.g.lazygit_floating_window_winblend = 0
+      vim.g.lazygit_floating_window_scaling_factor = 0.9
+      vim.g.lazygit_floating_window_border_chars = {'╭','─','╮','│','╯','─','╰','│'}
+      vim.g.lazygit_use_neovim_remote = 0
+    end,
+    config = function()
+      vim.keymap.set("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "LazyGit" })
+    end,
   },
   
   -- Fuzzy finder
@@ -724,7 +733,7 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
     config = true,
     keys = {
-      { "<leader>a", function() require("harpoon"):list():append() end, desc = "Harpoon add file" },
+      { "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon add file" },
       { "<leader>h", function() local harpoon = require("harpoon") harpoon.ui:toggle_quick_menu(harpoon:list()) end, desc = "Harpoon menu" },
       { "<leader>1", function() require("harpoon"):list():select(1) end, desc = "Harpoon file 1" },
       { "<leader>2", function() require("harpoon"):list():select(2) end, desc = "Harpoon file 2" },

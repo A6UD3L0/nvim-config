@@ -112,6 +112,203 @@ Documentation is accessible through the `<leader>d` namespace with ML-specific d
 | `<leader>dmy`     | PyTorch documentation                     |
 | `<leader>dmm`     | Matplotlib documentation                  |
 
+## 🔧 Installation
+
+### Completely Fresh Install (Fix Plugin Errors)
+
+If you're experiencing plugin errors, the most reliable fix is a complete reinstall:
+
+#### macOS/Linux
+
+```bash
+# Backup your existing config (optional)
+mv ~/.config/nvim ~/.config/nvim.bak
+mv ~/.local/share/nvim ~/.local/share/nvim.bak
+mv ~/.local/state/nvim ~/.local/state/nvim.bak
+mv ~/.cache/nvim ~/.cache/nvim.bak
+
+# Clone the repository
+git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+
+# Install plugin manager (lazy.nvim)
+git clone https://github.com/folke/lazy.nvim.git ~/.local/share/nvim/lazy/lazy.nvim
+
+# Install critical plugins for ADHD-friendly theme
+git clone https://github.com/folke/tokyonight.nvim ~/.local/share/nvim/lazy/tokyonight.nvim
+git clone https://github.com/nvim-lualine/lualine.nvim ~/.local/share/nvim/lazy/lualine.nvim
+git clone https://github.com/rcarriga/nvim-notify ~/.local/share/nvim/lazy/nvim-notify
+git clone https://github.com/folke/which-key.nvim ~/.local/share/nvim/lazy/which-key.nvim
+
+# Launch Neovim (plugins will be installed automatically)
+nvim
+```
+
+#### Windows
+
+```powershell
+# Backup your existing config (optional)
+Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName nvim.bak -Force -ErrorAction SilentlyContinue
+Rename-Item -Path $env:LOCALAPPDATA\nvim-data -NewName nvim-data.bak -Force -ErrorAction SilentlyContinue
+
+# Clone the repository
+git clone https://github.com/A6UD3L0/nvim-config.git $env:LOCALAPPDATA\nvim
+
+# Create plugin directories
+New-Item -Path $env:LOCALAPPDATA\nvim-data\lazy -ItemType Directory -Force
+
+# Install plugin manager (lazy.nvim)
+git clone https://github.com/folke/lazy.nvim.git $env:LOCALAPPDATA\nvim-data\lazy\lazy.nvim
+
+# Install critical plugins for ADHD-friendly theme
+git clone https://github.com/folke/tokyonight.nvim $env:LOCALAPPDATA\nvim-data\lazy\tokyonight.nvim
+git clone https://github.com/nvim-lualine/lualine.nvim $env:LOCALAPPDATA\nvim-data\lazy\lualine.nvim
+git clone https://github.com/rcarriga/nvim-notify $env:LOCALAPPDATA\nvim-data\lazy\nvim-notify
+git clone https://github.com/folke/which-key.nvim $env:LOCALAPPDATA\nvim-data\lazy\which-key.nvim
+
+# Launch Neovim (plugins will be installed automatically)
+nvim
+```
+
+### Standard Installation
+
+If you're not experiencing plugin errors, you can use the regular installation method:
+
+#### Prerequisites
+
+##### macOS
+
+```bash
+# Install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install required dependencies
+brew install neovim ripgrep fd node python3 git curl
+
+# Install a Nerd Font (required for icons)
+brew tap homebrew/cask-fonts
+brew install --cask font-fira-code-nerd-font
+
+# Create Python virtual environment for Neovim
+mkdir -p ~/.venvs/neovim
+python3 -m venv ~/.venvs/neovim
+~/.venvs/neovim/bin/pip install pynvim
+```
+
+##### Linux (Ubuntu/Debian)
+
+```bash
+# Update packages
+sudo apt update
+
+# Install dependencies
+sudo apt install -y neovim ripgrep fd-find git curl wget nodejs npm python3 python3-pip python3-venv
+
+# Install a more recent version of Neovim
+sudo add-apt-repository ppa:neovim-ppa/unstable
+sudo apt update
+sudo apt install -y neovim
+
+# Install a Nerd Font (required for icons)
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+curl -fLo "Fira Code Regular Nerd Font Complete.ttf" \
+  https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Regular/complete/Fira%20Code%20Regular%20Nerd%20Font%20Complete.ttf
+fc-cache -f -v
+
+# Create Python virtual environment for Neovim
+mkdir -p ~/.venvs/neovim
+python3 -m venv ~/.venvs/neovim
+~/.venvs/neovim/bin/pip install pynvim
+```
+
+##### Windows
+
+```powershell
+# Install scoop if not already installed (run in PowerShell)
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh | iex
+
+# Install dependencies
+scoop install neovim ripgrep fd git nodejs python
+
+# Install a Nerd Font (required for icons)
+scoop bucket add nerd-fonts
+scoop install FiraCode-NF
+
+# Install Python provider
+pip install pynvim
+
+# Create Python virtual environment for Neovim
+mkdir -p $HOME\.venvs\neovim
+python -m venv $HOME\.venvs\neovim
+$HOME\.venvs\neovim\Scripts\pip install pynvim
+```
+
+#### Setting Up the Configuration
+
+1. **Backup your existing configuration** (if you have one):
+
+   ```bash
+   # macOS/Linux
+   mv ~/.config/nvim ~/.config/nvim.bak
+   
+   # Windows (PowerShell)
+   Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName nvim.bak -Force -ErrorAction SilentlyContinue
+   ```
+
+2. **Clone this repository**:
+
+   ```bash
+   # macOS/Linux
+   git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+   
+   # Windows (PowerShell)
+   git clone https://github.com/A6UD3L0/nvim-config.git $env:LOCALAPPDATA\nvim
+   ```
+
+3. **Start Neovim**:
+
+   ```bash
+   nvim
+   ```
+
+   On first start, all plugins will be installed automatically. This may take a few minutes.
+
+4. **Install LSP Servers** (inside Neovim):
+
+   ```vim
+   :Mason
+   ```
+
+   Use the Mason UI to install any needed language servers (press `i` on a server to install):
+   - `pyright` (Python)
+   - `gopls` (Go)
+   - `rust_analyzer` (Rust)
+   - `tsserver` (TypeScript/JavaScript)
+   - `lua_ls` (Lua)
+   - `sqlls` (SQL)
+
+## 🎨 ADHD-Friendly UI
+
+This configuration includes a specially designed ADHD-friendly theme that:
+
+- Uses calming blues and greens as primary colors
+- Reserves energetic colors (yellow/orange) only for important elements
+- Provides clear visual hierarchy to reduce distraction
+- Features a muted background that's easy on the eyes for long coding sessions
+
+To activate the ADHD-friendly theme:
+
+```vim
+:ApplyADHDTheme
+```
+
+The theme colors were selected based on research showing that for people with ADHD:
+- Blues create a sense of peace and tranquility
+- Greens have a calming effect and are associated with balance
+- Muted browns are grounding and help maintain focus
+- Strategic use of yellow/orange for only the most important elements helps direct attention where needed
+
 ## 🔑 Key Productivity Shortcuts
 
 - `jk` - Exit insert mode (faster than pressing Escape)

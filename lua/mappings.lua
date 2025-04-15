@@ -1254,10 +1254,13 @@ if not set_colorscheme("rose-pine-moon") then
   -- Try rose-pine (might be installed without the moon variant)
   if not set_colorscheme("rose-pine") then
     -- Try these common alternatives
-    set_colorscheme("tokyonight") or
-    set_colorscheme("onedark") or
-    set_colorscheme("gruvbox") or
-    set_colorscheme("default")
+    if not set_colorscheme("tokyonight") then
+      if not set_colorscheme("onedark") then
+        if not set_colorscheme("gruvbox") then
+          set_colorscheme("default")
+        end
+      end
+    end
   end
 end
 

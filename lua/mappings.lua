@@ -1394,11 +1394,79 @@ M.setup_lsp_mappings = function(bufnr)
   end, { buffer = bufnr, desc = "Peek definition" })
 end
 
--- Function for diagnostic window keybindings
+-- Function for diagnostic window keybindings with enhanced UX
 M.setup_diagnostic_window_mappings = function(buf)
-  -- Add keybindings for the diagnostic window
-  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q<CR>', { noremap = true, silent = true })
-  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', ':q<CR>', { noremap = true, silent = true })
+  -- Add better keybindings for the diagnostic window with descriptive comments
+  -- Aesthetically pleasing window navigation
+  
+  -- Create a more user-friendly diagnostic window header
+  vim.api.nvim_buf_set_lines(buf, 0, 0, false, {
+    "  📌 LSP Diagnostics",
+    "  ══════════════════",
+    "",
+    "  Navigation:",
+    "    j/k  - Move up/down",
+    "    q/Esc - Close window",
+    "    <CR>  - Jump to location",
+    "    o     - Open in split", 
+    "    <C-v> - Open in vertical split",
+    "    <C-t> - Open in new tab",
+    "    <C-f> - Page down",
+    "    <C-b> - Page up",
+    "    gg/G  - Go to top/bottom",
+    "",
+    "  Filter Severity:",
+    "    1     - Show errors only",
+    "    2     - Show warnings & errors",
+    "    3     - Show info & above",
+    "    4     - Show hints & above",
+    "",
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    ""
+  })
+  
+  -- Set readonly and modified flags to false
+  vim.api.nvim_buf_set_option(buf, 'readonly', true)
+  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
+  
+  -- Basic window navigation
+  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q<CR>', { noremap = true, silent = true, desc = "Close diagnostic window" })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', ':q<CR>', { noremap = true, silent = true, desc = "Close diagnostic window" })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<CR>', '<CMD>lua vim.lsp.buf.definition()<CR>', { noremap = true, silent = true, desc = "Go to definition" })
+  
+  -- Advanced window navigation
+  vim.api.nvim_buf_set_keymap(buf, 'n', 'o', '<CMD>lua vim.lsp.buf.definition()<CMD>split<CR>', { noremap = true, silent = true, desc = "Open in horizontal split" })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<C-v>', '<CMD>lua vim.lsp.buf.definition()<CMD>vsplit<CR>', { noremap = true, silent = true, desc = "Open in vertical split" })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<C-t>', '<CMD>lua vim.lsp.buf.definition()<CMD>tabnew<CR>', { noremap = true, silent = true, desc = "Open in new tab" })
+  
+  -- Filtering diagnostics by severity
+  vim.api.nvim_buf_set_keymap(buf, 'n', '1', '<CMD>lua vim.diagnostic.setqflist({severity = vim.diagnostic.severity.ERROR})<CR>', { noremap = true, silent = true, desc = "Show errors only" })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '2', '<CMD>lua vim.diagnostic.setqflist({severity = {min = vim.diagnostic.severity.WARN}})<CR>', { noremap = true, silent = true, desc = "Show warnings & errors" })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '3', '<CMD>lua vim.diagnostic.setqflist({severity = {min = vim.diagnostic.severity.INFO}})<CR>', { noremap = true, silent = true, desc = "Show info & above" })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '4', '<CMD>lua vim.diagnostic.setqflist()<CR>', { noremap = true, silent = true, desc = "Show all diagnostics" })
+  
+  -- Visual enhancements for the diagnostic window
+  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+  
+  -- Set colorful highlighting
+  vim.api.nvim_set_hl(0, 'DiagnosticHeader', { fg = "#7DCFFF", bold = true })
+  vim.api.nvim_set_hl(0, 'DiagnosticSubHeader', { fg = "#BB9AF7", italic = true })
+  vim.api.nvim_set_hl(0, 'DiagnosticSeparator', { fg = "#FF9E64" })
+  
+  -- Apply highlighting to the header lines
+  vim.api.nvim_buf_add_highlight(buf, -1, 'DiagnosticHeader', 0, 0, -1)
+  vim.api.nvim_buf_add_highlight(buf, -1, 'DiagnosticSubHeader', 1, 0, -1)
+  vim.api.nvim_buf_add_highlight(buf, -1, 'DiagnosticSubHeader', 3, 0, -1)
+  vim.api.nvim_buf_add_highlight(buf, -1, 'DiagnosticSubHeader', 15, 0, -1)
+  vim.api.nvim_buf_add_highlight(buf, -1, 'DiagnosticSeparator', 21, 0, -1)
+  
+  -- Set window layout options for the diagnostic buffer
+  vim.cmd[[
+    setlocal signcolumn=yes
+    setlocal cursorline
+    setlocal conceallevel=3
+    setlocal concealcursor=nvic
+  ]]
 end
 
 -- Helper function to toggle LSP inlay hints if server supports it
@@ -1418,6 +1486,7 @@ map("n", "<leader>li", "<cmd>LspInfo<CR>", { desc = "LSP info" })
 map("n", "<leader>lr", "<cmd>LspRestart<CR>", { desc = "LSP restart" })
 map("n", "<leader>ls", "<cmd>LspStart<CR>", { desc = "LSP start" })
 map("n", "<leader>lS", "<cmd>LspStop<CR>", { desc = "LSP stop" })
+
 -- =============================================
 -- WHICH-KEY GROUP REGISTRATION (for MECE clarity)
 -- =============================================

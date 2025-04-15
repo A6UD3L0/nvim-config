@@ -53,6 +53,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
 })
 
+-- Increase Git timeouts to prevent "git integration disabled" errors
+vim.g.gitsigns_timeout = 5000  -- 5000ms instead of default 400ms
+vim.g.gitsigns_max_file_length = 100000  -- Increase max file size for git operations
+
 -- Apply Tokyonight theme
 local theme_ok, _ = pcall(vim.cmd, "colorscheme tokyonight")
 if not theme_ok then

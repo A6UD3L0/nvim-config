@@ -13,18 +13,39 @@ function M.setup()
     return
   end
   
-  -- Custom mappings for which-key menu only
+  -- Register key groups
   which_key.register({
     ["<leader>b"] = { name = "+buffer" },
     ["<leader>c"] = { name = "+code/lsp" },
+    ["<leader>ca"] = { name = "Code actions" },
+    ["<leader>cr"] = { name = "Rename symbol" },
+    ["<leader>cf"] = { name = "Format code" },
+    ["<leader>cd"] = { name = "Line diagnostics" },
+    ["<leader>cq"] = { name = "List diagnostics" },
+    ["<leader>cw"] = { name = "Add workspace folder" },
+    ["<leader>cW"] = { name = "Remove workspace folder" },
+    ["<leader>cl"] = { name = "List workspace folders" },
     ["<leader>d"] = { name = "+docs" },
     ["<leader>df"] = { name = "Docs for current filetype" },
     ["<leader>dm"] = { name = "+ml-docs" },
     ["<leader>e"] = { name = "+explorer" },
     ["<leader>f"] = { name = "+find/file" },
     ["<leader>g"] = { name = "+git" },
+    ["<leader>gs"] = { name = "Stage hunk" },
+    ["<leader>gr"] = { name = "Reset hunk" },
+    ["<leader>gS"] = { name = "Stage buffer" },
+    ["<leader>gu"] = { name = "Undo stage hunk" },
+    ["<leader>gR"] = { name = "Reset buffer" },
+    ["<leader>gp"] = { name = "Preview hunk" },
+    ["<leader>gB"] = { name = "Blame line (full)" },
+    ["<leader>gL"] = { name = "Toggle line blame" },
+    ["<leader>gd"] = { name = "Diff this" },
+    ["<leader>gx"] = { name = "Toggle deleted" },
     ["<leader>gb"] = { name = "Git blame (LazyGit)" },
     ["<leader>gl"] = { name = "Git logs for current file" },
+    ["<leader>gg"] = { name = "Open LazyGit" },
+    ["<leader>gf"] = { name = "LazyGit File History" },
+    ["<leader>gc"] = { name = "LazyGit Current File" },
     ["<leader>h"] = { name = "+harpoon" },
     ["<leader>k"] = { name = "+keymaps" },
     ["<leader>l"] = { name = "+lsp" },
@@ -50,6 +71,10 @@ function M.setup()
     ["<leader>3"] = { name = "Harpoon file 3" },
     ["<leader>4"] = { name = "Harpoon file 4" },
     ["<leader>5"] = { name = "Harpoon file 5" },
+    ["[c"] = { name = "Previous git hunk" },
+    ["]c"] = { name = "Next git hunk" },
+    ["[d"] = { name = "Previous diagnostic" },
+    ["]d"] = { name = "Next diagnostic" },
   })
   
   -- Register insert mode key mappings to be shown in which-key

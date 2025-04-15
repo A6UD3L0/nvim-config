@@ -1450,11 +1450,9 @@ end
 -- Set up the theme
 setup_theme()
 
--- Export the module
-return M
-
--- ThePrimeagen's keybindings integrated with existing mappings
--- ============================================================
+-- ===========================================
+-- ThePrimeagen's keybindings integration
+-- ===========================================
 
 -- Exit insert mode with jk (faster than Escape)
 map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
@@ -1594,3 +1592,109 @@ map("n", "<leader>/", function()
     vim.notify("Telescope not available", vim.log.levels.WARN)
   end
 end, { desc = "Fuzzy find in buffer" })
+
+-- Git Mappings from ThePrimeagen's setup
+-- Git integration with superior UX
+M.setup_git_mappings = function()
+  -- Check if gitsigns is available
+  local gitsigns_ok, gitsigns = pcall(require, "gitsigns")
+  if not gitsigns_ok then
+    vim.notify("Gitsigns not available for Git keybindings", vim.log.levels.WARN)
+    return
+  end
+  
+  -- Navigation between hunks
+  map("n", "]c", function()
+    if vim.wo.diff then
+      return "]c"
+    end
+    vim.schedule(function()
+      gitsigns.next_hunk()
+    end)
+    return "<Ignore>"
+  end, { expr = true, desc = "Next hunk" })
+
+  map("n", "[c", function()
+    if vim.wo.diff then
+      return "[c"
+    end
+    vim.schedule(function()
+      gitsigns.prev_hunk()
+    end)
+    return "<Ignore>"
+  end, { expr = true, desc = "Previous hunk" })
+
+  -- Actions
+  map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "Stage hunk" })
+  map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
+  map("v", "<leader>gs", function()
+    gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+  end, { desc = "Stage hunk" })
+  map("v", "<leader>gr", function()
+    gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+  end, { desc = "Reset hunk" })
+  map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "Stage buffer" })
+  map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "Undo stage hunk" })
+  map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
+  map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
+  map("n", "<leader>gB", function()
+    gitsigns.blame_line({ full = true })
+  end, { desc = "Blame line" })
+  map("n", "<leader>gL", gitsigns.toggle_current_line_blame, { desc = "Toggle line blame" })
+  map("n", "<leader>gd", gitsigns.diffthis, { desc = "Diff this" })
+  map("n", "<leader>gx", function()
+    gitsigns.toggle_deleted()
+  end, { desc = "Toggle deleted" })
+end
+
+-- Set up git mappings if available
+pcall(M.setup_git_mappings)
+
+-- Enhanced LSP mappings with better UX from ThePrimeagen's config
+-- Update our existing LSP mappings function
+M.setup_lsp_mappings = function(bufnr)
+  -- Enable completion triggered by <c-x><c-o>
+  vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
+  
+  -- Buffer local mappings.
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  local opts = { buffer = bufnr, noremap = true, silent = true }
+  
+  -- Go to definition/references commands
+  map("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+  map("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
+  map("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
+  map("n", "gt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
+  
+  -- Documentation and signature help
+  map("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Show documentation" })
+  map("n", "<C-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Show signature help" })
+  
+  -- Code actions and workspace management
+  map("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
+  map("n", "<leader>cr", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
+  map("n", "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, { buffer = bufnr, desc = "Format code" })
+  
+  -- Diagnostics
+  map("n", "<leader>cd", vim.diagnostic.open_float, { buffer = bufnr, desc = "Line diagnostics" })
+  map("n", "[d", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Previous diagnostic" })
+  map("n", "]d", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
+  map("n", "<leader>cq", vim.diagnostic.setloclist, { buffer = bufnr, desc = "List all diagnostics" })
+  
+  -- Workspace management
+  map("n", "<leader>cw", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "Add workspace folder" })
+  map("n", "<leader>cW", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "Remove workspace folder" })
+  map("n", "<leader>cl", function()
+    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  end, { buffer = bufnr, desc = "List workspace folders" })
+end
+
+-- Function for diagnostic window keybindings
+M.setup_diagnostic_window_mappings = function(buf)
+  -- Add keybindings for the diagnostic window
+  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q<CR>', { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', ':q<CR>', { noremap = true, silent = true })
+end
+
+-- Export the module 
+return M

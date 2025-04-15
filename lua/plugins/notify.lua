@@ -1,8 +1,7 @@
--- Configure nvim-notify with rose-pine-moon background color
+-- Configure nvim-notify with a completely black background
 require("notify").setup({
-  -- Use rose-pine-moon background color for notifications
-  -- #232136 is the rose-pine-moon base color
-  background_colour = "#232136",
+  -- Use completely black background for notifications
+  background_colour = "#000000",
   
   -- Styling
   stages = "fade",

@@ -257,8 +257,58 @@ return {
           -- Enable completion triggered by <c-x><c-o>
           vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
           
-          -- Load all LSP-related keymappings from the central mappings file
-          require("mappings").setup_lsp_mappings(bufnr)
+          -- Define LSP mappings directly here instead of requiring the mappings module
+          -- This avoids the circular dependency while maintaining all functionality
+          local map = vim.keymap.set
+          
+          -- Go to definition/references commands
+          map("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+          map("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
+          map("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
+          map("n", "gt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
+          
+          -- Documentation and signature help
+          map("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Show documentation" })
+          map("n", "<C-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Show signature help" })
+          
+          -- Code actions and workspace management
+          map("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
+          map("n", "<leader>cr", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
+          map("n", "<leader>cf", function() vim.lsp.buf.format { async = true } end, { buffer = bufnr, desc = "Format code" })
+          
+          -- Workspace folder management  
+          map("n", "<leader>cw", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "Add workspace folder" })
+          map("n", "<leader>cW", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "Remove workspace folder" })
+          map("n", "<leader>cl", function()
+            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+          end, { buffer = bufnr, desc = "List workspace folders" })
+          
+          -- Diagnostics navigation
+          map("n", "[d", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Previous diagnostic" })
+          map("n", "]d", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
+          map("n", "<leader>cd", vim.diagnostic.open_float, { buffer = bufnr, desc = "Line diagnostics" })
+          map("n", "<leader>cq", vim.diagnostic.setloclist, { buffer = bufnr, desc = "Diagnostics to quickfix" })
+          
+          -- Try to load telescope for enhanced LSP commands if available
+          local has_telescope = pcall(require, "telescope")
+          if has_telescope then
+            local telescope = require("telescope.builtin")
+            map("n", "<leader>cs", telescope.lsp_document_symbols, { buffer = bufnr, desc = "Document symbols" })
+            map("n", "<leader>cS", telescope.lsp_workspace_symbols, { buffer = bufnr, desc = "Workspace symbols" })
+            map("n", "<leader>cC", telescope.lsp_incoming_calls, { buffer = bufnr, desc = "Incoming calls" })
+            map("n", "<leader>cO", telescope.lsp_outgoing_calls, { buffer = bufnr, desc = "Outgoing calls" })
+          end
+          
+          -- Toggle Inline Diagnostics
+          map("n", "<leader>cT", function()
+            local current = vim.diagnostic.config().virtual_text
+            vim.diagnostic.config({ virtual_text = not current })
+            vim.notify("Inline diagnostics " .. (not current and "enabled" or "disabled"))
+          end, { buffer = bufnr, desc = "Toggle inline diagnostics" })
+          
+          -- LSP Info and Restart
+          map("n", "<leader>cI", "<cmd>LspInfo<CR>", { buffer = bufnr, desc = "LSP info" })
+          map("n", "<leader>cR", "<cmd>LspRestart<CR>", { buffer = bufnr, desc = "LSP restart" })
         end,
       })
       

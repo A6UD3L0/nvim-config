@@ -1144,21 +1144,13 @@ map("n", "<leader>hh", function()
   end)
 end, { desc = "Harpoon menu" })
 
--- Dynamically create jump mappings for Harpoon files, showing file name in description
+-- Dynamically create jump mappings for Harpoon files, using static string for desc
 for i = 1, 4 do
   map("n", string.format("<leader>h%d", i), function()
     if not M._has_harpoon() then return end
     require("harpoon.ui").nav_file(i)
   end, {
-    desc = function()
-      local marks = require("harpoon.mark").get_mark_config().marks or {}
-      local entry = marks[i]
-      if entry and entry.filename then
-        return "Harpoon: " .. vim.fn.fnamemodify(entry.filename, ":t")
-      else
-        return "Harpoon file " .. i
-      end
-    end
+    desc = "Harpoon file " .. i
   })
 end
 

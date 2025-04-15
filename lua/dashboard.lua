@@ -27,11 +27,10 @@ function M.setup()
     dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>"),
     dashboard.button("r", "  Recent files", ":Telescope oldfiles <CR>"),
     dashboard.button("g", "  Find word", ":Telescope live_grep <CR>"),
-    dashboard.button("d", "  Find directory", ":lua require('dashboard').find_directory_and_cd()<CR>"),
+    dashboard.button("p", "  Find project", ":lua require('telescope.builtin').find_files({cwd = '~/projects'}) <CR>"),
     dashboard.button("c", "  Configuration", ":e $MYVIMRC <CR>"),
-    dashboard.button("p", "  Plugins", ":e ~/nvim-config/lua/plugins/backend-essentials.lua <CR>"),
+    dashboard.button("b", "  Plugins", ":e ~/nvim-config/lua/plugins/backend-essentials.lua <CR>"),
     dashboard.button("t", "  Terminal", ":ToggleTerm direction=float<CR>"),
-    dashboard.button("y", "  Python Environment", ":VenvSelect<CR>"),
     dashboard.button("m", "  Key Mappings", ":e ~/nvim-config/lua/mappings.lua <CR>"),
     dashboard.button("q", "󰩈  Quit Neovim", ":qa<CR>"),
   }

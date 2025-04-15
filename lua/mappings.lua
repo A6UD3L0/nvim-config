@@ -721,68 +721,98 @@ end
 
 -- Update the keybinding group for Python with improved error handling
 local python_group = {
-  { key = "<leader>pa", fn = function()
-    if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
-      vim.cmd("VenvActivate")
-    elseif M._has_venv_selector() then
-      pcall(vim.cmd, "VenvSelectCached")
-    else
-      vim.notify("No virtual environment selector available", vim.log.levels.WARN)
-    end
-  end, desc = "Activate Python environment" },
+  { key = "<leader>pa", fn = function() 
+      if M._has_plugin("venv-selector") then
+        -- Use pcall to avoid errors if command doesn't exist
+        local success, _ = pcall(vim.cmd, "VenvSelect")
+        if not success then
+          vim.notify("Failed to run VenvSelect. Ensure venv-selector is properly installed", vim.log.levels.ERROR)
+        end
+      else
+        vim.notify("venv-selector not available", vim.log.levels.ERROR)
+      end
+    end, 
+    desc = "Select Python environment" 
+  },
+
+  { key = "<leader>pr", fn = function() 
+      M._python_run_file() 
+    end, 
+    desc = "Run current Python file" 
+  },
   
-  { key = "<leader>ps", fn = function()
-    if M._has_venv_selector() then
-      pcall(vim.cmd, "VenvSelect")
-    else
-      vim.notify("VenvSelector not available", vim.log.levels.ERROR)
-    end
-  end, desc = "Select Python environment" },
+  { key = "<leader>pe", fn = function()
+      local ok, _ = pcall(M._python_execute_snippet)
+      if not ok then
+        vim.notify("Failed to execute Python snippet", vim.log.levels.ERROR)
+      end
+    end, 
+    desc = "Execute selection" 
+  },
   
-  { key = "<leader>pc", fn = function()
-    if M._has_venv_selector() then
-      pcall(vim.cmd, "VenvSelectCached")
-    else
-      vim.notify("VenvSelector not available", vim.log.levels.ERROR)
-    end
-  end, desc = "Select cached environment" },
+  { key = "<leader>pp", fn = function() 
+      if M._command_exists("ipython") then
+        local ok, _ = pcall(M._python_execute_in_ipython)
+        if not ok then
+          vim.notify("Failed to run in IPython", vim.log.levels.ERROR)
+        end
+      else
+        vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR)
+      end
+    end, 
+    desc = "Run selection in IPython" 
+  },
   
-  { key = "<leader>pn", fn = M._create_python_venv, desc = "Create new venv" },
+  { key = "<leader>pn", fn = function() 
+      if M._command_exists("python") then
+        vim.ui.input({
+          prompt = "Virtual environment name (.venv): ",
+          default = ".venv",
+        }, function(venv_name)
+          if not venv_name or venv_name == "" then
+            venv_name = ".venv"
+          end
+          
+          vim.notify("Creating Python virtual environment: " .. venv_name, vim.log.levels.INFO)
+          M._run_in_terminal("python -m venv " .. venv_name)
+        end)
+      else
+        vim.notify("Python not found in PATH", vim.log.levels.ERROR)
+      end
+    end, 
+    desc = "Create new venv" 
+  },
   
-  { key = "<leader>pi", fn = function()
-    if _G.VenvDiagnostics then
-      pcall(vim.cmd, "VenvDiagnostics")
-    else
-      vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR)
-    end
-  end, desc = "Show environment info" },
+  { key = "<leader>pt", fn = function() 
+      if M._command_exists("pytest") then
+        M._run_in_terminal("pytest")
+      else
+        vim.notify("pytest not found. Run 'pip install pytest' to install it.", vim.log.levels.ERROR)
+      end
+    end, 
+    desc = "Run Python tests" 
+  },
   
-  { key = "<leader>pr", fn = function()
-    if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then
-      pcall(vim.cmd, "RunPythonWithEnv")
-    else
-      M._python_run_file()
-    end
-  end, desc = "Run current file with env" },
-  
-  { key = "<leader>pe", fn = M._python_execute_snippet, desc = "Execute selection" },
-  
-  { key = "<leader>pp", fn = function()
-    if M._command_exists("ipython") then
-      M._python_execute_in_ipython()
-    else
-      vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR)
-    end
-  end, desc = "Run selection in IPython" },
-  
-  { key = "<leader>pnf", fn = M._python_new_file, desc = "New Python file" },
-  
-  { key = "<leader>pt", fn = M._run_python_tests, desc = "Run Python tests" },
+  { key = "<leader>pi", fn = function() 
+      local info = "Python: " .. (vim.fn.executable("python") == 1 and vim.fn.system("python --version"):gsub("\n", "") or "Not found")
+      
+      -- Check for virtual environment
+      local venv = vim.env.VIRTUAL_ENV
+      if venv then
+        info = info .. "\nActive venv: " .. venv
+      else
+        info = info .. "\nNo active virtual environment"
+      end
+      
+      vim.notify(info, vim.log.levels.INFO, { title = "Python Environment Info" })
+    end, 
+    desc = "Show Python info" 
+  },
 }
 
 -- Apply all mappings in the python_group
-for _, mapping in ipairs(python_group) do
-  map("n", mapping.key, mapping.fn, { desc = mapping.desc })
+for _, m in ipairs(python_group) do
+  map("n", m.key, m.fn, { desc = m.desc })
 end
 
 -- =============================================
@@ -1260,178 +1290,6 @@ map("n", "<leader>dmk", function()
     vim.notify("DevDocs plugin not found. Please install luckasRanarison/nvim-devdocs", vim.log.levels.ERROR)
   end
 end, { desc = "Scikit-learn docs" })
-
--- =============================================
--- PYTHON / ENV / DEPENDENCIES (p namespace)
--- =============================================
--- All python, venv, poetry, requirements, and code execution actions grouped under <leader>p
-local python_group = {
-  { key = "<leader>pa", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then vim.cmd("VenvActivate") elseif M._has_venv_selector() then vim.cmd("VenvSelectCached") end end, desc = "Activate Python environment" },
-  { key = "<leader>ps", fn = function() if M._has_venv_selector() then vim.cmd("VenvSelect") end end, desc = "Select Python environment" },
-  { key = "<leader>pc", fn = function() if M._has_venv_selector() then vim.cmd("VenvSelectCached") end end, desc = "Select cached environment" },
-  { key = "<leader>pn", fn = M._create_python_venv, desc = "Create new venv" },
-  { key = "<leader>pi", fn = function() if _G.VenvDiagnostics then vim.cmd("VenvDiagnostics") else vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR) end end, desc = "Show environment info" },
-  { key = "<leader>pr", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then vim.cmd("RunPythonWithEnv") else M._python_run_file() end end, desc = "Run current file with env" },
-  { key = "<leader>pe", fn = M._python_execute_snippet, desc = "Execute selection" },
-  { key = "<leader>pp", fn = function() if M._command_exists("ipython") then M._python_execute_in_ipython() else vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR) end end, desc = "Run selection in IPython" },
-  { key = "<leader>pnf", fn = M._python_new_file, desc = "New Python file" },
-  { key = "<leader>pt", fn = M._run_python_tests, desc = "Run Python tests" },
-  { key = "<leader>pg", fn = M._poetry_generate_requirements, desc = "Generate requirements.txt from Poetry" },
-  { key = "<leader>pb", fn = M._poetry_build, desc = "Build Poetry package" },
-  { key = "<leader>ppub", fn = M._poetry_publish, desc = "Publish Poetry package" },
-  { key = "<leader>psh", fn = M._poetry_shell, desc = "Poetry shell" },
-  { key = "<leader>ped", fn = M._poetry_edit_pyproject, desc = "Edit pyproject.toml" },
-  { key = "<leader>prun", fn = function() if M._check_poetry() then vim.ui.input({ prompt = "Poetry run command: " }, function(cmd) if cmd and cmd ~= "" then M._run_in_terminal("poetry run " .. cmd) end end) end end, desc = "Poetry run command" },
-  { key = "<leader>prq", fn = function() vim.cmd("edit requirements.txt") end, desc = "Edit requirements.txt" },
-  { key = "<leader>pinst", fn = function() if M._has_plugin("toggleterm") then vim.cmd("TermExec cmd='pip install -r requirements.txt'") elseif M._command_exists("pip") then M._run_in_terminal("pip install -r requirements.txt") else vim.notify("pip command not found", vim.log.levels.ERROR) end end, desc = "Install from requirements.txt" },
-}
-for _, m in ipairs(python_group) do
-  map("n", m.key, m.fn, { desc = m.desc })
-end
-
--- =============================================
--- KEYMAPS HELPER (k namespace)
--- =============================================
-
--- Check if which-key is available
-M._has_which_key = function()
-  if not M._has_plugin("which-key") then
-    vim.notify("Which-key plugin not found. Please install folke/which-key.nvim", vim.log.levels.ERROR)
-    return false
-  end
-  return true
-end
-
--- Register whichkey specific activate command
-map("n", "<leader>k", function()
-  if M._has_which_key() then
-    vim.cmd("WhichKey")
-  end
-end, { desc = "Show all keybindings" })
-
--- =============================================
--- GIT OPERATIONS (g namespace)
--- =============================================
-
--- Check if LazyGit is available
-M._has_lazygit = function()
-  if vim.fn.executable("lazygit") ~= 1 then
-    vim.notify("LazyGit executable not found. Please install lazygit", vim.log.levels.ERROR)
-    return false
-  end
-  
-  if not M._has_plugin("lazygit.nvim") then
-    vim.notify("LazyGit plugin not found. Please install kdheepak/lazygit.nvim", vim.log.levels.ERROR)
-    return false
-  end
-  
-  return true
-end
-
--- LazyGit mappings
-map("n", "<leader>gg", function()
-  if M._has_lazygit() then
-    vim.cmd("LazyGit")
-  end
-end, { desc = "Open LazyGit" })
-
-map("n", "<leader>gc", function()
-  if M._has_lazygit() then
-    vim.cmd("LazyGitConfig")
-  end
-end, { desc = "LazyGit config" })
-
-map("n", "<leader>gf", function()
-  if M._has_lazygit() then
-    vim.cmd("LazyGitCurrentFile")
-  end
-end, { desc = "LazyGit current file" })
-
-map("n", "<leader>gF", function()
-  if M._has_lazygit() then
-    vim.cmd("LazyGitFilter")
-  end
-end, { desc = "LazyGit filter" })
-
-map("n", "<leader>gb", function()
-  if M._has_lazygit() then
-    vim.cmd("LazyGitFilterCurrentFile")
-  end
-end, { desc = "LazyGit branches" })
-
--- Git window commands (telescope integration)
-map("n", "<leader>gB", function()
-  if M._has_telescope() then
-    vim.cmd("Telescope git_branches")
-  end
-end, { desc = "Git branches" })
-
-map("n", "<leader>gC", function()
-  if M._has_telescope() then
-    vim.cmd("Telescope git_commits")
-  end
-end, { desc = "Git commits" })
-
-map("n", "<leader>gS", function()
-  if M._has_telescope() then
-    vim.cmd("Telescope git_status")
-  end
-end, { desc = "Git status" })
-
-map("n", "<leader>gd", function()
-  if M._has_telescope() then
-    vim.cmd("Telescope git_bcommits")
-  end
-end, { desc = "Git diff this buffer" })
-
--- =============================================
--- HARPOON (h namespace)
--- =============================================
-
--- Check if Harpoon is available
-M._has_harpoon = function()
-  local ok, _ = pcall(require, "harpoon")
-  if not ok then
-    vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
-    return false
-  end
-  return true
-end
-
--- Add current file to Harpoon (use new API)
-map("n", "<leader>a", function()
-  if not M._has_harpoon() then
-    vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
-    return
-  end
-  -- Use the updated Harpoon v2 API
-  require("harpoon"):list():add()
-end, { desc = "Harpoon add file" })
-
-map("n", "<leader>h", function()
-  if not M._has_harpoon() then
-    vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
-    return
-  end
-  
-  local harpoon = require("harpoon")
-  harpoon.ui:toggle_quick_menu(harpoon:list())
-end, { desc = "Harpoon menu" })
-
--- Dynamically create jump mappings for Harpoon files, using static string for desc
-for i = 1, 4 do
-  map("n", string.format("<leader>%d", i), function()
-    if not M._has_harpoon() then
-      vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
-      return
-    end
-    
-    -- Use the updated Harpoon v2 API
-    require("harpoon"):list():select(i)
-  end, {
-    desc = "Harpoon file " .. i
-  })
-end
 
 -- =============================================
 -- LSP MAPPINGS

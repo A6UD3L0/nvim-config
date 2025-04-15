@@ -876,38 +876,38 @@ return {
   -- Python environment management with improved regexp search
   {
     "linux-cultist/venv-selector.nvim",
-    branch = "regexp",  -- Use the latest 2024 version with regexp support
-    cmd = "VenvSelect",
+    dependencies = {
+      "neovim/nvim-lspconfig",
+      "nvim-telescope/telescope.nvim",
+    },
+    event = "VeryLazy",
     keys = {
-      { "<leader>yv", "<cmd>VenvSelect<CR>", desc = "Select Python venv" },
-      { "<leader>yd", "<cmd>VenvSelectCached<CR>", desc = "Select cached venv" },
+      { "<leader>pa", "<cmd>VenvSelect<CR>", desc = "Select Python venv" },
     },
-    opts = {
-      name = { "venv", ".venv", "env", ".env" },
-      auto_refresh = true,
-      search_venv_managers = true,
-      search_workspace = true,
-      search_patterns = {
-        -- Custom search patterns
-        { "venv", "env", ".venv", ".env" },                       -- Common venv folder names
-        { "*/venv", "*/env", "*/.venv", "*/.env" },               -- Search for venvs one level down
-        { "**/venv", "**/env", "**/.venv", "**/.env" },           -- Search for venvs anywhere below
-        { "global", "**/*venv*", "**/*env*" },                   -- Match any path with venv/env in the name
-      },
-      dap_enabled = true,  -- Enable DAP support
-      parents = 2,         -- Search 2 levels up for venvs
-      path_to_python = "bin/python",  -- Path to the python executable
-      change_venv_hooks = {
-        function(venv_path)
-          -- Update python3_host_prog
-          vim.g.python3_host_prog = venv_path .. "/bin/python"
-          -- Notify the user
-          vim.notify("Activated venv: " .. venv_path, vim.log.levels.INFO, { title = "Python Environment" })
+    config = function()
+      require("venv-selector").setup({
+        name = { "venv", ".venv", "env", ".env" },
+        auto_refresh = true,
+        search_venv_managers = true,
+        search_workspace = true,
+        search_patterns = {
+          -- Custom search patterns
+          { "venv", "env", ".venv", ".env" },                       -- Common venv folder names
+          { "*/venv", "*/env", "*/.venv", "*/.env" },               -- Search for venvs one level down
+          { "**/venv", "**/env", "**/.venv", "**/.env" },           -- Search for venvs anywhere below
+          { "global", "**/*venv*", "**/*env*" },                   -- Match any path with venv/env in the name
+        },
+        parents = 2,         -- Search 2 levels up for venvs
+        path_to_python = vim.fn.has("win32") == 1 and "Scripts\\python.exe" or "bin/python",
+        
+        -- Callback when changing environments
+        changed_venv_hook = function(venv)
+          -- Notification when venv changes
+          if venv then
+            vim.notify("Activated virtual environment: " .. venv, vim.log.levels.INFO)
+          end
         end,
-      },
-    },
-    init = function()
-      -- Setup quick access shortcuts, mapped already in mappings.lua
+      })
     end,
   },
   

@@ -990,7 +990,6 @@ end, { desc = "Scikit-learn docs" })
 -- =============================================
 -- PYTHON / ENV / DEPENDENCIES (p namespace)
 -- =============================================
-
 -- All python, venv, poetry, requirements, and code execution actions grouped under <leader>p
 local python_group = {
   { key = "<leader>pa", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then vim.cmd("VenvActivate") elseif M._has_venv_selector() then vim.cmd("VenvSelectCached") end end, desc = "Activate Python environment" },
@@ -1206,6 +1205,8 @@ local function setup_which_key()
     return false
   end
   
+  -- Use the proper format for which-key
+  -- This addresses the warning about using an old format
   wk.register({
     ["<leader>t"] = { name = "+terminal" },
     ["<leader>b"] = { name = "+buffer" },
@@ -1216,10 +1217,14 @@ local function setup_which_key()
     ["<leader>d"] = { name = "+docs/help" },
     ["<leader>h"] = { name = "+harpoon" },
     ["<leader>c"] = { name = "+code/lsp" },
-    ["<leader>k"] = { "Show all keybindings" },
     ["<leader>w"] = { name = "+window/tab" },
     ["<leader>u"] = { name = "+undotree" },
-    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
+  })
+  
+  -- Register individual keymaps for non-prefixed leader keys
+  wk.register({
+    ["<leader>k"] = { name = "Show all keybindings" },
+    ["<leader>?"] = { name = "Show all keymaps (cheatsheet)" },
   })
   
   return true

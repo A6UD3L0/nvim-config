@@ -19,7 +19,7 @@ vim.notify = function(msg, level, opts)
     -- Also append to file for persistence
     local f = io.open(M.logfile, 'a')
     if f then
-      f:write(string.format('[%s][%s] %s\n', entry.time, vim.log.levels[level], msg))
+      f:write(string.format('[%s][%s] %s\n', entry.time, vim.log.levels[level] or "UNKNOWN", msg))
       f:close()
     end
   end
@@ -34,11 +34,19 @@ function M.show_log()
   vim.api.nvim_buf_set_option(bufnr, 'bufhidden', 'wipe')
   local lines = { 'Keybinding Error/Warning Log:' }
   for _, entry in ipairs(M.log) do
-    table.insert(lines, string.format('[%s][%s] %s', entry.time, vim.log.levels[entry.level], entry.msg))
+    table.insert(lines, string.format('[%s][%s] %s', entry.time, vim.log.levels[entry.level] or "UNKNOWN", entry.msg))
   end
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
 end
 
-vim.api.nvim_create_user_command('KeybindLog', M.show_log, {})
+-- Create user command if supported
+if vim.api.nvim_create_user_command then
+  vim.api.nvim_create_user_command('KeybindLog', function() M.show_log() end, {})
+end
+
+-- Patch to make it work with lazy.nvim plugin format
+-- Adding these ensures it's a valid plugin spec
+M.name = "keybind_logger"
+M.config = function() end
 
 return M

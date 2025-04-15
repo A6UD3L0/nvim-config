@@ -1,7 +1,12 @@
 -- Lualine config for rose-pine-moon theme
-require('lualine').setup {
+local status_ok, lualine = pcall(require, "lualine")
+if not status_ok then
+  return
+end
+
+lualine.setup {
   options = {
-    theme = 'rose-pine',
+    theme = 'auto',
     icons_enabled = true,
     section_separators = '',
     component_separators = '',

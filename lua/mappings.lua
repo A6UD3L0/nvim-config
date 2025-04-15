@@ -1260,57 +1260,55 @@ map("n", "<leader>gd", function()
   end
 end, { desc = "Git diff this buffer" })
 
--- Function for gitsigns keybindings setup
-M.setup_git_mappings = function(gitsigns)
-  -- Navigation
-  map("n", "]c", function()
-    if vim.wo.diff then
-      return "]c"
-    end
-    vim.schedule(function()
-      gitsigns.next_hunk()
-    end)
-    return "<Ignore>"
-  end, { expr = true, desc = "Next hunk" })
+-- =============================================
+-- HARPOON (h namespace)
+-- =============================================
 
-  map("n", "[c", function()
-    if vim.wo.diff then
-      return "[c"
-    end
-    vim.schedule(function()
-      gitsigns.prev_hunk()
-    end)
-    return "<Ignore>"
-  end, { expr = true, desc = "Previous hunk" })
-
-  -- Actions
-  map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "Stage hunk" })
-  map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
-  map("v", "<leader>gs", function()
-    gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
-  end, { desc = "Stage hunk" })
-  map("v", "<leader>gr", function()
-    gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
-  end, { desc = "Reset hunk" })
-  map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "Stage buffer" })
-  map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "Undo stage hunk" })
-  map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
-  map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
-  map("n", "<leader>gl", function()
-    gitsigns.blame_line({ full = true })
-  end, { desc = "Blame line" })
-  map("n", "<leader>gL", gitsigns.toggle_current_line_blame, { desc = "Toggle line blame" })
-  map("n", "<leader>gD", gitsigns.diffthis, { desc = "Diff this" })
-  map("n", "<leader>gx", function()
-    gitsigns.toggle_deleted()
-  end, { desc = "Toggle deleted" })
+-- Check if Harpoon is available
+M._has_harpoon = function()
+  local ok, _ = pcall(require, "harpoon")
+  if not ok then
+    vim.notify("Harpoon plugin not found. Please install ThePrimeagen/harpoon", vim.log.levels.ERROR)
+    return false
+  end
+  return true
 end
 
--- Function for diagnostic window keybindings
-M.setup_diagnostic_window_mappings = function(buf)
-  -- Add keybindings for the diagnostic window
-  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':q<CR>', { noremap = true, silent = true })
-  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', ':q<CR>', { noremap = true, silent = true })
+-- Add current file to Harpoon (use new API)
+map("n", "<leader>ha", function()
+  if not M._has_harpoon() then return end
+  require("harpoon.mark").add_file()
+  vim.notify("File added to Harpoon", vim.log.levels.INFO)
+end, { desc = "Harpoon add file" })
+
+-- Toggle Harpoon quick menu (fix modifiable bug)
+map("n", "<leader>hh", function()
+  if not M._has_harpoon() then return end
+  vim.schedule(function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    if not vim.bo[bufnr].modifiable then
+      vim.bo[bufnr].modifiable = true
+    end
+    require("harpoon.ui").toggle_quick_menu()
+  end)
+end, { desc = "Harpoon menu" })
+
+-- Dynamically create jump mappings for Harpoon files, showing file name in description
+for i = 1, 4 do
+  map("n", string.format("<leader>h%d", i), function()
+    if not M._has_harpoon() then return end
+    require("harpoon.ui").nav_file(i)
+  end, {
+    desc = function()
+      local marks = require("harpoon.mark").get_mark_config().marks or {}
+      local entry = marks[i]
+      if entry and entry.filename then
+        return "Harpoon: " .. vim.fn.fnamemodify(entry.filename, ":t")
+      else
+        return "Harpoon file " .. i
+      end
+    end
+  })
 end
 
 -- =============================================
@@ -1418,6 +1416,7 @@ if pcall(require, "which-key") then
     ["<leader>tn"] = { name = "+tabs" },
     ["<leader>u"] = { name = "+undotree" },
     ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
+    ["<leader>h"] = { name = "+harpoon" },
   })
 end
 

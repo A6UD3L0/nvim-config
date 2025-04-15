@@ -1132,7 +1132,7 @@ return {
     config = true,
   },
   
-  -- Undotree
+  -- Undotree for visualizing file history
   {
     "mbbill/undotree",
     cmd = "UndotreeToggle",
@@ -1140,26 +1140,55 @@ return {
       { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
     },
     config = function()
-      vim.g.undotree_WindowLayout = 3  -- Layout 3 puts tree on the right, diff on the bottom
-      vim.g.undotree_SplitWidth = 25   -- Reduced from 30 to 25
-      vim.g.undotree_DiffpanelHeight = 8  -- Reduced from 10 to 8
-      vim.g.undotree_SetFocusWhenToggle = 0  -- Don't focus undotree when opened (stay in the file)
-      vim.g.undotree_ShortIndicators = 1  -- Use short indicators
-      vim.g.undotree_TreeNodeShape = '●'  -- Use a smaller icon for nodes
-      vim.g.undotree_TreeVertShape = '│'  -- Use simpler vertical lines
-      vim.g.undotree_TreeSplitShape = '╱'  -- Use simpler split shapes
-      vim.g.undotree_TreeReturnShape = '╲'  -- Use simpler return shapes
-      vim.g.undotree_DiffCommand = "diff"  -- Use standard diff command
-      vim.g.undotree_RelativeTimestamp = 1  -- Use relative timestamps
-      vim.g.undotree_HighlightChangedText = 1  -- Highlight changed text
-      vim.g.undotree_HighlightChangedWithSign = 1  -- Show signs for changed text
+      -- Automatically hide diff window
+      vim.g.undotree_SetFocusWhenToggle = 1
+      -- Window layout setup
+      vim.g.undotree_WindowLayout = 2
+      -- Highlight changed text
+      vim.g.undotree_HighlightChangedText = 1
+      -- Show help text
+      vim.g.undotree_HelpLine = 1
+      -- Show time difference
+      vim.g.undotree_ShowTimestamp = 1
     end,
   },
   
-  -- DevDocs integration for programming language documentation
+  -- LazyGit integration for Git operations
+  {
+    "kdheepak/lazygit.nvim",
+    cmd = {
+      "LazyGit",
+      "LazyGitConfig",
+      "LazyGitCurrentFile",
+      "LazyGitFilter",
+      "LazyGitFilterCurrentFile",
+    },
+    keys = {
+      { "<leader>gg", "<cmd>LazyGit<CR>", desc = "Open LazyGit" },
+      { "<leader>gf", "<cmd>LazyGitFilter<CR>", desc = "LazyGit File History" },
+      { "<leader>gc", "<cmd>LazyGitCurrentFile<CR>", desc = "LazyGit Current File" },
+    },
+    config = function()
+      -- We're using <leader>gg for toggling LazyGit
+      vim.g.lazygit_floating_window_scaling_factor = 0.9
+      vim.g.lazygit_floating_window_use_plenary = 1
+      
+      -- Set the border type for floating windows
+      vim.g.lazygit_floating_window_border_chars = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
+      
+      -- Make the LazyGit floating window highlight readable
+      vim.cmd [[
+        highlight link LazyGitFloat NormalFloat
+        highlight link LazyGitBorder FloatBorder
+      ]]
+    end,
+  },
+  
+  -- Enhanced DevDocs for programming documentation
   {
     "luckasRanarison/nvim-devdocs",
-    event = "VeryLazy", 
+    lazy = false,  -- Load on startup for immediate access
+    priority = 100,  -- Higher priority for loading
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope.nvim",
@@ -1172,142 +1201,115 @@ return {
         return
       end
       
-      -- Setup DevDocs
       devdocs.setup({
-        dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
-        telescope = {
-          width = 0.7, -- Simpler, more focused UI
-          height = 0.5, -- Less intrusive
-          previewer_width = 0.5, -- More balanced preview
+        previewer_cmd = "glow",
+        cmd_args = { "-s", "dark", "-w", "80" },
+        picker_cmd = true,
+        picker_cmd_args = { "-p" },
+        after_open = function(bufnr)
+          vim.api.nvim_buf_set_keymap(
+            bufnr,
+            "n",
+            "q",
+            ":close<CR>",
+            { noremap = true, silent = true }
+          )
+          vim.api.nvim_buf_set_keymap(
+            bufnr,
+            "n",
+            "<Esc>",
+            ":close<CR>",
+            { noremap = true, silent = true }
+          )
+        end,
+        mappings = {
+          -- Custom mappings for the devdocs buffer
+          open_in_browser = "<C-o>",
         },
         float_win = {
-          relative = "editor",
-          height = 0.7, -- More compact floating window
-          width = 0.7,
+          -- Border for the floating window
           border = "rounded",
-          title = "DevDocs",
-          title_pos = "center",
+          -- Maximum dimensions
+          max_width = 80,
+          max_height = 40,
         },
-        wrap = true, -- Wrap content in devdocs buffer
-        after_open = function(bufnr)
-          -- Set buffer options for better reading experience
-          vim.api.nvim_buf_set_option(bufnr, "foldenable", false)
-          vim.api.nvim_buf_set_option(bufnr, "spell", false)
-          
-          -- Add keymappings specific to documentation buffer
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':close<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<Esc>', ':close<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', ':DevdocsOpenFloat<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '/', '/', { noremap = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'n', 'n', { noremap = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'N', 'N', { noremap = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-s>', ':DevdocsOpen<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-v>', ':DevdocsOpen<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-t>', ':DevdocsOpen<CR>', { noremap = true, silent = true })
-          -- Notify user about search capabilities
-          vim.notify("[DevDocs] '/' to search, <C-s>/<C-v>/<C-t> to open, 'q' to close.", vim.log.levels.INFO)
-        end,
+        wrap = true,
+        silent = false,
+        directory = vim.fn.stdpath("data") .. "/devdocs",
+        
         ensure_installed = {
-          -- Automatically install these documentations on startup
-          "python~3.11",  -- Specific Python version
+          -- Python docs
+          "python~3.11",
+          "flask~2.3",
+          "fastapi~0.95",
+          "django~4.2",
+          "sqlalchemy~2.0",
+          "pandas~1.5",
+          "numpy~1.25",
+          "pytest~7.3",
+          
+          -- Data and ML
+          "scikit_learn~1.2",
+          
+          -- Go docs
+          "go~1.20",
+          
+          -- Linux and infrastructure
+          "bash",
+          "docker~23",
+          "kubernetes~1.27",
+          "terraform~1.4",
+          
+          -- Git
+          "git",
+          
+          -- SQL
+          "postgresql~15",
+          "mysql~8.0",
+          
+          -- Web development
+          "http",
+          "nginx",
           "javascript",
           "typescript",
-          "bash",
-          "git",
-          "docker",
-          "sql",
-          "scikit_learn",  -- Machine learning library
-          "numpy~1.24",    -- Data manipulation
-          "pandas~1",      -- Data analysis
-        },
-        mappings = {
-          open_in_split = "<C-s>",
-          open_in_vsplit = "<C-v>",
-          open_in_tab = "<C-t>",
+          "html",
+          "css",
         },
       })
       
-      -- Create command aliases for DevDocs to ensure compatibility with latest version
-      vim.api.nvim_create_user_command("DevdocsFetch", function()
-        vim.notify("Fetching documentation index...", vim.log.levels.INFO)
-        -- Call the plugin's fetch method directly
+      -- Create a wrapper function for handling errors
+      local function open_devdocs(lang)
         local success, err = pcall(function()
-          -- Modern version uses M.fetch_registery()
-          devdocs.fetch_registery()
+          devdocs.open_float(lang)
         end)
         
         if not success then
-          vim.notify("DevDocs metadata fetch failed: " .. tostring(err), vim.log.levels.WARN)
-          -- Try fallback to command
-          pcall(vim.cmd, "DevdocsFetch")
+          vim.notify("Error opening DevDocs: " .. tostring(err), vim.log.levels.ERROR)
         end
-      end, {})
+      end
       
-      vim.api.nvim_create_user_command("DevdocsInstall", function(opts)
+      -- Register commands
+      vim.api.nvim_create_user_command("DevdocsOpenFloat", function(opts)
         if opts.args and opts.args ~= "" then
-          vim.notify("Installing documentation for " .. opts.args, vim.log.levels.INFO)
-          -- Use the virtual args object to pass to the plugin's install_doc method
-          local args = { fargs = { opts.args } }
-          devdocs.install_doc(args)
+          open_devdocs(opts.args)
         else
-          vim.notify("Please specify a documentation to install or run without arguments to see picker", vim.log.levels.INFO)
-          -- Call with empty args to open picker
-          devdocs.install_doc({ fargs = {} })
+          open_devdocs()
         end
-      end, { nargs = "?" })
+      end, { nargs = "?", desc = "Open DevDocs with an optional language" })
       
-      -- Fix DevdocsOpen: Don't create a circular reference
-      vim.api.nvim_create_user_command("DevdocsOpenCmd", function(opts)
-        local success, err = pcall(function()
-          if opts.args and opts.args ~= "" then
-            -- Create proper args object
-            local args = { fargs = { opts.args } }
-            -- Use the plugin's API directly
-            devdocs.open_doc(args)
-          else
-            -- Open picker for all docs
-            devdocs.open_doc({ fargs = {} })
-          end
-        end)
-        
-        if not success then
-          vim.notify("DevDocs error: " .. tostring(err), vim.log.levels.ERROR)
-        end
-      end, { nargs = "?" })
-      
-      -- Fix DevdocsOpenFloat: Don't create a circular reference
-      vim.api.nvim_create_user_command("DevdocsOpenFloatCmd", function(opts)
-        local success, err = pcall(function()
-          if opts.args and opts.args ~= "" then
-            -- Create proper args object
-            local args = { fargs = { opts.args } }
-            -- Use the plugin's API directly
-            devdocs.open_doc_float(args)
-          else
-            -- Open picker for all docs in float window
-            devdocs.open_doc_float({ fargs = {} })
-          end
-        end)
-        
-        if not success then
-          vim.notify("DevDocs error: " .. tostring(err), vim.log.levels.ERROR)
-        end
-      end, { nargs = "?" })
-      
-      vim.api.nvim_create_user_command("DevdocsSearch", function()
-        -- Open picker with all docs - the modern version's equivalent of search
-        devdocs.open_doc({ fargs = {} })
-      end, {})
-      
-      -- Add current filetype doc opener
-      vim.api.nvim_create_user_command("DevdocsFiletype", function()
-        devdocs.open_doc_current_file()
-      end, {})
-      
-      -- Add current filetype doc opener in float window
-      vim.api.nvim_create_user_command("DevdocsFiletypeFloat", function()
-        devdocs.open_doc_current_file(true)
-      end, {})
+      -- Key mappings for accessing documentation
+      vim.keymap.set("n", "<leader>dd", function() open_devdocs() end, { desc = "Open DevDocs" })
+      vim.keymap.set("n", "<leader>dP", function() open_devdocs("python") end, { desc = "Python docs" })
+      vim.keymap.set("n", "<leader>dg", function() open_devdocs("go") end, { desc = "Go docs" })
+      vim.keymap.set("n", "<leader>dt", function() open_devdocs("terraform") end, { desc = "Terraform docs" })
+      vim.keymap.set("n", "<leader>dk", function() open_devdocs("kubernetes") end, { desc = "Kubernetes docs" })
+      vim.keymap.set("n", "<leader>dD", function() open_devdocs("docker") end, { desc = "Docker docs" })
+      vim.keymap.set("n", "<leader>ds", function() open_devdocs("sql") end, { desc = "SQL docs" })
+      vim.keymap.set("n", "<leader>db", function() open_devdocs("bash") end, { desc = "Bash docs" })
+      vim.keymap.set("n", "<leader>dh", function() open_devdocs("http") end, { desc = "HTTP docs" })
+      vim.keymap.set("n", "<leader>dG", function() open_devdocs("git") end, { desc = "Git docs" })
+      vim.keymap.set("n", "<leader>dI", "<cmd>DevdocsInstall<CR>", { desc = "Install DevDocs" })
+      vim.keymap.set("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all DevDocs" })
     end,
   },
   

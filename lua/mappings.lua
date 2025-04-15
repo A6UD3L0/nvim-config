@@ -1452,3 +1452,145 @@ setup_theme()
 
 -- Export the module
 return M
+
+-- ThePrimeagen's keybindings integrated with existing mappings
+-- ============================================================
+
+-- Exit insert mode with jk (faster than Escape)
+map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
+
+-- Quick movement between windows
+map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Move to lower window" })
+map("n", "<C-k>", "<C-w>k", { desc = "Move to upper window" })
+map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
+
+-- Move visual blocks up and down with J and K
+map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selected lines down" })
+map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selected lines up" })
+
+-- Better line joining without moving cursor
+map("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
+
+-- Half-page jumping with centered cursor
+map("n", "<C-d>", "<C-d>zz", { desc = "Move down half page and center" })
+map("n", "<C-u>", "<C-u>zz", { desc = "Move up half page and center" })
+
+-- Keep search terms in the middle of the screen
+map("n", "n", "nzzzv", { desc = "Next search result and center" })
+map("n", "N", "Nzzzv", { desc = "Previous search result and center" })
+
+-- Preserve clipboard when pasting over text in visual mode
+map("x", "<leader>p", [["_dP]], { desc = "Paste without overwriting register" })
+
+-- Yank to system clipboard with leader
+map({"n", "v"}, "<leader>y", [["+y]], { desc = "Yank to system clipboard" })
+map("n", "<leader>Y", [["+Y]], { desc = "Yank line to system clipboard" })
+
+-- Delete to void register (don't fill clipboard with deletions)
+map({"n", "v"}, "<leader>d", [["_d]], { desc = "Delete to void register" })
+
+-- Quickfix navigation
+map("n", "<C-n>", "<cmd>cnext<CR>zz", { desc = "Next quickfix item" })
+map("n", "<C-p>", "<cmd>cprev<CR>zz", { desc = "Previous quickfix item" })
+map("n", "<leader>qq", "<cmd>cclose<CR>", { desc = "Close quickfix list" })
+map("n", "<leader>qo", "<cmd>copen<CR>", { desc = "Open quickfix list" })
+
+-- Replace word under cursor (global)
+map("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Replace word under cursor" })
+
+-- Make current file executable
+map("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make current file executable" })
+
+-- LazyGit shortcuts (these complement the ones in the plugin config)
+map("n", "<leader>gl", "<cmd>LazyGitFilterCurrentFile<CR>", { desc = "LazyGit current file logs" })
+map("n", "<leader>gb", "<cmd>LazyGitFilter<CR>", { desc = "LazyGit blame" })
+
+-- Harpoon marks (ThePrimeagen's navigation tool)
+local function setup_harpoon_mappings()
+  local ok, harpoon = pcall(require, "harpoon")
+  if not ok then
+    vim.notify("Harpoon not available", vim.log.levels.WARN)
+    return
+  end
+  
+  -- Set up harpoon keymaps
+  map("n", "<leader>ha", function() harpoon:list():append() end, { desc = "Add to Harpoon" })
+  map("n", "<leader>hh", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Show Harpoon" })
+  
+  -- Quick file navigation with harpoon
+  map("n", "<leader>1", function() harpoon:list():select(1) end, { desc = "Harpoon file 1" })
+  map("n", "<leader>2", function() harpoon:list():select(2) end, { desc = "Harpoon file 2" })
+  map("n", "<leader>3", function() harpoon:list():select(3) end, { desc = "Harpoon file 3" })
+  map("n", "<leader>4", function() harpoon:list():select(4) end, { desc = "Harpoon file 4" })
+  map("n", "<leader>5", function() harpoon:list():select(5) end, { desc = "Harpoon file 5" })
+end
+
+-- Try to set up Harpoon (doesn't error if not available)
+pcall(setup_harpoon_mappings)
+
+-- Undotree mappings (complementing the plugin config)
+map("n", "<leader>ut", "<cmd>UndotreeToggle<CR>", { desc = "Toggle Undotree" })
+map("n", "<leader>uf", "<cmd>UndotreeFocus<CR>", { desc = "Focus Undotree" })
+
+-- DevDocs additional shortcuts
+map("n", "<leader>df", function()
+  local ft = vim.bo.filetype
+  if ft == "python" then
+    vim.cmd("DevdocsOpenFloat python")
+  elseif ft == "go" then
+    vim.cmd("DevdocsOpenFloat go")
+  elseif ft == "lua" then
+    vim.cmd("DevdocsOpenFloat lua")
+  elseif ft == "bash" or ft == "sh" then
+    vim.cmd("DevdocsOpenFloat bash")
+  elseif ft == "javascript" or ft == "typescript" then
+    vim.cmd("DevdocsOpenFloat javascript")
+  elseif ft == "docker" or ft == "dockerfile" then
+    vim.cmd("DevdocsOpenFloat docker")
+  elseif ft == "sql" then
+    vim.cmd("DevdocsOpenFloat sql")
+  else
+    vim.cmd("DevdocsOpenFloat")
+  end
+end, { desc = "Open docs for current filetype" })
+
+-- ThePrimeagen's project navigation - find files
+map("n", "<leader>pf", function()
+  local telescope_ok, telescope = pcall(require, "telescope.builtin")
+  if telescope_ok then
+    telescope.find_files()
+  else
+    vim.notify("Telescope not available", vim.log.levels.WARN)
+  end
+end, { desc = "Find files in project" })
+
+-- Find Git files (if in Git repo)
+map("n", "<C-p>", function()
+  local telescope_ok, telescope = pcall(require, "telescope.builtin")
+  if telescope_ok then
+    pcall(telescope.git_files)
+  else
+    vim.notify("Telescope not available", vim.log.levels.WARN)
+  end
+end, { desc = "Find Git files" })
+
+-- Grep search with Telescope
+map("n", "<leader>ps", function()
+  local telescope_ok, telescope = pcall(require, "telescope.builtin")
+  if telescope_ok then
+    telescope.live_grep()
+  else
+    vim.notify("Telescope not available", vim.log.levels.WARN)
+  end
+end, { desc = "Project search (grep)" })
+
+-- Fuzzy find in current buffer
+map("n", "<leader>/", function()
+  local telescope_ok, telescope = pcall(require, "telescope.builtin")
+  if telescope_ok then
+    telescope.current_buffer_fuzzy_find()
+  else
+    vim.notify("Telescope not available", vim.log.levels.WARN)
+  end
+end, { desc = "Fuzzy find in buffer" })

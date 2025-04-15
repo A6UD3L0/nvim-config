@@ -126,35 +126,19 @@ M._toggle_database_terminal = function()
   end
 end
 
--- Python venv smart activation
-M._venv_smart_activate = function()
-  -- Check if venv_diagnostics module is available
-  if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
-    _G.VenvDiagnostics.smart_activate()
-    return true
-  end
-  
-  -- Fallback implementation
-  local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
-  local pyenv_path = vim.fn.finddir(".python-version", vim.fn.getcwd() .. ";")
-  local poetry_path = vim.fn.findfile("pyproject.toml", vim.fn.getcwd() .. ";")
-  
-  if venv_path ~= "" then
-    vim.notify("Detected .venv directory", vim.log.levels.INFO)
-    return true
-  elseif pyenv_path ~= "" then
-    vim.notify("Detected .python-version file", vim.log.levels.INFO)
-    return true
-  elseif poetry_path ~= "" then
-    vim.notify("Detected poetry project", vim.log.levels.INFO)
-    return true
-  else
-    vim.notify("No Python environment detected", vim.log.levels.WARN)
+-- Helper function to validate that a required plugin is available
+-- Useful for keybinding validation
+M._validate_plugin = function(plugin_name, friendly_name)
+  friendly_name = friendly_name or plugin_name
+  local status_ok, _ = pcall(require, plugin_name)
+  if not status_ok then
+    vim.notify("Plugin " .. friendly_name .. " not available for this keybinding", vim.log.levels.WARN)
     return false
   end
+  return true
 end
 
--- Run Python file with environment
+-- Execute Python helper with better error handling
 M._python_run_file = function()
   local file = vim.fn.expand('%:p')
   if vim.fn.filereadable(file) == 0 then
@@ -173,21 +157,92 @@ M._python_run_file = function()
     return
   end
   
-  -- Fallback implementation
+  -- Get Python command with virtual environment
+  local python_cmd = M._get_python_command()
+  
+  -- Run the command in a terminal
+  M._run_in_terminal(python_cmd .. " \"" .. file .. "\"")
+end
+
+-- Helper to determine the best Python command based on environment
+M._get_python_command = function()
   local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
   local pyenv_path = vim.fn.finddir(".python-version", vim.fn.getcwd() .. ";")
   local poetry_path = vim.fn.findfile("pyproject.toml", vim.fn.getcwd() .. ";")
   local python_cmd = "python"
   
   if venv_path ~= "" then
-    python_cmd = "source " .. venv_path .. "/bin/activate && python"
+    if vim.fn.has("win32") == 1 then
+      python_cmd = venv_path .. "\\Scripts\\python.exe"
+    else
+      python_cmd = "source " .. venv_path .. "/bin/activate && python"
+    end
   elseif pyenv_path ~= "" then
     python_cmd = "pyenv shell $(cat " .. pyenv_path .. ") && python"
   elseif poetry_path ~= "" then
     python_cmd = "poetry run python"
   end
   
-  M._run_in_terminal(python_cmd .. " \"" .. file .. "\"")
+  return python_cmd
+end
+
+-- Activate virtual environment based on project
+M._venv_smart_activate = function()
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
+    _G.VenvDiagnostics.smart_activate()
+    return true
+  elseif M._has_venv_selector() then
+    vim.cmd("VenvSelectCached")
+    return true
+  else
+    local venv_path = vim.fn.finddir(".venv", vim.fn.getcwd() .. ";")
+    local pyenv_path = vim.fn.finddir(".python-version", vim.fn.getcwd() .. ";")
+    local poetry_path = vim.fn.findfile("pyproject.toml", vim.fn.getcwd() .. ";")
+    
+    if venv_path ~= "" then
+      vim.notify("Using venv: " .. venv_path, vim.log.levels.INFO)
+      return true
+    elseif pyenv_path ~= "" then
+      vim.notify("Using pyenv from: " .. pyenv_path, vim.log.levels.INFO)
+      return true
+    elseif poetry_path ~= "" then
+      vim.notify("Using poetry from: " .. poetry_path, vim.log.levels.INFO)
+      return true
+    end
+  end
+  
+  return false
+end
+
+-- Function to get visual selection text
+vim.api.nvim_buf_get_visual_selection = function()
+  local _, line_start, col_start, _ = unpack(vim.fn.getpos("'<"))
+  local _, line_end, col_end, _ = unpack(vim.fn.getpos("'>"))
+  
+  -- Normalize for selection direction
+  if line_start > line_end then
+    line_start, line_end = line_end, line_start
+    col_start, col_end = col_end, col_start
+  end
+  
+  -- Get the lines
+  local lines = vim.api.nvim_buf_get_lines(0, line_start - 1, line_end, false)
+  
+  -- If no lines were selected, return empty table
+  if #lines == 0 then
+    return {}
+  end
+  
+  -- Handle single line selections
+  if line_start == line_end then
+    lines[1] = string.sub(lines[1], col_start, col_end)
+  else
+    -- First and last lines need trimming
+    lines[1] = string.sub(lines[1], col_start)
+    lines[#lines] = string.sub(lines[#lines], 1, col_end)
+  end
+  
+  return lines
 end
 
 -- Execute Python snippet (selected text)
@@ -195,11 +250,16 @@ M._python_execute_snippet = function()
   -- Get visual selection
   local lines = vim.api.nvim_buf_get_visual_selection()
   
-  -- Create a temporary file
+  if #lines == 0 then
+    vim.notify("No text selected", vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Create a temporary file with error handling
   local temp_file = os.tmpname() .. ".py"
-  local f = io.open(temp_file, "w")
+  local f, err = io.open(temp_file, "w")
   if not f then
-    vim.notify("Failed to create temporary file", vim.log.levels.ERROR)
+    vim.notify("Failed to create temporary file: " .. (err or "unknown error"), vim.log.levels.ERROR)
     return
   end
   
@@ -209,14 +269,24 @@ M._python_execute_snippet = function()
   end
   f:close()
   
-  -- Run the file
-  M._run_in_terminal("python " .. temp_file)
+  -- Get the best Python command for the environment
+  local python_cmd = M._get_python_command()
+  
+  -- Run the file with proper error handling
+  vim.notify("Executing Python code...", vim.log.levels.INFO)
+  M._run_in_terminal(python_cmd .. " \"" .. temp_file .. "\"")
 end
 
 -- Run current selection in IPython
 M._python_execute_in_ipython = function()
   -- Get visual selection
   local lines = vim.api.nvim_buf_get_visual_selection()
+  
+  if #lines == 0 then
+    vim.notify("No text selected", vim.log.levels.ERROR)
+    return
+  end
+  
   local code = table.concat(lines, "\n")
   
   -- Escape any quotes
@@ -563,6 +633,149 @@ map("n", "<leader>dm", function()
   )
 end, { desc = "Browse ML documentation" })
 
+-- Enhanced Python test runner with better validation
+M._run_python_tests = function()
+  -- Try telescope plugin first
+  if M._has_telescope() then
+    local status_ok, telescope = pcall(require, "telescope")
+    if status_ok and telescope.extensions and telescope.extensions.python_tests then
+      local success, err = pcall(function()
+        telescope.extensions.python_tests.python_tests()
+      end)
+      if success then
+        return
+      else
+        vim.notify("Failed to run Python tests via Telescope: " .. tostring(err), vim.log.levels.WARN)
+      end
+    end
+  end
+  
+  -- Fallback to pytest if available
+  if M._command_exists("pytest") then
+    M._run_in_terminal("pytest")
+    return
+  end
+  
+  -- Last resort: use python -m unittest
+  if M._command_exists("python") then
+    -- Check for test directory structure
+    local test_dirs = { "tests", "test", "unit_tests" }
+    local test_dir_exists = false
+    
+    for _, dir in ipairs(test_dirs) do
+      if vim.fn.isdirectory(dir) == 1 then
+        test_dir_exists = true
+        break
+      end
+    end
+    
+    if test_dir_exists then
+      M._run_in_terminal("python -m unittest discover")
+    else
+      -- No test directory found, run the current file if it's a test file
+      local filename = vim.fn.expand("%:t")
+      if filename:match("test_.*%.py$") or filename:match(".*_test%.py$") then
+        M._run_in_terminal("python -m unittest " .. vim.fn.expand("%:r"))
+      else
+        vim.notify("No test files or directories found", vim.log.levels.ERROR)
+      end
+    end
+  else
+    vim.notify("No Python test runner found", vim.log.levels.ERROR)
+  end
+end
+
+-- Fixed and improved Python helper functions
+M._create_python_venv = function()
+  if _G.VenvDiagnostics and _G.VenvDiagnostics.create_venv then
+    vim.cmd("VenvCreate")
+    return
+  end
+  
+  if M._command_exists("python") then
+    vim.ui.input({
+      prompt = "Virtual environment name (.venv): ",
+      default = ".venv",
+    }, function(venv_name)
+      if not venv_name or venv_name == "" then
+        venv_name = ".venv"
+      end
+      
+      -- Execute with better feedback
+      vim.notify("Creating Python virtual environment: " .. venv_name, vim.log.levels.INFO)
+      M._run_in_terminal("python -m venv " .. venv_name)
+    end)
+  else
+    vim.notify("Python not found", vim.log.levels.ERROR)
+  end
+end
+
+-- Update the keybinding group for Python with improved error handling
+local python_group = {
+  { key = "<leader>pa", fn = function()
+    if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
+      vim.cmd("VenvActivate")
+    elseif M._has_venv_selector() then
+      pcall(vim.cmd, "VenvSelectCached")
+    else
+      vim.notify("No virtual environment selector available", vim.log.levels.WARN)
+    end
+  end, desc = "Activate Python environment" },
+  
+  { key = "<leader>ps", fn = function()
+    if M._has_venv_selector() then
+      pcall(vim.cmd, "VenvSelect")
+    else
+      vim.notify("VenvSelector not available", vim.log.levels.ERROR)
+    end
+  end, desc = "Select Python environment" },
+  
+  { key = "<leader>pc", fn = function()
+    if M._has_venv_selector() then
+      pcall(vim.cmd, "VenvSelectCached")
+    else
+      vim.notify("VenvSelector not available", vim.log.levels.ERROR)
+    end
+  end, desc = "Select cached environment" },
+  
+  { key = "<leader>pn", fn = M._create_python_venv, desc = "Create new venv" },
+  
+  { key = "<leader>pi", fn = function()
+    if _G.VenvDiagnostics then
+      pcall(vim.cmd, "VenvDiagnostics")
+    else
+      vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR)
+    end
+  end, desc = "Show environment info" },
+  
+  { key = "<leader>pr", fn = function()
+    if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then
+      pcall(vim.cmd, "RunPythonWithEnv")
+    else
+      M._python_run_file()
+    end
+  end, desc = "Run current file with env" },
+  
+  { key = "<leader>pe", fn = M._python_execute_snippet, desc = "Execute selection" },
+  
+  { key = "<leader>pp", fn = function()
+    if M._command_exists("ipython") then
+      M._python_execute_in_ipython()
+    else
+      vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR)
+    end
+  end, desc = "Run selection in IPython" },
+  
+  { key = "<leader>pnf", fn = M._python_new_file, desc = "New Python file" },
+  
+  { key = "<leader>pt", fn = M._run_python_tests, desc = "Run Python tests" },
+}
+
+-- Apply all mappings in the python_group
+for _, mapping in ipairs(python_group) do
+  map("n", mapping.key, mapping.fn, { desc = mapping.desc })
+end
+
 -- =============================================
 -- TERMINAL OPERATIONS (t namespace)
 -- =============================================
@@ -689,7 +902,7 @@ map("n", "<leader>bl", "<cmd>buffers<CR>", { desc = "List buffers" })
 -- FILE EXPLORER OPERATIONS (e namespace)
 -- =============================================
 
--- Check if NvimTree is available
+-- Helper for checking if NvimTree is available
 M._has_nvim_tree = function()
   if not M._has_plugin("nvim-tree") then
     vim.notify("NvimTree plugin not found. Please install nvim-tree/nvim-tree.lua", vim.log.levels.ERROR)
@@ -698,18 +911,34 @@ M._has_nvim_tree = function()
   return true
 end
 
--- File explorer mappings
-map("n", "<leader>e", function()
-  if M._has_nvim_tree() then
-    vim.cmd("NvimTreeToggle")
+-- Toggle file explorer with error handling
+M._toggle_nvim_tree = function()
+  if not M._has_nvim_tree() then
+    return
   end
-end, { desc = "Toggle file explorer" })
+  
+  local success, err = pcall(vim.cmd, "NvimTreeToggle")
+  if not success then
+    vim.notify("Error toggling NvimTree: " .. tostring(err), vim.log.levels.ERROR)
+  end
+end
 
-map("n", "<leader>ef", function()
-  if M._has_nvim_tree() then
-    vim.cmd("NvimTreeFocus")
+-- Focus file explorer with error handling
+M._focus_nvim_tree = function()
+  if not M._has_nvim_tree() then
+    return
   end
-end, { desc = "Focus file explorer" })
+  
+  local success, err = pcall(vim.cmd, "NvimTreeFocus")
+  if not success then
+    vim.notify("Error focusing NvimTree: " .. tostring(err), vim.log.levels.ERROR)
+  end
+end
+
+-- File explorer mappings
+map("n", "<leader>e", function() M._toggle_nvim_tree() end, { desc = "Toggle file explorer" })
+
+map("n", "<leader>ef", function() M._focus_nvim_tree() end, { desc = "Focus file explorer" })
 
 -- Quick access to built-in file explorer (complements NvimTree)
 map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
@@ -718,7 +947,7 @@ map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
 -- FILE/FIND OPERATIONS (f namespace)
 -- =============================================
 
--- Check if Telescope is available
+-- Helper functions for testing if plugins exist
 M._has_telescope = function()
   if not M._has_plugin("telescope") then
     vim.notify("Telescope plugin not found. Please install nvim-telescope/telescope.nvim", vim.log.levels.ERROR)
@@ -727,43 +956,84 @@ M._has_telescope = function()
   return true
 end
 
+-- More robust telescope run function that properly handles errors
+M._run_telescope_command = function(telescope_cmd, opts)
+  if not M._has_telescope() then
+    return
+  end
+  
+  opts = opts or {}
+  local status_ok, telescope = pcall(require, "telescope.builtin")
+  if not status_ok then
+    vim.notify("Failed to require telescope.builtin", vim.log.levels.ERROR)
+    return
+  end
+  
+  if not telescope[telescope_cmd] then
+    vim.notify("Telescope command not found: " .. telescope_cmd, vim.log.levels.ERROR)
+    return
+  end
+  
+  -- Execute the telescope command with error handling
+  local success, err = pcall(telescope[telescope_cmd], opts)
+  if not success then
+    vim.notify("Error running Telescope " .. telescope_cmd .. ": " .. tostring(err), vim.log.levels.ERROR)
+  end
+end
+
+-- Update telescope find files to be more robust
+M._telescope_find_files = function()
+  if not M._has_telescope() then
+    return
+  end
+  
+  local opts = {
+    hidden = true,
+    no_ignore = false,
+    follow = true,  -- Follow symbolic links
+  }
+  
+  M._run_telescope_command("find_files", opts)
+end
+
+-- Update telescope live grep to be more robust
+M._telescope_live_grep = function()
+  if not M._has_telescope() then
+    return
+  end
+  
+  local opts = {
+    additional_args = function()
+      return {"--hidden"}
+    end
+  }
+  
+  M._run_telescope_command("live_grep", opts)
+end
+
 -- Telescope/find mappings
-map("n", "<leader>ff", function()
+map("n", "<leader>ff", function() M._telescope_find_files() end, { desc = "Find files" })
+map("n", "<leader>fg", function() M._telescope_live_grep() end, { desc = "Find in files (grep)" })
+map("n", "<leader>fb", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope find_files")
-  end
-end, { desc = "Find files" })
-
-map("n", "<leader>fg", function()
-  if M._has_telescope() then
-    vim.cmd("Telescope live_grep")
-  end
-end, { desc = "Find in files (grep)" })
-
-map("n", "<leader>fb", function()
-  if M._has_telescope() then
-    vim.cmd("Telescope buffers")
+    M._run_telescope_command("buffers")
   end
 end, { desc = "Find buffers" })
-
-map("n", "<leader>fh", function()
+map("n", "<leader>fh", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope help_tags")
+    M._run_telescope_command("help_tags")
   end
 end, { desc = "Find help tags" })
-
-map("n", "<leader>fr", function()
+map("n", "<leader>fr", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope oldfiles")
+    M._run_telescope_command("oldfiles")
   end
 end, { desc = "Recent files" })
-
-map("n", "<leader>fm", function()
+map("n", "<leader>fm", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope marks")
+    M._run_telescope_command("marks")
   end
 end, { desc = "Find marks" })
-
 map("n", "<leader>fd", function()
   if M._has_plugin("dashboard") then
     require('dashboard').find_directory_and_cd()
@@ -771,7 +1041,6 @@ map("n", "<leader>fd", function()
     vim.notify("Dashboard plugin not found", vim.log.levels.ERROR)
   end
 end, { desc = "Find directory and cd" })
-
 map("n", "<leader>fp", function()
   if M._has_telescope() and M._has_plugin("telescope") and pcall(require, "telescope").extensions.projects then
     vim.cmd("Telescope projects")
@@ -779,28 +1048,24 @@ map("n", "<leader>fp", function()
     vim.notify("Telescope projects extension not available", vim.log.levels.ERROR)
   end
 end, { desc = "Find projects" })
-
-map("n", "<leader>fc", function()
+map("n", "<leader>fc", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope commands")
+    M._run_telescope_command("commands")
   end
 end, { desc = "Find commands" })
-
-map("n", "<leader>f/", function()
+map("n", "<leader>f/", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope current_buffer_fuzzy_find")
+    M._run_telescope_command("current_buffer_fuzzy_find")
   end
 end, { desc = "Find in current buffer" })
-
-map("n", "<leader>fs", function()
+map("n", "<leader>fs", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope lsp_document_symbols")
+    M._run_telescope_command("lsp_document_symbols")
   end
 end, { desc = "Find document symbols" })
-
-map("n", "<leader>fz", function()
+map("n", "<leader>fz", function() 
   if M._has_telescope() then
-    vim.cmd("Telescope lsp_dynamic_workspace_symbols")
+    M._run_telescope_command("lsp_dynamic_workspace_symbols")
   end
 end, { desc = "Find workspace symbols" })
 
@@ -995,18 +1260,18 @@ local python_group = {
   { key = "<leader>pa", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then vim.cmd("VenvActivate") elseif M._has_venv_selector() then vim.cmd("VenvSelectCached") end end, desc = "Activate Python environment" },
   { key = "<leader>ps", fn = function() if M._has_venv_selector() then vim.cmd("VenvSelect") end end, desc = "Select Python environment" },
   { key = "<leader>pc", fn = function() if M._has_venv_selector() then vim.cmd("VenvSelectCached") end end, desc = "Select cached environment" },
-  { key = "<leader>pn", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.create_venv then vim.cmd("VenvCreate") elseif M._command_exists("python") then local venv_name = vim.fn.input("Virtual environment name (.venv): ", ".venv") if venv_name == "" then venv_name = ".venv" end M._run_in_terminal("python -m venv " .. venv_name) else vim.notify("Python not found", vim.log.levels.ERROR) end end, desc = "Create new venv" },
+  { key = "<leader>pn", fn = M._create_python_venv, desc = "Create new venv" },
   { key = "<leader>pi", fn = function() if _G.VenvDiagnostics then vim.cmd("VenvDiagnostics") else vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR) end end, desc = "Show environment info" },
   { key = "<leader>pr", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then vim.cmd("RunPythonWithEnv") else M._python_run_file() end end, desc = "Run current file with env" },
-  { key = "<leader>pe", fn = function() M._python_execute_snippet() end, desc = "Execute selection" },
+  { key = "<leader>pe", fn = M._python_execute_snippet, desc = "Execute selection" },
   { key = "<leader>pp", fn = function() if M._command_exists("ipython") then M._python_execute_in_ipython() else vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR) end end, desc = "Run selection in IPython" },
-  { key = "<leader>pnf", fn = function() M._python_new_file() end, desc = "New Python file" },
-  { key = "<leader>pt", fn = function() if M._has_telescope() and pcall(require, "telescope").extensions.python_tests then vim.cmd("Telescope python_tests") elseif M._command_exists("pytest") then M._run_in_terminal("pytest") else vim.notify("pytest not available", vim.log.levels.ERROR) end end, desc = "Run Python tests" },
-  { key = "<leader>pg", fn = function() M._poetry_generate_requirements() end, desc = "Generate requirements.txt from Poetry" },
-  { key = "<leader>pb", fn = function() M._poetry_build() end, desc = "Build Poetry package" },
-  { key = "<leader>ppub", fn = function() M._poetry_publish() end, desc = "Publish Poetry package" },
-  { key = "<leader>psh", fn = function() M._poetry_shell() end, desc = "Poetry shell" },
-  { key = "<leader>ped", fn = function() M._poetry_edit_pyproject() end, desc = "Edit pyproject.toml" },
+  { key = "<leader>pnf", fn = M._python_new_file, desc = "New Python file" },
+  { key = "<leader>pt", fn = M._run_python_tests, desc = "Run Python tests" },
+  { key = "<leader>pg", fn = M._poetry_generate_requirements, desc = "Generate requirements.txt from Poetry" },
+  { key = "<leader>pb", fn = M._poetry_build, desc = "Build Poetry package" },
+  { key = "<leader>ppub", fn = M._poetry_publish, desc = "Publish Poetry package" },
+  { key = "<leader>psh", fn = M._poetry_shell, desc = "Poetry shell" },
+  { key = "<leader>ped", fn = M._poetry_edit_pyproject, desc = "Edit pyproject.toml" },
   { key = "<leader>prun", fn = function() if M._check_poetry() then vim.ui.input({ prompt = "Poetry run command: " }, function(cmd) if cmd and cmd ~= "" then M._run_in_terminal("poetry run " .. cmd) end end) end end, desc = "Poetry run command" },
   { key = "<leader>prq", fn = function() vim.cmd("edit requirements.txt") end, desc = "Edit requirements.txt" },
   { key = "<leader>pinst", fn = function() if M._has_plugin("toggleterm") then vim.cmd("TermExec cmd='pip install -r requirements.txt'") elseif M._command_exists("pip") then M._run_in_terminal("pip install -r requirements.txt") else vim.notify("pip command not found", vim.log.levels.ERROR) end end, desc = "Install from requirements.txt" },
@@ -1298,66 +1563,19 @@ end, { desc = "Show all keymaps (cheatsheet)" })
 -- Each group is registered with which-key for discoverability
 
 -- THEME POLISH
--- Use ADHD-friendly theme as primary, with tokyonight as fallback
-
--- First try to load and apply the ADHD-friendly theme
-local adhd_ok, adhd_theme = pcall(require, "plugins.adhd_friendly_theme")
-if adhd_ok then
-  -- Try to apply ADHD theme
-  local setup_ok, _ = pcall(function() 
-    adhd_theme.setup()
-    adhd_theme.setup_lualine()
-  end)
-  
-  if setup_ok then
-    vim.notify("ADHD-friendly theme applied successfully", vim.log.levels.INFO)
-  else
-    -- If ADHD theme fails, fall back to colorscheme approach
-    vim.notify("Could not apply ADHD theme, falling back to tokyonight", vim.log.levels.WARN)
-    local set_colorscheme = function(name)
-      local status_ok, _ = pcall(vim.cmd.colorscheme, name)
-      if not status_ok then
-        vim.notify("Could not find colorscheme: " .. name, vim.log.levels.WARN)
-        return false
-      end
-      return true
-    end
-    
-    -- Try tokyonight first, then fall back to built-in themes
-    if not set_colorscheme("tokyonight") then
-      if not set_colorscheme("blue") then
-        if not set_colorscheme("desert") then
-          if not set_colorscheme("morning") then
-            vim.cmd.colorscheme("default")
-          end
-        end
-      end
-    end
-  end
-else
-  -- If ADHD theme module can't be loaded, fall back to colorscheme approach
-  vim.notify("ADHD theme module not found, falling back to tokyonight", vim.log.levels.WARN)
-  
-  local set_colorscheme = function(name)
-    local status_ok, _ = pcall(vim.cmd.colorscheme, name)
-    if not status_ok then
-      vim.notify("Could not find colorscheme: " .. name, vim.log.levels.WARN)
-      return false
-    end
-    return true
-  end
-  
-  -- Try tokyonight first, then fall back to built-in themes
-  if not set_colorscheme("tokyonight") then
-    if not set_colorscheme("blue") then
-      if not set_colorscheme("desert") then
-        if not set_colorscheme("morning") then
-          vim.cmd.colorscheme("default")
-        end
-      end
-    end
+-- Use Tokyonight as the primary theme
+local function setup_theme()
+  -- Apply Tokyonight theme
+  local theme_ok, _ = pcall(vim.cmd, "colorscheme tokyonight")
+  if not theme_ok then
+    -- If Tokyonight fails, fall back to default theme
+    vim.notify("Could not apply Tokyonight theme, falling back to default", vim.log.levels.WARN)
+    vim.cmd.colorscheme("default")
   end
 end
+
+-- Set up the theme
+setup_theme()
 
 -- Export the module
 return M

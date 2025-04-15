@@ -455,19 +455,25 @@ return {
   -- Fuzzy finder
   {
     "nvim-telescope/telescope.nvim",
+    branch = "0.1.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+      { 
+        "nvim-telescope/telescope-fzf-native.nvim", 
+        build = "make",
+        cond = function() return vim.fn.executable "make" == 1 end,
+      },
     },
     cmd = "Telescope",
     keys = {
+      { "<leader>f", desc = "Telescope" },
       { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find files" },
       { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live grep" },
-      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Find buffers" },
+      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Buffers" },
       { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help tags" },
-      { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent files" },
       { "<leader>fc", "<cmd>Telescope commands<CR>", desc = "Commands" },
-      { "<leader>f/", "<cmd>Telescope current_buffer_fuzzy_find<CR>", desc = "Find in current buffer" },
+      { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent files" },
+      { "<leader>fk", "<cmd>Telescope keymaps<CR>", desc = "Keymaps" },
       { "<leader>fd", "<cmd>Telescope diagnostics<CR>", desc = "Diagnostics" },
       { "<leader>fs", "<cmd>Telescope lsp_document_symbols<CR>", desc = "Document symbols" },
       { "<leader>fS", "<cmd>Telescope lsp_workspace_symbols<CR>", desc = "Workspace symbols" },
@@ -478,32 +484,6 @@ return {
       
       telescope.setup({
         defaults = {
-          mappings = {
-            i = {
-              ["<C-j>"] = actions.move_selection_next,
-              ["<C-k>"] = actions.move_selection_previous,
-              ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
-              ["<esc>"] = actions.close,
-            },
-          },
-          file_ignore_patterns = {
-            "node_modules",
-            ".git/",
-            ".pytest_cache/",
-            "__pycache__/",
-            "venv/",
-            ".venv/",
-            "%.pyc",
-            "%.pyo",
-            "%.obj",
-            "%.o",
-            "%.a",
-            "%.bin",
-            "%.tar.gz",
-            "%.zip",
-            "%.7z",
-            "%.so",
-          },
           path_display = { "truncate" },
           sorting_strategy = "ascending",
           layout_config = {
@@ -511,20 +491,53 @@ return {
               prompt_position = "top",
               preview_width = 0.55,
             },
+            vertical = {
+              mirror = false,
+            },
             width = 0.87,
             height = 0.80,
             preview_cutoff = 120,
           },
+          mappings = {
+            i = {
+              ["<C-j>"] = actions.move_selection_next,
+              ["<C-k>"] = actions.move_selection_previous,
+              ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+              ["<esc>"] = actions.close,
+            },
+            n = {
+              ["q"] = actions.close,
+            },
+          },
+          file_ignore_patterns = {
+            "node_modules",
+            ".git/",
+            ".cache",
+            "%.o",
+            "%.a",
+            "%.out",
+            "%.class",
+            "%.pdf",
+            "%.mkv",
+            "%.mp4",
+            "%.zip",
+          },
+          vimgrep_arguments = {
+            "rg",
+            "--color=never",
+            "--no-heading",
+            "--with-filename",
+            "--line-number",
+            "--column",
+            "--smart-case",
+            "--hidden",
+            "--glob=!.git/",
+          },
         },
         pickers = {
           find_files = {
-            hidden = true, -- Show hidden files
+            hidden = true,
             find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
-          },
-          live_grep = {
-            additional_args = function()
-              return { "--hidden" }
-            end,
           },
         },
         extensions = {
@@ -537,7 +550,8 @@ return {
         },
       })
       
-      telescope.load_extension("fzf")
+      -- Load extensions
+      pcall(telescope.load_extension, "fzf")
     end,
   },
   
@@ -571,36 +585,71 @@ return {
       { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
       { "<leader>ef", "<cmd>NvimTreeFocus<CR>", desc = "Focus file explorer" },
     },
-    opts = {
-      filters = { dotfiles = false },
-      disable_netrw = true,
-      hijack_netrw = true,
-      hijack_cursor = true,
-      git = { enable = true, ignore = false },
-      view = {
-        width = 30, -- Match the width of undotree
-        side = "left", -- Position on the left side
-        preserve_window_proportions = true, -- Keep editing window large
-        signcolumn = "yes",
-      },
-      actions = {
-        open_file = {
-          resize_window = true, -- Resize the window upon file open
-          window_picker = {
-            enable = true,
-            chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
-            exclude = {
-              filetype = { "notify", "packer", "qf", "diff", "fugitive", "fugitiveblame" },
-              buftype = { "terminal", "help" },
+    config = function()
+      require("nvim-tree").setup({
+        filters = { dotfiles = false },
+        disable_netrw = true,
+        hijack_netrw = true,
+        hijack_cursor = true,
+        git = { enable = true, ignore = false },
+        view = {
+          width = 30, -- Match the width of undotree
+          side = "left", -- Position on the left side
+          preserve_window_proportions = true, -- Keep editing window large
+          signcolumn = "yes",
+        },
+        actions = {
+          open_file = {
+            resize_window = true, -- Resize the window upon file open
+            window_picker = {
+              enable = true,
+              chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+            },
+          },
+          change_dir = {
+            enable = true,             -- Change directory when changing root
+            global = true,             -- Change the working directory globally
+            restrict_above_cwd = false, -- No restrictions on changing directory
+          },
+        },
+        renderer = {
+          root_folder_label = ":~:s?$?/..?", -- Show parent directory
+          icons = {
+            show = {
+              file = true,
+              folder = true,
+              folder_arrow = true,
+              git = true,
+            },
+            glyphs = {
+              default = "",
+              symlink = "",
+              folder = {
+                default = "",
+                open = "",
+                empty = "",
+                empty_open = "",
+                symlink = "",
+              },
+              git = {
+                unstaged = "✗",
+                staged = "✓",
+                unmerged = "",
+                renamed = "➜",
+                untracked = "★",
+                deleted = "",
+                ignored = "◌",
+              },
             },
           },
         },
-      },
-      renderer = {
-        highlight_git = true,
-        indent_markers = { enable = true },
-      },
-    },
+        update_focused_file = {
+          enable = true,       -- Update the focused file on cursor hold
+          update_root = true,  -- Update the root directory if top level changes
+          ignore_list = {},    -- Don't ignore any files
+        },
+      })
+    end,
   },
   
   -- Syntax highlighting

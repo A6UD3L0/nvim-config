@@ -1177,26 +1177,32 @@ return {
         },
       })
       
-      -- Create command aliases for DevDocs to ensure compatibility
+      -- Create command aliases for DevDocs to ensure compatibility with latest version
       vim.api.nvim_create_user_command("DevdocsFetch", function()
         vim.notify("Fetching documentation index...", vim.log.levels.INFO)
-        -- Use the plugin's native command instead of Lua API
+        -- Call the plugin's fetch method directly
         local success, err = pcall(function()
-          -- Call the plugin's command directly
-          vim.cmd("DevdocsFetch")
+          -- Modern version uses M.fetch_registery()
+          devdocs.fetch_registery()
         end)
         
         if not success then
           vim.notify("DevDocs metadata fetch failed: " .. tostring(err), vim.log.levels.WARN)
+          -- Try fallback to command
+          pcall(vim.cmd, "DevdocsFetch")
         end
       end, {})
       
       vim.api.nvim_create_user_command("DevdocsInstall", function(opts)
         if opts.args and opts.args ~= "" then
           vim.notify("Installing documentation for " .. opts.args, vim.log.levels.INFO)
-          devdocs.install(opts.args)
+          -- Use the virtual args object to pass to the plugin's install_doc method
+          local args = { fargs = { opts.args } }
+          devdocs.install_doc(args)
         else
-          vim.notify("Please specify a documentation to install", vim.log.levels.ERROR)
+          vim.notify("Please specify a documentation to install or run without arguments to see picker", vim.log.levels.INFO)
+          -- Call with empty args to open picker
+          devdocs.install_doc({ fargs = {} })
         end
       end, { nargs = "?" })
       
@@ -1204,10 +1210,13 @@ return {
       vim.api.nvim_create_user_command("DevdocsOpenCmd", function(opts)
         local success, err = pcall(function()
           if opts.args and opts.args ~= "" then
-            -- Call the native command directly without our wrapper
-            vim.cmd("DevdocsOpen " .. vim.fn.shellescape(opts.args))
+            -- Create proper args object
+            local args = { fargs = { opts.args } }
+            -- Use the plugin's API directly
+            devdocs.open_doc(args)
           else
-            vim.cmd("DevdocsOpen")
+            -- Open picker for all docs
+            devdocs.open_doc({ fargs = {} })
           end
         end)
         
@@ -1220,10 +1229,13 @@ return {
       vim.api.nvim_create_user_command("DevdocsOpenFloatCmd", function(opts)
         local success, err = pcall(function()
           if opts.args and opts.args ~= "" then
-            -- Call the native command directly without our wrapper
-            vim.cmd("DevdocsOpenFloat " .. vim.fn.shellescape(opts.args))
+            -- Create proper args object
+            local args = { fargs = { opts.args } }
+            -- Use the plugin's API directly
+            devdocs.open_doc_float(args)
           else
-            vim.cmd("DevdocsOpenFloat")
+            -- Open picker for all docs in float window
+            devdocs.open_doc_float({ fargs = {} })
           end
         end)
         
@@ -1233,14 +1245,18 @@ return {
       end, { nargs = "?" })
       
       vim.api.nvim_create_user_command("DevdocsSearch", function()
-        if devdocs.search then
-          devdocs.search()
-        else
-          -- Fallback if search function is not available
-          vim.notify("Search function not available in this version", vim.log.levels.WARN)
-          -- Use our fixed command
-          vim.cmd("DevdocsOpenCmd")
-        end
+        -- Open picker with all docs - the modern version's equivalent of search
+        devdocs.open_doc({ fargs = {} })
+      end, {})
+      
+      -- Add current filetype doc opener
+      vim.api.nvim_create_user_command("DevdocsFiletype", function()
+        devdocs.open_doc_current_file()
+      end, {})
+      
+      -- Add current filetype doc opener in float window
+      vim.api.nvim_create_user_command("DevdocsFiletypeFloat", function()
+        devdocs.open_doc_current_file(true)
       end, {})
     end,
   },

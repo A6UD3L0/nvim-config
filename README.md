@@ -137,202 +137,75 @@ Documentation is accessible through the `<leader>d` namespace with ML-specific d
 | `<leader>dmy`     | PyTorch documentation                     |
 | `<leader>dmm`     | Matplotlib documentation                  |
 
-## 🔧 Installation
+## 📦 Essential Plugins
 
-### Completely Fresh Install (Fix Plugin Errors)
+This configuration includes carefully selected plugins for backend development:
 
-If you're experiencing plugin errors, the most reliable fix is a complete reinstall:
+### Core Plugins
+- **[lazy.nvim](https://github.com/folke/lazy.nvim)** - Modern plugin manager
+- **[nvim-lualine](https://github.com/nvim-lualine/lualine.nvim)** - Statusline
+- **[nvim-notify](https://github.com/rcarriga/nvim-notify)** - Notification manager
+- **[which-key](https://github.com/folke/which-key.nvim)** - Keybinding helper
+- **[tokyonight.nvim](https://github.com/folke/tokyonight.nvim)** - Fallback theme
 
-#### macOS/Linux
+### Language Support
+- **[nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)** - LSP configuration
+- **[mason.nvim](https://github.com/williamboman/mason.nvim)** - LSP/DAP/Linter manager
+- **[nvim-cmp](https://github.com/hrsh7th/nvim-cmp)** - Autocompletion
+- **[null-ls.nvim](https://github.com/jose-elias-alvarez/null-ls.nvim)** - Diagnostics and formatting
 
-```bash
-# Backup your existing config (optional)
-mv ~/.config/nvim ~/.config/nvim.bak
-mv ~/.local/share/nvim ~/.local/share/nvim.bak
-mv ~/.local/state/nvim ~/.local/state/nvim.bak
-mv ~/.cache/nvim ~/.cache/nvim.bak
+### Navigation
+- **[telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)** - Fuzzy finder
+- **[nvim-tree](https://github.com/nvim-tree/nvim-tree.lua)** - File explorer
+- **[harpoon](https://github.com/ThePrimeagen/harpoon)** - File navigation
 
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+### Git Integration
+- **[gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim)** - Git indicators
+- **[lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)** - Git interface
 
-# Install plugin manager (lazy.nvim)
-git clone https://github.com/folke/lazy.nvim.git ~/.local/share/nvim/lazy/lazy.nvim
+## 🔧 Troubleshooting
 
-# Install critical plugins for ADHD-friendly theme
-git clone https://github.com/folke/tokyonight.nvim ~/.local/share/nvim/lazy/tokyonight.nvim
-git clone https://github.com/nvim-lualine/lualine.nvim ~/.local/share/nvim/lazy/lualine.nvim
-git clone https://github.com/rcarriga/nvim-notify ~/.local/share/nvim/lazy/nvim-notify
-git clone https://github.com/folke/which-key.nvim ~/.local/share/nvim/lazy/which-key.nvim
+### Common Issues and Fixes
 
-# Launch Neovim (plugins will be installed automatically)
-nvim
-```
-
-#### Windows
-
-```powershell
-# Backup your existing config (optional)
-Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName nvim.bak -Force -ErrorAction SilentlyContinue
-Rename-Item -Path $env:LOCALAPPDATA\nvim-data -NewName nvim-data.bak -Force -ErrorAction SilentlyContinue
-
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git $env:LOCALAPPDATA\nvim
-
-# Create plugin directories
-New-Item -Path $env:LOCALAPPDATA\nvim-data\lazy -ItemType Directory -Force
-
-# Install plugin manager (lazy.nvim)
-git clone https://github.com/folke/lazy.nvim.git $env:LOCALAPPDATA\nvim-data\lazy\lazy.nvim
-
-# Install critical plugins for ADHD-friendly theme
-git clone https://github.com/folke/tokyonight.nvim $env:LOCALAPPDATA\nvim-data\lazy\tokyonight.nvim
-git clone https://github.com/nvim-lualine/lualine.nvim $env:LOCALAPPDATA\nvim-data\lazy\lualine.nvim
-git clone https://github.com/rcarriga/nvim-notify $env:LOCALAPPDATA\nvim-data\lazy\nvim-notify
-git clone https://github.com/folke/which-key.nvim $env:LOCALAPPDATA\nvim-data\lazy\which-key.nvim
-
-# Launch Neovim (plugins will be installed automatically)
-nvim
-```
-
-### Standard Installation
-
-If you're not experiencing plugin errors, you can use the regular installation method:
-
-#### Prerequisites
-
-##### macOS
-
-```bash
-# Install Homebrew if not already installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install required dependencies
-brew install neovim ripgrep fd node python3 git curl
-
-# Install a Nerd Font (required for icons)
-brew tap homebrew/cask-fonts
-brew install --cask font-fira-code-nerd-font
-
-# Create Python virtual environment for Neovim
-mkdir -p ~/.venvs/neovim
-python3 -m venv ~/.venvs/neovim
-~/.venvs/neovim/bin/pip install pynvim
-```
-
-##### Linux (Ubuntu/Debian)
-
-```bash
-# Update packages
-sudo apt update
-
-# Install dependencies
-sudo apt install -y neovim ripgrep fd-find git curl wget nodejs npm python3 python3-pip python3-venv
-
-# Install a more recent version of Neovim
-sudo add-apt-repository ppa:neovim-ppa/unstable
-sudo apt update
-sudo apt install -y neovim
-
-# Install a Nerd Font (required for icons)
-mkdir -p ~/.local/share/fonts
-cd ~/.local/share/fonts
-curl -fLo "Fira Code Regular Nerd Font Complete.ttf" \
-  https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraCode/Regular/complete/Fira%20Code%20Regular%20Nerd%20Font%20Complete.ttf
-fc-cache -f -v
-
-# Create Python virtual environment for Neovim
-mkdir -p ~/.venvs/neovim
-python3 -m venv ~/.venvs/neovim
-~/.venvs/neovim/bin/pip install pynvim
-```
-
-##### Windows
-
-```powershell
-# Install scoop if not already installed (run in PowerShell)
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-irm get.scoop.sh | iex
-
-# Install dependencies
-scoop install neovim ripgrep fd git nodejs python
-
-# Install a Nerd Font (required for icons)
-scoop bucket add nerd-fonts
-scoop install FiraCode-NF
-
-# Install Python provider
-pip install pynvim
-
-# Create Python virtual environment for Neovim
-mkdir -p $HOME\.venvs\neovim
-python -m venv $HOME\.venvs\neovim
-$HOME\.venvs\neovim\Scripts\pip install pynvim
-```
-
-#### Setting Up the Configuration
-
-1. **Backup your existing configuration** (if you have one):
-
+1. **Invalid Plugin Specs**
+   ```
+   Error: Invalid plugin spec {colors = {...}, setup = <function>}
+   ```
+   Fix: Run the fix_plugins.sh script to reorganize utility modules:
    ```bash
-   # macOS/Linux
-   mv ~/.config/nvim ~/.config/nvim.bak
-   
-   # Windows (PowerShell)
-   Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName nvim.bak -Force -ErrorAction SilentlyContinue
+   cd ~/.config/nvim
+   ./fix_plugins.sh
    ```
 
-2. **Clone this repository**:
-
-   ```bash
-   # macOS/Linux
-   git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
-   
-   # Windows (PowerShell)
-   git clone https://github.com/A6UD3L0/nvim-config.git $env:LOCALAPPDATA\nvim
+2. **Module Not Found Errors**
+   ```
+   module 'nvim-notify' not found
+   ```
+   Fix: Make sure all plugins are properly installed:
+   ```
+   :Lazy sync
    ```
 
-3. **Start Neovim**:
-
-   ```bash
-   nvim
+3. **Theme Not Applied**
+   Apply the ADHD-friendly theme manually:
+   ```
+   :lua _G.ADHD_THEME.setup()
    ```
 
-   On first start, all plugins will be installed automatically. This may take a few minutes.
-
-4. **Install LSP Servers** (inside Neovim):
-
-   ```vim
+4. **Missing Language Support**
+   Install language servers via Mason:
+   ```
    :Mason
    ```
+   Then navigate to the language server you need and press `i` to install.
 
-   Use the Mason UI to install any needed language servers (press `i` on a server to install):
-   - `pyright` (Python)
-   - `gopls` (Go)
-   - `rust_analyzer` (Rust)
-   - `tsserver` (TypeScript/JavaScript)
-   - `lua_ls` (Lua)
-   - `sqlls` (SQL)
+### Reset Your Configuration
 
-## 🎨 ADHD-Friendly UI
-
-This configuration includes a specially designed ADHD-friendly theme that:
-
-- Uses calming blues and greens as primary colors
-- Reserves energetic colors (yellow/orange) only for important elements
-- Provides clear visual hierarchy to reduce distraction
-- Features a muted background that's easy on the eyes for long coding sessions
-
-To activate the ADHD-friendly theme:
-
-```vim
-:ApplyADHDTheme
+If you need a completely fresh start:
+```bash
+rm -rf ~/.config/nvim ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
+git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
 ```
-
-The theme colors were selected based on research showing that for people with ADHD:
-- Blues create a sense of peace and tranquility
-- Greens have a calming effect and are associated with balance
-- Muted browns are grounding and help maintain focus
-- Strategic use of yellow/orange for only the most important elements helps direct attention where needed
 
 ## 🔑 Key Productivity Shortcuts
 
@@ -523,3 +396,24 @@ This configuration draws inspiration from:
 ## 📄 License
 
 MIT
+
+## 🎨 ADHD-Friendly UI
+
+This configuration includes a specially designed ADHD-friendly theme that:
+
+- Uses calming blues and greens as primary colors
+- Reserves energetic colors (yellow/orange) only for important elements
+- Provides clear visual hierarchy to reduce distraction
+- Features a muted background that's easy on the eyes for long coding sessions
+
+To activate the ADHD-friendly theme:
+
+```vim
+:ApplyADHDTheme
+```
+
+The theme colors were selected based on research showing that for people with ADHD:
+- Blues create a sense of peace and tranquility
+- Greens have a calming effect and are associated with balance
+- Muted browns are grounding and help maintain focus
+- Strategic use of yellow/orange for only the most important elements helps direct attention where needed

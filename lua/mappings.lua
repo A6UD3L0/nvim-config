@@ -1249,15 +1249,23 @@ local function set_colorscheme(name)
   return true
 end
 
+-- Try built-in colorschemes if external ones are not available
+-- This ensures at least some colorscheme is set
 -- Try rose-pine-moon first, fall back to a default theme if not installed
 if not set_colorscheme("rose-pine-moon") then
   -- Try rose-pine (might be installed without the moon variant)
   if not set_colorscheme("rose-pine") then
-    -- Try these common alternatives
+    -- Try common plugins
     if not set_colorscheme("tokyonight") then
       if not set_colorscheme("onedark") then
-        if not set_colorscheme("gruvbox") then
-          set_colorscheme("default")
+        -- These are built-in to Neovim
+        if not set_colorscheme("blue") then
+          if not set_colorscheme("desert") then
+            if not set_colorscheme("morning") then
+              -- This should always work (built into Vim)
+              vim.cmd.colorscheme("default")
+            end
+          end
         end
       end
     end

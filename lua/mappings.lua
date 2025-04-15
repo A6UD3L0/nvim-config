@@ -841,11 +841,11 @@ map("n", "<leader>ws", "<cmd>split<CR>", { desc = "Split window horizontally" })
 map("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Split window vertically" })
 
 -- Tab management
-map("n", "<leader>tn", "<cmd>tabnew<CR>", { desc = "New tab" })
-map("n", "<leader>tc", "<cmd>tabclose<CR>", { desc = "Close tab" })
-map("n", "<leader>to", "<cmd>tabonly<CR>", { desc = "Close all other tabs" })
-map("n", "<leader>tl", "<cmd>tabnext<CR>", { desc = "Next tab" })
-map("n", "<leader>th", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
+map("n", "<leader>wn", "<cmd>tabnew<CR>", { desc = "New tab" })
+map("n", "<leader>wc", "<cmd>tabclose<CR>", { desc = "Close tab" })
+map("n", "<leader>wo", "<cmd>tabonly<CR>", { desc = "Close all other tabs" })
+map("n", "<leader>wl", "<cmd>tabnext<CR>", { desc = "Next tab" })
+map("n", "<leader>wj", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
 
 -- =============================================
 -- UNDOTREE OPERATION (u namespace)

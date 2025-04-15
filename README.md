@@ -1,48 +1,35 @@
 # Ultimate Backend Development Neovim Configuration
 
-A comprehensive Neovim configuration optimized for backend development and data science. This configuration combines ThePrimeagen's powerful keybindings with NvChad's simplicity for an efficient development experience with beautiful UI elements.
+A comprehensive Neovim configuration optimized for backend development and data science. This configuration combines ThePrimeagen's powerful keybindings with NvChad's simplicity to create the ultimate IDE experience for Python, Go, Rust, TypeScript, SQL, and more.
 
-![Neovim Dashboard](https://raw.githubusercontent.com/A6UD3L0/nvim-config/main/assets/dashboard.png)
+## ✨ Features
 
-## 🚀 Features
+- **ADHD-Friendly Design**
+  - Custom color theme with focus-enhancing color palette
+  - Distraction-free coding environment
+  - Visual noise reduction with strategic syntax highlighting
+  - Fallback to TokyoNight theme for reliability
 
-- **Gorgeous UI**
-  - Rose Pine theme with customized transparency
-  - Beautiful welcome dashboard with Alpha
-  - Integrated file explorer with NvimTree
-  - Modern statusline with Lualine
-  - Tab and buffer management with Barbar
+- **Powerful LSP Integration**
+  - Autocompletion via nvim-cmp
+  - Diagnostics and code actions
+  - Go-to-definition, references, and more
+  - Signature help as you type
 
-- **Python Development Arsenal**
-  - Poetry integration for seamless package management
-  - Virtual environment handling with automatic detection
-  - Requirements.txt generation and installation shortcuts
-  - Python debugging with DAP integration
-  - Integrated REPL with Python and IPython support
+- **Deep Backend Language Support**
+  - Python with environments, virtual env management
+  - Go support with gopls
+  - Rust support with rust-analyzer
+  - C/C++ support
+  - SQL language support
+  - Docker files and compose
 
-- **Machine Learning & Data Science**
-  - Integrated documentation for ML libraries (scikit-learn, NumPy, Pandas)
-  - Direct shortcuts to TensorFlow, PyTorch, and Matplotlib documentation
-  - Virtual environment management optimized for data science workflows
-  - Intelligent code completion for ML libraries
-  - Notebook-like experience with code execution
+- **Lightning-Fast Navigation**
+  - Telescope fuzzy finder
+  - Harpoon for quick file jumping
+  - NvimTree file explorer
 
-- **Backend Language Support**
-  - First-class support for Python, Go, Rust, TypeScript, SQL
-  - Docker and Kubernetes integration
-  - Database clients and SQL execution
-  - LSP integration with intelligent code actions
-  - Treesitter for advanced syntax highlighting
-
-- **Intelligent Code Assistance**
-  - GitHub Copilot integration
-  - Completion with nvim-cmp
-  - Snippets with LuaSnip
-  - Automated import management
-  - Advanced code diagnostics and linting
-
-- **Efficient Git Workflow**
-  - Gitsigns for inline git information
+- **Effective Git Integration**
   - LazyGit for visual Git operations
   - Diffview for code comparison
   - Merge conflict resolution tools
@@ -63,6 +50,41 @@ A comprehensive Neovim configuration optimized for backend development and data 
 - Ripgrep (for Telescope searches)
 - A Nerd Font (for icons)
 
+## 🚀 Installation
+
+### One-Command Installation
+
+```bash
+curl -sSL https://raw.githubusercontent.com/A6UD3L0/nvim-config/main/install.sh | bash
+```
+
+The installation script will:
+1. Back up your existing Neovim configuration
+2. Clone this repository to the proper location
+3. Install dependencies as needed
+4. Configure everything automatically
+
+### Manual Installation
+
+If you prefer to install manually:
+
+1. Backup your existing configuration:
+   ```bash
+   mv ~/.config/nvim ~/.config/nvim.bak
+   ```
+
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+   ```
+
+3. Start Neovim to automatically install plugins:
+   ```bash
+   nvim
+   ```
+
+4. Verify installation with `:checkhealth`
+
 ## ⚡ MECE Keybinding Structure
 
 This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhaustive (MECE) keybinding structure for maximum efficiency and intuitiveness:
@@ -82,9 +104,9 @@ This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhau
 | `<leader>p`  | Python/Environment/Dependencies             |
 | `<leader>r`  | Run/Requirements                            |
 | `<leader>s`  | Search/Replace operations                   |
-| `<leader>t`  | Terminal/Tab operations                     |
+| `<leader>t`  | Terminal operations                         |
 | `<leader>u`  | Utilities (undotree, helpers)               |
-| `<leader>w`  | Window operations                           |
+| `<leader>w`  | Window/Tab operations                       |
 | `<leader>x`  | Execute code (run scripts, REPL)            |
 | `<leader>z`  | Zen/Focus mode                              |
 

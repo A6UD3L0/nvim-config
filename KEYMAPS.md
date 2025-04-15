@@ -18,15 +18,15 @@ The leader key is set to `<Space>`. All other keybindings are organized under th
 
 | Keybinding       | Action                        | Description                                 |
 |------------------|-------------------------------|---------------------------------------------|
-| `<leader>tt`     | Toggle terminal               | Open/close a floating terminal window       |
-| `<leader>th`     | Horizontal terminal           | Open a terminal split horizontally          |
-| `<leader>tv`     | Vertical terminal             | Open a terminal split vertically            |
-| `<leader>tf`     | Floating terminal             | Open a floating terminal window             |
-| `<leader>tp`     | Python terminal               | Open a Python REPL                          |
-| `<leader>tr`     | Run command in terminal       | Run a custom command in terminal            |
-| `<leader>ti`     | IPython terminal              | Open an IPython REPL                        |
-| `<leader>td`     | Docker terminal               | Run Docker commands                         |
-| `<leader>ts`     | SQL terminal                  | Open a SQL client                           |
+| `<leader>tt`     | Toggle terminal               | Toggle horizontal terminal                  |
+| `<leader>tf`     | Floating terminal             | Toggle floating terminal                    |
+| `<leader>tv`     | Vertical terminal             | Toggle vertical terminal                    |
+| `<leader>ts`     | Smart terminal                | Smart terminal with venv activation         |
+| `<leader>tp`     | Python terminal               | Open Python REPL                            |
+| `<leader>ti`     | IPython terminal              | Open IPython terminal                       |
+| `<leader>tr`     | Run Python file               | Run current Python file                     |
+| `<leader>td`     | Docker terminal               | Open Docker terminal                        |
+| `<leader>tb`     | Database terminal             | Open database client terminal               |
 
 ## Buffer Operations (`<leader>b`)
 
@@ -154,17 +154,29 @@ The leader key is set to `<Space>`. All other keybindings are organized under th
 
 | Keybinding       | Action                        | Description                                 |
 |------------------|-------------------------------|---------------------------------------------|
-| `<leader>wh`     | Split horizontal              | Create a horizontal split                   |
-| `<leader>wv`     | Split vertical                | Create a vertical split                     |
-| `<leader>wo`     | Close other windows           | Close all windows except current            |
-| `<leader>wc`     | Close window                  | Close current window                        |
-| `<leader>we`     | Equal size                    | Make all windows equal size                 |
-| `<leader>wm`     | Maximize window               | Maximize current window                     |
-| `<leader>wr`     | Rotate windows                | Rotate window layout                        |
-| `<leader>wt`     | Open new tab                  | Open a new tab                              |
-| `<leader>wT`     | Close tab                     | Close current tab                           |
-| `<leader>w]`     | Next tab                      | Go to next tab                              |
-| `<leader>w[`     | Previous tab                  | Go to previous tab                          |
+| `<leader>wv`     | Split vertically              | Split window vertically                     |
+| `<leader>wh`     | Split horizontally            | Split window horizontally                   |
+| `<leader>we`     | Equal size                    | Make split windows equal size               |
+| `<leader>wx`     | Close split                   | Close current split                         |
+| `<leader>wq`     | Quit window                   | Quit current window                         |
+| `<leader>wQ`     | Quit all                      | Quit all windows                            |
+| `<leader>wL`     | Increase width                | Increase window width                       |
+| `<leader>wH`     | Decrease width                | Decrease window width                       |
+| `<leader>wK`     | Increase height               | Increase window height                      |
+| `<leader>wJ`     | Decrease height               | Decrease window height                      |
+| `<leader>ww`     | Cycle windows                 | Cycle through windows                       |
+| `<leader>wp`     | Previous window               | Go to previous window                       |
+| `<leader>wo`     | Only                          | Close all other windows                     |
+| `<leader>wt`     | Move to tab                   | Move window to new tab                      |
+| `<leader>w=`     | Equalize                      | Equalize window sizes                       |
+| `<leader>ws`     | Split horizontal              | Split window horizontally                   |
+| `<leader>wn`     | New tab                       | Create a new tab                            |
+| `<leader>wc`     | Close tab                     | Close current tab                           |
+| `<leader>wo`     | Close other tabs              | Close all other tabs                        |
+| `<leader>wl`     | Next tab                      | Go to next tab                              |
+| `<leader>wj`     | Previous tab                  | Go to previous tab                          |
+
+*Note: Non-leader window navigation uses `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>` for left, down, up, right.*
 
 ## Undotree (`<leader>u`)
 

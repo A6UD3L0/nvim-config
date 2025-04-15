@@ -991,136 +991,99 @@ return {
     event = "CmdlineEnter",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
-      {
-        "romgrk/fzy-lua-native",
-        build = "make",
-      },
+      "romgrk/fzy-lua-native", -- For better fuzzy finding
     },
-    build = ":TSUpdate",
     config = function()
-      local wilder = require("wilder")
-      wilder.setup({
-        modes = { ":", "/", "?" },
-        next_key = "<Tab>",
-        previous_key = "<S-Tab>",
-        accept_key = "<Down>",
-        reject_key = "<Up>",
-        enable_python = false,  -- Disable Python features
-        use_python_remote_plugin = false,  -- Don't use Python remote plugin
-      })
-
-      -- Use only Lua-based functionality to avoid Python errors
-      -- Create file finder function using Lua
-      local file_finder = function(prefix, check_dirname)
-        return function(path)
-          local base = vim.fn.fnamemodify(path.."x", ":h:r")  -- add a dummy 'x' to handle empty paths
-          base = base == "." and "" or base
-          base = base..(base == "" and "" or "/")
-          
-          local cmd = "find "..vim.fn.shellescape(base).." -maxdepth 1 -type f,l"
-          if prefix then
-            cmd = cmd.." -name "..vim.fn.shellescape(prefix.."*")
-          end
-          cmd = cmd.." 2>/dev/null"
-          
-          local handle = io.popen(cmd)
-          if not handle then return {} end
-          
-          local result = handle:read("*a")
-          handle:close()
-          
-          local names = {}
-          for name in string.gmatch(result, "[^\n]+") do
-            table.insert(names, name)
-          end
-          
-          return names
-        end
+      -- Only load if Neovim has Python support
+      local has_python = vim.fn.has('python3') == 1
+      
+      -- Check for Python and provide graceful fallback if not available
+      if not has_python then
+        vim.notify("Wilder.nvim requires Python 3 support. Some command line features will be disabled.", vim.log.levels.WARN)
+        -- Use basic setup with no Python features
+        local wilder = require("wilder")
+        wilder.setup({
+          modes = {':', '/', '?'},
+          enable_cmdline_enter = 1,
+          enable_python = false,  -- Disable Python features
+          use_python_remote_plugin = false,  -- Don't use Python remote plugin
+        })
+        return
       end
       
-      -- Create custom file completion using Lua only
-      local file_completion = {
-        expand = function(arg)
-          if arg == nil then
-            return ""
-          end
-          return vim.fn.fnamemodify(arg, ":p")
-        end,
-        
-        dict = file_finder(),
-      }
-
-      -- Use native Lua-based fuzzy search and completion
-      wilder.set_option("pipeline", {
-        wilder.branch(
-          -- Use lua_fzy_filter which doesn't rely on Python
-          wilder.cmdline_pipeline({
-            language = "vim",
-            fuzzy = 1,
-            fuzzy_filter = wilder.lua_fzy_filter(),
-            debounce = 10,
-          }),
-          -- Use Lua-based vim_search_pipeline for search
-          wilder.vim_search_pipeline()
-        )
+      -- Full setup with Python features
+      local wilder = require("wilder")
+      wilder.setup({
+        modes = {':', '/', '?'},
+        enable_cmdline_enter = 1,
       })
-
-      -- Rose Pine color scheme for wilder.nvim
+      
+      -- Get Rose Pine colors for a consistent theme
       local rose_pine_colors = {
-        bg = "#1a1d23",
-        fg = "#aeaebf",
-        accent = "#dca561",
-        selected = "#2a2b33",
-        border = "#3b3f4e",
-        gray = "#565f89",
-        error = "#f7768e",
-        warning = "#e0af68",
-        info = "#7dcfff",
-        hint = "#9ece6a",
+        base = "#191724",
+        surface = "#1f1d2e",
+        overlay = "#26233a",
+        muted = "#6e6a86",
+        subtle = "#908caa",
+        text = "#e0def4",
+        love = "#eb6f92",
+        gold = "#f6c177",
+        rose = "#ebbcba",
+        pine = "#31748f",
+        foam = "#9ccfd8",
+        iris = "#c4a7e7",
+        highlight_low = "#21202e",
+        highlight_med = "#403d52",
+        highlight_high = "#524f67",
+        accent = "#524f67",
+        error = "#eb6f92",
+        warning = "#f6c177",
+        info = "#9ccfd8",
+        hint = "#31748f",
+        
+        -- UI elements
+        bg = "#191724",
+        fg = "#e0def4",
+        border = "#1f1d2e",
       }
-
+      
+      -- Use a simple pipeline to avoid potential Python issues
+      wilder.set_option('pipeline', {
+        wilder.branch(
+          -- Use cmdline pipeline for command mode
+          {
+            wilder.check(function(_, x) return vim.fn.getcmdtype() == ':' end),
+            wilder.cmdline_pipeline(),
+          },
+          -- Use search pipeline for search mode
+          wilder.search_pipeline()
+        ),
+      })
+      
       -- Create highlight groups for wilder
       local popupmenu_renderer = wilder.popupmenu_renderer(
         wilder.popupmenu_border_theme({
           highlights = {
-            default = "Pmenu",
+            default = "WilderMenu",
             border = "WilderBorder",
             accent = "WilderAccent",
-            selected = "PmenuSel",
+            selected = "WilderSelected",
             error = "WilderError",
           },
-          border = "rounded",
-          left = {
-            " ",
-            wilder.popupmenu_devicons(),
-            wilder.popupmenu_buffer_flags({
-              flags = " a + ",
-              icons = { ["+"] = "", ["a"] = "", ["h"] = "" },
-            }),
-          },
-          right = {
-            " ",
-            wilder.popupmenu_scrollbar({
-              thumb_char = '┃',
-              minheight = 1,
-            }),
-          },
-          empty_message = wilder.popupmenu_empty_message({
-            message = " No matches ",
-          }),
-          min_width = "15%",
-          min_height = "10%",
-          max_height = "30%",
-          reverse = 0,
+          -- Add border for better visibility
+          border = 'rounded',
+          -- No complex renderer components to avoid Python dependencies
+          pumblend = 0,
         })
       )
-
+      
       -- Create highlight commands for wilder
       vim.cmd(string.format("hi WilderBorder guifg=%s guibg=%s", rose_pine_colors.border, rose_pine_colors.bg))
       vim.cmd(string.format("hi WilderAccent guifg=%s guibg=%s", rose_pine_colors.accent, rose_pine_colors.bg))
       vim.cmd(string.format("hi WilderError guifg=%s guibg=%s", rose_pine_colors.error, rose_pine_colors.bg))
-      vim.cmd(string.format("hi WilderScrollbar guifg=%s", rose_pine_colors.accent))
-     
+      vim.cmd(string.format("hi WilderSelected guifg=%s guibg=%s gui=bold", rose_pine_colors.text, rose_pine_colors.highlight_med))
+      vim.cmd(string.format("hi WilderMenu guifg=%s guibg=%s", rose_pine_colors.text, rose_pine_colors.bg))
+      
       -- Set the renderer
       wilder.set_option('renderer', popupmenu_renderer)
     end,

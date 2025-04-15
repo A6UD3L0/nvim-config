@@ -28,6 +28,31 @@ vim.opt.sidescrolloff = 8     -- Minimum number of screen columns to keep left/r
 vim.opt.showmode = false      -- Don't show mode in command line (use statusline instead)
 vim.opt.signcolumn = 'yes'    -- Always show sign column
 
+-- Ignore system directories that often cause permission errors
+vim.opt.wildignore:append("*/Library/Calendars/*")
+vim.opt.wildignore:append("*/Library/Reminders/*")
+vim.opt.wildignore:append("*/Library/CloudStorage/*")
+
+-- Configure file watchers to ignore problematic directories
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    if vim.fn.has("mac") == 1 then
+      vim.loop.fs_event_stop = (function()
+        local orig = vim.loop.fs_event_stop
+        return function(...)
+          local ret = {pcall(orig, ...)}
+          if not ret[1] then
+            -- Silently handle fs_event errors
+            return true
+          end
+          return unpack(ret, 2)
+        end
+      end)()
+    end
+  end,
+  once = true,
+})
+
 -- Apply Tokyonight theme
 local theme_ok, _ = pcall(vim.cmd, "colorscheme tokyonight")
 if not theme_ok then

@@ -10,6 +10,10 @@ return {
       return
     end
     
+    -- Set background_colour directly via highlight groups first to prevent notification
+    vim.api.nvim_set_hl(0, "NotifyBackground", { bg = "#000000" })
+    
+    -- This setup will now not show the example notification
     notify.setup({
       -- Use completely black background for notifications
       background_colour = "#000000",
@@ -36,6 +40,9 @@ return {
         DEBUG = "",
         TRACE = "✎",
       },
+      
+      -- Prevent notification about the background color itself
+      silent = true,
     })
     
     -- Only set as notify handler if it loaded successfully

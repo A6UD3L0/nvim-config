@@ -988,182 +988,33 @@ map("n", "<leader>dmk", function()
 end, { desc = "Scikit-learn docs" })
 
 -- =============================================
--- POETRY OPERATIONS (o namespace)
+-- PYTHON / ENV / DEPENDENCIES (p namespace)
 -- =============================================
 
--- Poetry keybindings
-map("n", "<leader>oi", function() M._poetry_create_venv() end, { desc = "Poetry install dependencies" })
-map("n", "<leader>oc", function() M._poetry_new() end, { desc = "Create new Poetry project" })
-map("n", "<leader>oa", function() M._poetry_add_package() end, { desc = "Add package" })
-map("n", "<leader>or", function() M._poetry_remove_package() end, { desc = "Remove package" })
-map("n", "<leader>ou", function() M._poetry_update() end, { desc = "Update packages" })
-map("n", "<leader>oo", function() M._poetry_show_outdated() end, { desc = "Show outdated" })
-map("n", "<leader>og", function() M._poetry_generate_requirements() end, { desc = "Generate requirements.txt" })
-map("n", "<leader>ob", function() M._poetry_build() end, { desc = "Build package" })
-map("n", "<leader>op", function() M._poetry_publish() end, { desc = "Publish package" })
-map("n", "<leader>os", function() M._poetry_shell() end, { desc = "Poetry shell" })
-map("n", "<leader>oe", function() M._poetry_edit_pyproject() end, { desc = "Edit pyproject.toml" })
-map("n", "<leader>oR", function() M._poetry_run() end, { desc = "Poetry run command" })
-
--- =============================================
--- REQUIREMENTS MANAGEMENT (r namespace)
--- =============================================
-
--- Requirements management with Poetry integration
-map("n", "<leader>rg", function() M._poetry_generate_requirements() end, { desc = "Generate from Poetry (recommended)" })
-map("n", "<leader>re", "<cmd>edit requirements.txt<CR>", { desc = "Edit requirements.txt" })
-
-map("n", "<leader>ri", function()
-  if M._has_plugin("toggleterm") then
-    vim.cmd("TermExec cmd='pip install -r requirements.txt'")
-  else
-    if M._command_exists("pip") then
-      M._run_in_terminal("pip install -r requirements.txt")
-    else
-      vim.notify("pip command not found", vim.log.levels.ERROR)
-    end
-  end
-end, { desc = "Install from requirements.txt" })
-
-map("n", "<leader>rp", "<cmd>echo 'Use Poetry for dependency management with <leader>o'<CR>", { desc = "Use Poetry (<leader>o)" })
-
--- =============================================
--- VIRTUAL ENV OPERATIONS (v namespace)
--- =============================================
-
--- Check if VenvSelector plugin is available
-M._has_venv_selector = function()
-  if not M._has_plugin("venv-selector") then
-    -- If we don't have venv-selector, check if we have our own implementation
-    if _G.VenvDiagnostics then
-      return true
-    end
-    vim.notify("VenvSelector plugin not found and VenvDiagnostics is not available", vim.log.levels.ERROR)
-    return false
-  end
-  return true
+-- All python, venv, poetry, requirements, and code execution actions grouped under <leader>p
+local python_group = {
+  { key = "<leader>pa", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then vim.cmd("VenvActivate") elseif M._has_venv_selector() then vim.cmd("VenvSelectCached") end end, desc = "Activate Python environment" },
+  { key = "<leader>ps", fn = function() if M._has_venv_selector() then vim.cmd("VenvSelect") end end, desc = "Select Python environment" },
+  { key = "<leader>pc", fn = function() if M._has_venv_selector() then vim.cmd("VenvSelectCached") end end, desc = "Select cached environment" },
+  { key = "<leader>pn", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.create_venv then vim.cmd("VenvCreate") elseif M._command_exists("python") then local venv_name = vim.fn.input("Virtual environment name (.venv): ", ".venv") if venv_name == "" then venv_name = ".venv" end M._run_in_terminal("python -m venv " .. venv_name) else vim.notify("Python not found", vim.log.levels.ERROR) end end, desc = "Create new venv" },
+  { key = "<leader>pi", fn = function() if _G.VenvDiagnostics then vim.cmd("VenvDiagnostics") else vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR) end end, desc = "Show environment info" },
+  { key = "<leader>pr", fn = function() if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then vim.cmd("RunPythonWithEnv") else M._python_run_file() end end, desc = "Run current file with env" },
+  { key = "<leader>pe", fn = function() M._python_execute_snippet() end, desc = "Execute selection" },
+  { key = "<leader>pp", fn = function() if M._command_exists("ipython") then M._python_execute_in_ipython() else vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR) end end, desc = "Run selection in IPython" },
+  { key = "<leader>pnf", fn = function() M._python_new_file() end, desc = "New Python file" },
+  { key = "<leader>pt", fn = function() if M._has_telescope() and pcall(require, "telescope").extensions.python_tests then vim.cmd("Telescope python_tests") elseif M._command_exists("pytest") then M._run_in_terminal("pytest") else vim.notify("pytest not available", vim.log.levels.ERROR) end end, desc = "Run Python tests" },
+  { key = "<leader>pg", fn = function() M._poetry_generate_requirements() end, desc = "Generate requirements.txt from Poetry" },
+  { key = "<leader>pb", fn = function() M._poetry_build() end, desc = "Build Poetry package" },
+  { key = "<leader>ppub", fn = function() M._poetry_publish() end, desc = "Publish Poetry package" },
+  { key = "<leader>psh", fn = function() M._poetry_shell() end, desc = "Poetry shell" },
+  { key = "<leader>ped", fn = function() M._poetry_edit_pyproject() end, desc = "Edit pyproject.toml" },
+  { key = "<leader>prun", fn = function() if M._check_poetry() then vim.ui.input({ prompt = "Poetry run command: " }, function(cmd) if cmd and cmd ~= "" then M._run_in_terminal("poetry run " .. cmd) end end) end end, desc = "Poetry run command" },
+  { key = "<leader>prq", fn = function() vim.cmd("edit requirements.txt") end, desc = "Edit requirements.txt" },
+  { key = "<leader>pinst", fn = function() if M._has_plugin("toggleterm") then vim.cmd("TermExec cmd='pip install -r requirements.txt'") elseif M._command_exists("pip") then M._run_in_terminal("pip install -r requirements.txt") else vim.notify("pip command not found", vim.log.levels.ERROR) end end, desc = "Install from requirements.txt" },
+}
+for _, m in ipairs(python_group) do
+  map("n", m.key, m.fn, { desc = m.desc })
 end
-
--- Smart activation that checks for common environment patterns
-map("n", "<leader>va", function()
-  if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
-    vim.cmd("VenvActivate")
-  elseif M._has_venv_selector() then
-    vim.cmd("VenvSelectCached")
-  end
-end, { desc = "Smart activate Python environment" })
-
--- Standard VenvSelect for choosing any environment
-map("n", "<leader>vs", function()
-  if M._has_venv_selector() then
-    vim.cmd("VenvSelect")
-  end
-end, { desc = "Select Python environment" })
-
--- Cached environment selection
-map("n", "<leader>vc", function()
-  if M._has_venv_selector() then
-    vim.cmd("VenvSelectCached")
-  end
-end, { desc = "Select cached environment" })
-
--- Create a new virtual environment
-map("n", "<leader>vn", function()
-  if _G.VenvDiagnostics and _G.VenvDiagnostics.create_venv then
-    vim.cmd("VenvCreate")
-  elseif M._has_command("python") then
-    local venv_name = vim.fn.input("Virtual environment name (.venv): ", ".venv")
-    if venv_name == "" then
-      venv_name = ".venv"
-    end
-    M._run_in_terminal("python -m venv " .. venv_name)
-  else
-    vim.notify("Python not found", vim.log.levels.ERROR)
-  end
-end, { desc = "Create new venv" })
-
--- Show environment info
-map("n", "<leader>vi", function()
-  if _G.VenvDiagnostics then
-    vim.cmd("VenvDiagnostics")
-  else
-    vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR)
-  end
-end, { desc = "Show environment info" })
-
--- Run diagnostics on current environment
-map("n", "<leader>vd", function()
-  if _G.VenvDiagnostics then
-    vim.cmd("VenvDiagnostics")
-  else
-    vim.notify("VenvDiagnostics module not available", vim.log.levels.ERROR)
-  end
-end, { desc = "Run venv diagnostics" })
-
--- Test current environment
-map("n", "<leader>vt", function()
-  if _G.VenvDiagnostics and vim.api.nvim_command_exists("TestVenv") then
-    vim.cmd("TestVenv")
-  else
-    vim.notify("TestVenv command not available", vim.log.levels.ERROR)
-  end
-end, { desc = "Test current venv" })
-
--- Run current file with venv
-map("n", "<leader>vr", function()
-  if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then
-    vim.cmd("RunPythonWithEnv")
-  else
-    M._python_run_file()
-  end
-end, { desc = "Run file with venv" })
-
--- =============================================
--- EXECUTE CODE OPERATIONS (x namespace)
--- =============================================
-
--- Python execution and file operations 
-map("n", "<leader>xr", function()
-  if _G.VenvDiagnostics and _G.VenvDiagnostics.run_with_env then
-    vim.cmd("RunPythonWithEnv")
-  else
-    M._python_run_file()
-  end
-end, { desc = "Run current file" })
-
-map("n", "<leader>xe", function() M._python_execute_snippet() end, { desc = "Execute selection" })
-
-map("n", "<leader>xi", function() 
-  if M._command_exists("ipython") then
-    M._python_execute_in_ipython() 
-  else
-    vim.notify("IPython not installed. Please install it first.", vim.log.levels.ERROR)
-  end
-end, { desc = "Run in IPython" })
-
-map("n", "<leader>xn", function() M._python_new_file() end, { desc = "New Python file" })
-
-map("n", "<leader>xt", function()
-  if M._has_telescope() and pcall(require, "telescope").extensions.python_tests then
-    vim.cmd("Telescope python_tests")
-  else
-    vim.notify("Telescope python_tests extension not available", vim.log.levels.ERROR)
-    -- Fall back to running pytest directly if available
-    if M._command_exists("pytest") then
-      M._run_in_terminal("pytest")
-    end
-  end
-end, { desc = "Run tests" })
-
-map("n", "<leader>xp", "<cmd>echo 'Use <leader>o for Poetry dependency management'<CR>", { desc = "Dependency management ⟶ <leader>o" })
-
-map("n", "<leader>xv", function()
-  if _G.VenvDiagnostics and _G.VenvDiagnostics.smart_activate then
-    vim.cmd("VenvActivate")
-  elseif M._has_venv_selector() then
-    vim.cmd("VenvSelectCached")
-  end
-end, { desc = "Activate virtual environment" })
 
 -- =============================================
 -- KEYMAPS HELPER (k namespace)
@@ -1354,35 +1205,44 @@ M.setup_lsp_mappings = function(bufnr)
 end
 
 -- =============================================
--- HELPER FUNCTIONS
+-- WHICH-KEY GROUP REGISTRATION (for MECE clarity)
 -- =============================================
-
--- Helper function to get visual selection
-function vim.api.nvim_buf_get_visual_selection()
-  local start_pos = vim.fn.getpos("'<")
-  local end_pos = vim.fn.getpos("'>")
-  local start_line, start_col = start_pos[2], start_pos[3]
-  local end_line, end_col = end_pos[2], end_pos[3]
-  
-  -- Get lines in the selection
-  local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-  
-  -- If there's only one line in the selection
-  if #lines == 1 then
-    lines[1] = string.sub(lines[1], start_col, end_col)
-  else
-    -- Adjust first and last lines of the selection
-    lines[1] = string.sub(lines[1], start_col)
-    lines[#lines] = string.sub(lines[#lines], 1, end_col)
-  end
-  
-  return lines
+if M._has_which_key() then
+  local wk = require("which-key")
+  wk.register({
+    ["<leader>t"] = { name = "+terminal" },
+    ["<leader>b"] = { name = "+buffer" },
+    ["<leader>e"] = { name = "+explorer" },
+    ["<leader>f"] = { name = "+find/search" },
+    ["<leader>p"] = { name = "+python/env/dependencies" },
+    ["<leader>g"] = { name = "+git" },
+    ["<leader>d"] = { name = "+docs/help" },
+    ["<leader>h"] = { name = "+harpoon" },
+    ["<leader>c"] = { name = "+code/lsp" },
+    ["<leader>k"] = { "Show all keybindings" },
+    ["<leader>w"] = { name = "+window/tab" },
+    ["<leader>u"] = { name = "+undotree" },
+    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
+  })
 end
+
+-- POLISH MAPPING DESCRIPTIONS
+-- (Ensure all mappings have clear, non-redundant descriptions)
+
+-- UI/UX ENHANCEMENTS (suggestions for user to add to plugins/init.lua)
+-- Recommend: noice.nvim for notifications, dressing.nvim for prompts, lualine.nvim for statusline
+-- Example config (add to your plugins/init.lua or equivalent):
+-- use { 'folke/noice.nvim', requires = { 'MunifTanjim/nui.nvim', 'rcarriga/nvim-notify' } }
+-- use { 'stevearc/dressing.nvim' }
+-- use { 'nvim-lualine/lualine.nvim' }
+
+-- THEME POLISH
+-- Ensure all plugin popups and dashboard use your chosen colorscheme
+vim.cmd([[colorscheme rose-pine-moon]])
 
 -- =============================================
 -- KEYBINDING CHEATSHEET
 -- =============================================
-
 -- Show all custom mappings in a Telescope window
 map("n", "<leader>?", function()
   if pcall(require, "telescope.builtin") then
@@ -1417,6 +1277,7 @@ if pcall(require, "which-key") then
     ["<leader>u"] = { name = "+undotree" },
     ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
     ["<leader>h"] = { name = "+harpoon" },
+    ["<leader>p"] = { name = "+python/env/dependencies" },
   })
 end
 

@@ -191,9 +191,15 @@ The leader key is set to `<Space>`. All other keybindings are organized under th
 | `<leader>k`      | Show keybindings              | Show all keybindings (which-key)            |
 | `<leader>?`      | Show keymaps                  | Show searchable keymaps                     |
 
-## ADHD-Friendly Theme Command
+## Plugin Commands
 
-| Command             | Action                        | Description                                 |
-|---------------------|-------------------------------|---------------------------------------------|
-| `:ApplyADHDTheme`   | Apply ADHD theme              | Apply the ADHD-friendly color theme         |
-| `:KeybindLog`       | Show keybind log              | Show log of keybinding errors and warnings  |
+| Command             | Name                          | Description                                |
+|---------------------|-------------------------------|--------------------------------------------|
+| `:Lazy`             | Plugin management             | Open the plugin management interface       |
+| `:LazyUpdate`       | Update plugins               | Update all plugins                         |
+| `:Mason`            | LSP/DAP installer            | Open the LSP/DAP installer interface       |
+| `:TSInstall`        | Treesitter installer         | Install language parser                    |
+| `:Telescope`        | Fuzzy finder                 | Open Telescope with all pickers            |
+| `:Copilot`          | GitHub Copilot               | Manage GitHub Copilot                      |
+| `:Gitsigns`         | Git signs                    | View git changes in gutter                 |
+| `:TokyonightSelect` | Select Tokyonight variant    | Choose between night, storm, day variants  |

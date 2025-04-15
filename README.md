@@ -4,11 +4,11 @@ A comprehensive Neovim configuration optimized for backend development and data 
 
 ## ✨ Features
 
-- **ADHD-Friendly Design**
+- **Streamlined Interface**
   - Custom color theme with focus-enhancing color palette
   - Distraction-free coding environment
   - Visual noise reduction with strategic syntax highlighting
-  - Fallback to TokyoNight theme for reliability
+  - Fallback to Tokyonight theme for reliability
 
 - **Powerful LSP Integration**
   - Autocompletion via nvim-cmp
@@ -210,18 +210,16 @@ This configuration includes carefully selected plugins for backend development:
    If that doesn't fix it, run the fix_plugins.sh script as described above.
 
 3. **Theme Not Applied**
-   If your ADHD-friendly theme isn't loading, manually apply it:
+   If your Tokyonight theme isn't loading, manually apply it:
    ```
-   :lua _G.ADHD_THEME.setup()
+   :colorscheme tokyonight
    ```
    
    To make it load automatically, add this to your init.lua:
    ```lua
    vim.api.nvim_create_autocmd("VimEnter", {
      callback = function()
-       if _G.ADHD_THEME and _G.ADHD_THEME.setup then
-         _G.ADHD_THEME.setup()
-       end
+       vim.cmd("colorscheme tokyonight")
      end
    })
    ```
@@ -431,6 +429,18 @@ You can customize this configuration by editing the relevant files:
 - Plugin configuration: `~/.config/nvim/lua/plugins/`
 - LSP configuration: `~/.config/nvim/lua/plugins/lsp.lua`
 
+## 🎨 UI/UX
+
+This configuration includes a clean, modern UI with the Tokyonight theme:
+
+- Uses a balanced, easy-on-the-eyes color palette
+- Provides clear visual hierarchy to reduce distraction
+- Features a professional looking interface for long coding sessions
+- Ensures excellent readability for code and documentation
+
+The Tokyonight theme provides several variants (night, storm, day, and moon) which can be 
+configured in the `lua/plugins/ui.lua` file.
+
 ## 🙏 Acknowledgements
 
 This configuration draws inspiration from:
@@ -441,24 +451,3 @@ This configuration draws inspiration from:
 ## 📄 License
 
 MIT
-
-## 🎨 ADHD-Friendly UI
-
-This configuration includes a specially designed ADHD-friendly theme that:
-
-- Uses calming blues and greens as primary colors
-- Reserves energetic colors (yellow/orange) only for important elements
-- Provides clear visual hierarchy to reduce distraction
-- Features a muted background that's easy on the eyes for long coding sessions
-
-To activate the ADHD-friendly theme:
-
-```vim
-:ApplyADHDTheme
-```
-
-The theme colors were selected based on research showing that for people with ADHD:
-- Blues create a sense of peace and tranquility
-- Greens have a calming effect and are associated with balance
-- Muted browns are grounding and help maintain focus
-- Strategic use of yellow/orange for only the most important elements helps direct attention where needed

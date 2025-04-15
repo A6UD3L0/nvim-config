@@ -28,7 +28,7 @@ vim.opt.sidescrolloff = 8     -- Minimum number of screen columns to keep left/r
 vim.opt.showmode = false      -- Don't show mode in command line (use statusline instead)
 vim.opt.signcolumn = 'yes'    -- Always show sign column
 
--- Apply fallback theme (tokyonight) only - we'll let ADHD theme be applied by mappings.lua
+-- Apply Tokyonight theme
 local theme_ok, _ = pcall(vim.cmd, "colorscheme tokyonight")
 if not theme_ok then
   vim.cmd("colorscheme default")

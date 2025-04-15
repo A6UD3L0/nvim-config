@@ -1036,98 +1036,85 @@ return {
       "romgrk/fzy-lua-native", -- For better fuzzy finding
     },
     config = function()
-      -- Only load if Neovim has Python support
-      local has_python = vim.fn.has('python3') == 1
-      
-      -- Check for Python and provide graceful fallback if not available
-      if not has_python then
-        vim.notify("Wilder.nvim requires Python 3 support. Some command line features will be disabled.", vim.log.levels.WARN)
-        -- Use basic setup with no Python features
+      -- Define the _wilder_init function globally to avoid the error
+      _G._wilder_init = function()
         local wilder = require("wilder")
         wilder.setup({
           modes = {':', '/', '?'},
-          enable_cmdline_enter = 1,
-          enable_python = false,  -- Disable Python features
-          use_python_remote_plugin = false,  -- Don't use Python remote plugin
+          next_key = '<Tab>',
+          previous_key = '<S-Tab>',
+          accept_key = '<Down>',
+          reject_key = '<Up>',
         })
-        return
+        
+        -- Use a simple pipeline that doesn't require Python
+        wilder.set_option('pipeline', wilder.branch(
+          wilder.cmdline_pipeline({
+            language = 'vim',
+            fuzzy = 1,
+          }),
+          wilder.search_pipeline()
+        ))
+        
+        -- Get Rose Pine colors for a consistent theme
+        local rose_pine_colors = {
+          base = "#191724",
+          surface = "#1f1d2e",
+          overlay = "#26233a",
+          muted = "#6e6a86",
+          subtle = "#908caa",
+          text = "#e0def4",
+          love = "#eb6f92",
+          gold = "#f6c177",
+          rose = "#ebbcba",
+          pine = "#31748f",
+          foam = "#9ccfd8",
+          iris = "#c4a7e7",
+          highlight_low = "#21202e",
+          highlight_med = "#403d52",
+          highlight_high = "#524f67",
+          accent = "#524f67",
+          error = "#eb6f92",
+          bg = "#191724",
+          fg = "#e0def4",
+          border = "#1f1d2e",
+        }
+        
+        -- Create highlight groups for wilder
+        vim.cmd(string.format("hi WilderBorder guifg=%s guibg=%s", rose_pine_colors.border, rose_pine_colors.bg))
+        vim.cmd(string.format("hi WilderAccent guifg=%s guibg=%s", rose_pine_colors.accent, rose_pine_colors.bg))
+        vim.cmd(string.format("hi WilderSelected guifg=%s guibg=%s gui=bold", rose_pine_colors.text, rose_pine_colors.highlight_med))
+        vim.cmd(string.format("hi WilderMenu guifg=%s guibg=%s", rose_pine_colors.text, rose_pine_colors.bg))
+        
+        -- Create a simple renderer with minimal dependencies
+        local renderer = wilder.popupmenu_renderer(
+          wilder.popupmenu_border_theme({
+            highlights = {
+              border = 'WilderBorder',
+              default = 'WilderMenu',
+            },
+            border = 'rounded',
+            pumblend = 10,
+            min_width = '25%',
+            max_height = '25%',
+            reverse = 0,
+          })
+        )
+        
+        -- Set the renderer
+        wilder.set_option('renderer', renderer)
       end
       
-      -- Full setup with Python features
-      local wilder = require("wilder")
-      wilder.setup({
-        modes = {':', '/', '?'},
-        enable_cmdline_enter = 1,
-      })
-      
-      -- Get Rose Pine colors for a consistent theme
-      local rose_pine_colors = {
-        base = "#191724",
-        surface = "#1f1d2e",
-        overlay = "#26233a",
-        muted = "#6e6a86",
-        subtle = "#908caa",
-        text = "#e0def4",
-        love = "#eb6f92",
-        gold = "#f6c177",
-        rose = "#ebbcba",
-        pine = "#31748f",
-        foam = "#9ccfd8",
-        iris = "#c4a7e7",
-        highlight_low = "#21202e",
-        highlight_med = "#403d52",
-        highlight_high = "#524f67",
-        accent = "#524f67",
-        error = "#eb6f92",
-        warning = "#f6c177",
-        info = "#9ccfd8",
-        hint = "#31748f",
-        
-        -- UI elements
-        bg = "#191724",
-        fg = "#e0def4",
-        border = "#1f1d2e",
-      }
-      
-      -- Use a simple pipeline to avoid potential Python issues
-      wilder.set_option('pipeline', {
-        wilder.branch(
-          -- Use cmdline pipeline for command mode
-          {
-            wilder.check(function(_, x) return vim.fn.getcmdtype() == ':' end),
-            wilder.cmdline_pipeline(),
-          },
-          -- Use search pipeline for search mode
-          wilder.search_pipeline()
-        ),
-      })
-      
-      -- Create highlight groups for wilder
-      local popupmenu_renderer = wilder.popupmenu_renderer(
-        wilder.popupmenu_border_theme({
-          highlights = {
-            default = "WilderMenu",
-            border = "WilderBorder",
-            accent = "WilderAccent",
-            selected = "WilderSelected",
-            error = "WilderError",
-          },
-          -- Add border for better visibility
-          border = 'rounded',
-          -- No complex renderer components to avoid Python dependencies
-          pumblend = 0,
-        })
-      )
-      
-      -- Create highlight commands for wilder
-      vim.cmd(string.format("hi WilderBorder guifg=%s guibg=%s", rose_pine_colors.border, rose_pine_colors.bg))
-      vim.cmd(string.format("hi WilderAccent guifg=%s guibg=%s", rose_pine_colors.accent, rose_pine_colors.bg))
-      vim.cmd(string.format("hi WilderError guifg=%s guibg=%s", rose_pine_colors.error, rose_pine_colors.bg))
-      vim.cmd(string.format("hi WilderSelected guifg=%s guibg=%s gui=bold", rose_pine_colors.text, rose_pine_colors.highlight_med))
-      vim.cmd(string.format("hi WilderMenu guifg=%s guibg=%s", rose_pine_colors.text, rose_pine_colors.bg))
-      
-      -- Set the renderer
-      wilder.set_option('renderer', popupmenu_renderer)
+      -- Call the init function
+      if vim.fn.exists('*_wilder_init') == 0 then
+        vim.cmd([[
+          function! _wilder_init() abort
+            lua _G._wilder_init()
+          endfunction
+          
+          call _wilder_init()
+        ]])
+      end
     end,
   },
   

@@ -482,9 +482,6 @@ M._toggle_documentation = function()
   -- Additional documentation mapping for specialized topics
   local specialized_docs = {
     ["sklearn"] = "scikit_learn",
-    ["scikit-learn"] = "scikit_learn",
-    ["ml"] = "scikit_learn",
-    ["machinelearning"] = "scikit_learn",
     ["numpy"] = "numpy~1.24",
     ["pandas"] = "pandas~1",
     ["tensorflow"] = "tensorflow~2.12",
@@ -523,15 +520,18 @@ M._open_ml_docs = function(doc_type)
   
   -- Map shorthand names to full documentation IDs
   local ml_docs = {
-    ["sklearn"] = "scikit_learn",
-    ["scikit-learn"] = "scikit_learn",
+    -- Core ML and data science
+    ["sklearn"] = "scikit_learn",  -- Common shorthand
+    ["ml"] = "scikit_learn",       -- Generic ML request defaults to scikit-learn
     ["numpy"] = "numpy~1.24",
     ["pandas"] = "pandas~1",
+    
+    -- Deep learning frameworks
     ["tf"] = "tensorflow~2.12",
-    ["tensorflow"] = "tensorflow~2.12",
     ["pytorch"] = "pytorch",
+    
+    -- Visualization
     ["matplotlib"] = "matplotlib~3",
-    ["ml"] = "scikit_learn",  -- Default to scikit-learn for generic ML request
   }
   
   local target_doc = ml_docs[doc_type] or doc_type

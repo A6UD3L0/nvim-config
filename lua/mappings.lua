@@ -1244,27 +1244,62 @@ setup_which_key()
 -- use { 'nvim-lualine/lualine.nvim' }
 
 -- THEME POLISH
--- Ensure all plugin popups and dashboard use your chosen colorscheme
-local function set_colorscheme(name)
-  local status_ok, _ = pcall(vim.cmd.colorscheme, name)
-  if not status_ok then
-    vim.notify("Could not find colorscheme: " .. name, vim.log.levels.WARN)
-    return false
-  end
-  return true
-end
+-- Use ADHD-friendly theme as primary, with tokyonight as fallback
 
--- Try built-in colorschemes if external ones are not available
--- This ensures at least some colorscheme is set
--- Try tokyonight first (popular and likely to be installed), 
--- then fall back to built-in themes if not installed
-if not set_colorscheme("tokyonight") then
-  -- Try built-in colorschemes
-  if not set_colorscheme("blue") then
-    if not set_colorscheme("desert") then
-      if not set_colorscheme("morning") then
-        -- This should always work (built into Vim)
-        vim.cmd.colorscheme("default")
+-- First try to load and apply the ADHD-friendly theme
+local adhd_ok, adhd_theme = pcall(require, "plugins.adhd_friendly_theme")
+if adhd_ok then
+  -- Try to apply ADHD theme
+  local setup_ok, _ = pcall(function() 
+    adhd_theme.setup()
+    adhd_theme.setup_lualine()
+  end)
+  
+  if setup_ok then
+    vim.notify("ADHD-friendly theme applied successfully", vim.log.levels.INFO)
+  else
+    -- If ADHD theme fails, fall back to colorscheme approach
+    vim.notify("Could not apply ADHD theme, falling back to tokyonight", vim.log.levels.WARN)
+    local set_colorscheme = function(name)
+      local status_ok, _ = pcall(vim.cmd.colorscheme, name)
+      if not status_ok then
+        vim.notify("Could not find colorscheme: " .. name, vim.log.levels.WARN)
+        return false
+      end
+      return true
+    end
+    
+    -- Try tokyonight first, then fall back to built-in themes
+    if not set_colorscheme("tokyonight") then
+      if not set_colorscheme("blue") then
+        if not set_colorscheme("desert") then
+          if not set_colorscheme("morning") then
+            vim.cmd.colorscheme("default")
+          end
+        end
+      end
+    end
+  end
+else
+  -- If ADHD theme module can't be loaded, fall back to colorscheme approach
+  vim.notify("ADHD theme module not found, falling back to tokyonight", vim.log.levels.WARN)
+  
+  local set_colorscheme = function(name)
+    local status_ok, _ = pcall(vim.cmd.colorscheme, name)
+    if not status_ok then
+      vim.notify("Could not find colorscheme: " .. name, vim.log.levels.WARN)
+      return false
+    end
+    return true
+  end
+  
+  -- Try tokyonight first, then fall back to built-in themes
+  if not set_colorscheme("tokyonight") then
+    if not set_colorscheme("blue") then
+      if not set_colorscheme("desert") then
+        if not set_colorscheme("morning") then
+          vim.cmd.colorscheme("default")
+        end
       end
     end
   end

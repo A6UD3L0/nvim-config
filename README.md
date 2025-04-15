@@ -1,10 +1,16 @@
 # Ultimate Backend Development Neovim Configuration
 
-A comprehensive Neovim configuration optimized for backend development and data science. This configuration combines ThePrimeagen's powerful keybindings with NvChad's simplicity to create the ultimate IDE experience for Python, Go, Rust, TypeScript, SQL, and more.
+A comprehensive Neovim configuration optimized for backend development and data science. This configuration combines ThePrimeagen's powerful keybindings with NvChad's simplicity to create the ultimate IDE experience for Python, Go, Linux, Git, C, SQL, Docker, and more.
 
 ## ✨ Features
 
-- **Streamlined Interface**
+- **ThePrimeagen-Inspired Workflow**
+  - Fast navigation with optimized keybindings
+  - Efficient window and buffer management
+  - Text manipulation optimized for coding speed
+  - System clipboard integration for seamless copy/paste
+
+- **Beautiful Interface**
   - Custom color theme with focus-enhancing color palette
   - Distraction-free coding environment
   - Visual noise reduction with strategic syntax highlighting
@@ -19,26 +25,34 @@ A comprehensive Neovim configuration optimized for backend development and data 
 - **Deep Backend Language Support**
   - Python with environments, virtual env management
   - Go support with gopls
-  - Rust support with rust-analyzer
-  - C/C++ support
+  - C/C++ support with clangd
   - SQL language support
   - Docker files and compose
+  - YAML for Kubernetes and configuration
 
 - **Lightning-Fast Navigation**
-  - Telescope fuzzy finder
-  - Harpoon for quick file jumping
+  - Telescope fuzzy finder with project awareness
+  - Harpoon for quick file jumping (ThePrimeagen style)
   - NvimTree file explorer
+  - Center search results for better focus
 
-- **Effective Git Integration**
+- **Comprehensive Git Integration**
   - LazyGit for visual Git operations
-  - Diffview for code comparison
+  - Gitsigns for inline git hunks
+  - Git blame and history navigation
   - Merge conflict resolution tools
+
+- **Enhanced Documentation**
+  - DevDocs for offline documentation
+  - Language-specific doc access (Python, Go, SQL, etc.)
+  - Documentation viewer with beautiful rendering
+  - Integrated help system
 
 - **Productivity Boosters**
   - Terminal integration with Toggleterm
-  - MECE-compliant keybinding system with logical namespaces
-  - File navigation with Telescope fuzzy finder
-  - Undotree for change history visualization
+  - Logical keybinding system with which-key integration
+  - UndoTree for visualizing change history
+  - Project management with Telescope integration
 
 ## 📋 System Requirements
 
@@ -46,9 +60,9 @@ A comprehensive Neovim configuration optimized for backend development and data 
 - Git
 - Node.js and npm (for LSP servers)
 - Python 3.8+ with pip (for Python language support)
-- Rust/Cargo (for language servers)
 - Ripgrep (for Telescope searches)
 - A Nerd Font (for icons)
+- Optional: Glow (for Markdown previewing in DevDocs)
 
 ## 🚀 Installation
 
@@ -91,15 +105,34 @@ Check for errors and missing dependencies:
 
 If you see any issues, follow the suggestions or install missing system dependencies as needed.
 
-## ⚡ MECE Keybinding Structure
+## ⌨️ Key Bindings
 
-This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhaustive (MECE) keybinding structure for maximum efficiency and intuitiveness:
+This configuration features ThePrimeagen's optimized key bindings combined with a logical namespaced structure for maximum efficiency.
+
+### ThePrimeagen's Essential Keybindings
+
+| Key Binding      | Action                                     |
+|------------------|-------------------------------------------|
+| `jk`             | Exit insert mode (faster than Escape)      |
+| `<C-h/j/k/l>`    | Navigate between windows                   |
+| `J` (visual)     | Move selected lines down                   |
+| `K` (visual)     | Move selected lines up                     |
+| `J` (normal)     | Join lines without moving cursor           |
+| `<C-d>`          | Move down half page and center             |
+| `<C-u>`          | Move up half page and center               |
+| `n/N`            | Next/previous search result (centered)     |
+| `<leader>p`      | Paste without overwriting register         |
+| `<leader>y`      | Yank to system clipboard                   |
+| `<leader>Y`      | Yank line to system clipboard              |
+| `<leader>d`      | Delete to void register                    |
+
+### Namespaced Key Structure
 
 | Namespace    | Purpose                                     |
 |--------------|---------------------------------------------|
 | `<leader>b`  | Buffer operations                           |
-| `<leader>c`  | Code editing (formatting, styling)          |
-| `<leader>d`  | Documentation (devdocs, help)               |
+| `<leader>c`  | Code actions and LSP operations             |
+| `<leader>d`  | Documentation (DevDocs, help)               |
 | `<leader>dm` | Machine Learning documentation              |
 | `<leader>e`  | Explorer operations                         |
 | `<leader>f`  | Find/File operations                        |
@@ -107,35 +140,95 @@ This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhau
 | `<leader>h`  | Harpoon operations                          |
 | `<leader>k`  | Keymaps (show key bindings, help)           |
 | `<leader>l`  | LSP operations (diagnostics, actions)       |
-| `<leader>p`  | Python/Environment/Dependencies             |
+| `<leader>p`  | Project/Python/Dependencies                 |
+| `<leader>q`  | Quickfix list operations                    |
 | `<leader>r`  | Run/Requirements                            |
 | `<leader>s`  | Search/Replace operations                   |
 | `<leader>t`  | Terminal operations                         |
-| `<leader>u`  | Utilities (undotree, helpers)               |
+| `<leader>u`  | Undotree and utilities                      |
 | `<leader>w`  | Window/Tab operations                       |
 | `<leader>x`  | Execute code (run scripts, REPL)            |
 | `<leader>z`  | Zen/Focus mode                              |
 
-### Documentation Keybindings
+### Git Integration (LazyGit + Gitsigns)
 
-Documentation is accessible through the `<leader>d` namespace with ML-specific documentation under `<leader>dm`:
+| Key Binding      | Action                                     |
+|------------------|-------------------------------------------|
+| `<leader>gg`     | Open LazyGit                              |
+| `<leader>gf`     | LazyGit file history                      |
+| `<leader>gc`     | LazyGit current file                      |
+| `<leader>gl`     | LazyGit logs for current file             |
+| `<leader>gb`     | LazyGit blame                             |
+| `<leader>gs`     | Stage hunk                                |
+| `<leader>gr`     | Reset hunk                                |
+| `<leader>gS`     | Stage buffer                              |
+| `<leader>gu`     | Undo stage hunk                           |
+| `<leader>gp`     | Preview hunk                              |
+| `<leader>gB`     | Blame line (full)                         |
+| `<leader>gL`     | Toggle line blame                         |
+| `<leader>gd`     | Diff this                                 |
+| `]c`             | Next hunk                                 |
+| `[c`             | Previous hunk                             |
 
-| Binding           | Action                                    |
-|-------------------|-------------------------------------------|
-| `<leader>do`      | Toggle documentation panel                |
-| `<leader>dO`      | Open documentation in buffer              |
-| `<leader>df`      | Fetch documentation index                 |
-| `<leader>di`      | Install documentation                     |
-| `<leader>du`      | Update documentation                      |
-| `<leader>dU`      | Update all documentation                  |
-| `<leader>dh`      | Search in documentation                   |
-| `<leader>dm`      | Browse ML documentation (interactive)     |
-| `<leader>dmk`     | scikit-learn documentation               |
-| `<leader>dmn`     | NumPy documentation                       |
-| `<leader>dmp`     | Pandas documentation                      |
-| `<leader>dmt`     | TensorFlow documentation                  |
-| `<leader>dmy`     | PyTorch documentation                     |
-| `<leader>dmm`     | Matplotlib documentation                  |
+### UndoTree Visualization
+
+| Key Binding      | Action                                     |
+|------------------|-------------------------------------------|
+| `<leader>u`      | Toggle Undotree                           |
+| `<leader>ut`     | Toggle Undotree (alternate)               |
+| `<leader>uf`     | Focus Undotree                            |
+
+### Harpoon File Navigation
+
+| Key Binding      | Action                                     |
+|------------------|-------------------------------------------|
+| `<leader>ha`     | Add file to Harpoon                       |
+| `<leader>hh`     | Show Harpoon menu                         |
+| `<leader>1-5`    | Jump to Harpoon files 1-5                 |
+
+### Documentation with DevDocs
+
+| Key Binding      | Action                                     |
+|------------------|-------------------------------------------|
+| `<leader>dd`     | Open DevDocs                              |
+| `<leader>df`     | Open docs for current filetype            |
+| `<leader>dP`     | Python documentation                      |
+| `<leader>dg`     | Go documentation                          |
+| `<leader>dt`     | Terraform documentation                   |
+| `<leader>dk`     | Kubernetes documentation                  |
+| `<leader>dD`     | Docker documentation                      |
+| `<leader>ds`     | SQL documentation                         |
+| `<leader>db`     | Bash documentation                        |
+| `<leader>dh`     | HTTP documentation                        |
+| `<leader>dG`     | Git documentation                         |
+| `<leader>dI`     | Install DevDocs                           |
+| `<leader>dU`     | Update all DevDocs                        |
+
+### LSP and Code Navigation
+
+| Key Binding      | Action                                     |
+|------------------|-------------------------------------------|
+| `gd`             | Go to definition                           |
+| `gr`             | Go to references                           |
+| `gi`             | Go to implementation                       |
+| `gt`             | Go to type definition                      |
+| `K`              | Show documentation hover                   |
+| `<C-k>`          | Show signature help                        |
+| `<leader>ca`     | Code actions                               |
+| `<leader>cr`     | Rename symbol                              |
+| `<leader>cf`     | Format code                                |
+| `<leader>cd`     | Line diagnostics                           |
+| `[d`             | Previous diagnostic                        |
+| `]d`             | Next diagnostic                            |
+
+### Project Navigation
+
+| Key Binding      | Action                                     |
+|------------------|-------------------------------------------|
+| `<leader>pf`     | Find files in project                      |
+| `<C-p>`          | Find Git files                             |
+| `<leader>ps`     | Project search (grep)                      |
+| `<leader>/`      | Fuzzy find in buffer                       |
 
 ## 📦 Essential Plugins
 
@@ -152,7 +245,7 @@ This configuration includes carefully selected plugins for backend development:
 - **[nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)** - LSP configuration
 - **[mason.nvim](https://github.com/williamboman/mason.nvim)** - LSP/DAP/Linter manager
 - **[nvim-cmp](https://github.com/hrsh7th/nvim-cmp)** - Autocompletion
-- **[null-ls.nvim](https://github.com/jose-elias-alvarez/null-ls.nvim)** - Diagnostics and formatting
+- **[neodev.nvim](https://github.com/folke/neodev.nvim)** - Neovim Lua API development
 
 ### Navigation
 - **[telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)** - Fuzzy finder
@@ -163,291 +256,37 @@ This configuration includes carefully selected plugins for backend development:
 - **[gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim)** - Git indicators
 - **[lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)** - Git interface
 
-## 🔧 Troubleshooting
+### Text Editing
+- **[undotree](https://github.com/mbbill/undotree)** - Visualize undo history
+- **[nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)** - Syntax highlighting
 
-### Common Issues and Fixes
+### Documentation
+- **[nvim-devdocs](https://github.com/luckasRanarison/nvim-devdocs)** - Developer documentation
 
-1. **Invalid Plugin Specs**
-   If you see errors like these:
-   ```
-   Invalid plugin spec { colors = {...}, setup = <function> }
-   Invalid plugin spec { log = {}, logfile = "...", setup = <function> }
-   Invalid plugin spec { config = <function>, name = "lualine_config" }
-   Invalid plugin spec { config = <function>, name = "notify_config" }
-   ```
-   
-   This happens because some utility modules are being loaded as plugins. The fix is easy:
-   
-   ```bash
-   # Navigate to your config
-   cd ~/.config/nvim
-   
-   # Make the fix script executable
-   chmod +x fix_plugins.sh
-   
-   # Run the script
-   ./fix_plugins.sh
-   ```
-   
-   This script will:
-   - Move utility modules out of the plugins directory
-   - Create proper plugin specifications
-   - Install required plugins
-   - Set up the configuration correctly
+### Terminal and UI
+- **[toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim)** - Terminal integration
+- **[alpha-nvim](https://github.com/goolord/alpha-nvim)** - Dashboard
 
-2. **Module Not Found Errors**
-   If you see errors like:
-   ```
-   module 'nvim-notify' not found
-   ```
-   
-   Run these commands inside Neovim:
-   ```
-   :Lazy sync
-   :checkhealth
-   ```
-   
-   If that doesn't fix it, run the fix_plugins.sh script as described above.
+## 🤝 Contributing
 
-3. **Theme Not Applied**
-   If your Tokyonight theme isn't loading, manually apply it:
-   ```
-   :colorscheme tokyonight
-   ```
-   
-   To make it load automatically, add this to your init.lua:
-   ```lua
-   vim.api.nvim_create_autocmd("VimEnter", {
-     callback = function()
-       vim.cmd("colorscheme tokyonight")
-     end
-   })
-   ```
+Contributions to improve this configuration are welcome! Feel free to submit pull requests for bug fixes, improvements, or new features.
 
-### Complete Reset and Installation
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-If you're still experiencing issues, here's a complete reset and installation procedure:
+## 📝 License
 
-```bash
-# Step 1: Clean all Neovim files
-rm -rf ~/.config/nvim ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
-
-# Step 2: Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
-
-# Step 3: Run the fix_plugins script
-cd ~/.config/nvim
-chmod +x fix_plugins.sh
-./fix_plugins.sh
-
-# Step 4: Start Neovim
-nvim
-
-# Step 5: Inside Neovim, run:
-# :Lazy sync
-# :checkhealth
-```
-
-This procedure ensures all plugins are properly installed and configured.
-
-## 🔑 Key Productivity Shortcuts
-
-- `jk` - Exit insert mode (faster than pressing Escape)
-- `<C-h/j/k/l>` - Navigate between windows without using leader key
-- `<leader>we` - Make all windows equal size
-- `<leader>e` - Toggle file explorer
-- `<leader>ff` - Find files
-- `<leader>fg` - Find text in files (grep)
-- `<leader>u` - Toggle Undotree
-- `<leader>gg` - Open LazyGit
-- `<leader>tt` - Toggle terminal
-- `<leader>do` - Open documentation in a pane with search capabilities
-- `<leader>dm` - Browse ML library documentation interactively
-- `<leader>dmk` - Quick access to scikit-learn documentation
-- `<leader>vr` - Run Python file with virtual environment
-- `<leader>oi` - Install Poetry dependencies
-
-## 🔧 Installation
-
-### Quick Start (Automated)
-
-The easiest way to install this configuration is to use the included installation script:
-
-```bash
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git
-cd nvim-config
-
-# Run the installation script
-./install.sh
-```
-
-### Manual Installation
-
-#### Prerequisites
-
-##### macOS
-
-```bash
-# Install Homebrew if not already installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install required dependencies
-brew install neovim ripgrep fd node python3
-
-# Create Python virtual environment for Neovim
-mkdir -p ~/.venvs/neovim
-python3 -m venv ~/.venvs/neovim
-~/.venvs/neovim/bin/pip install pynvim
-```
-
-##### Linux (Ubuntu/Debian)
-
-```bash
-# Update packages
-sudo apt update
-
-# Install dependencies
-sudo apt install -y neovim ripgrep fd-find git curl wget nodejs npm python3 python3-pip python3-venv
-
-# Create Python virtual environment for Neovim
-mkdir -p ~/.venvs/neovim
-python3 -m venv ~/.venvs/neovim
-~/.venvs/neovim/bin/pip install pynvim
-```
-
-##### Windows
-
-```powershell
-# Install scoop if not already installed (run in PowerShell)
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-irm get.scoop.sh | iex
-
-# Install dependencies
-scoop install neovim ripgrep fd git nodejs python
-
-# Install Python provider
-pip install pynvim
-
-# Create Python virtual environment for Neovim
-mkdir -p $HOME\.venvs\neovim
-python -m venv $HOME\.venvs\neovim
-$HOME\.venvs\neovim\Scripts\pip install pynvim
-```
-
-#### Setting Up the Configuration
-
-##### macOS/Linux
-
-```bash
-# Backup your existing Neovim configuration if necessary
-[ -d ~/.config/nvim ] && mv ~/.config/nvim ~/.config/nvim.bak
-
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
-
-# Start Neovim (plugins will be installed automatically on first run)
-nvim
-```
-
-##### Windows
-
-```powershell
-# Backup your existing Neovim configuration if necessary
-if (Test-Path $env:LOCALAPPDATA\nvim) {
-    Rename-Item -Path $env:LOCALAPPDATA\nvim -NewName nvim.bak
-}
-
-# Clone the repository
-git clone https://github.com/A6UD3L0/nvim-config.git $env:LOCALAPPDATA\nvim
-
-# Start Neovim (plugins will be installed automatically on first run)
-nvim
-```
-
-## 🧹 Uninstallation
-
-### macOS/Linux
-
-```bash
-# Remove Neovim configuration
-rm -rf ~/.config/nvim
-rm -rf ~/.local/share/nvim
-
-# Optionally restore your previous configuration
-[ -d ~/.config/nvim.bak ] && mv ~/.config/nvim.bak ~/.config/nvim
-```
-
-### Windows
-
-```powershell
-# Remove Neovim configuration
-Remove-Item -Recurse -Force $env:LOCALAPPDATA\nvim
-Remove-Item -Recurse -Force $env:LOCALAPPDATA\nvim-data
-
-# Optionally restore your previous configuration
-if (Test-Path $env:LOCALAPPDATA\nvim.bak) {
-    Rename-Item -Path $env:LOCALAPPDATA\nvim.bak -NewName nvim
-}
-```
-
-## 📚 Documentation
-
-### Using the Documentation Pane
-
-This configuration includes a powerful documentation system with pane-based search:
-
-1. Press `<leader>do` to open documentation in a floating window
-2. Press `<leader>dO` to open documentation in a split pane
-3. Use `/` to search within the documentation (standard Vim search)
-4. Press `n` to move to the next search result, `N` for previous
-5. Press `q` or `<Esc>` to close the documentation pane
-
-### Installing Additional Documentation
-
-1. Press `<leader>di` to open the documentation installer
-2. Select the documentation you want to install
-3. Press `<CR>` to install
-
-### Window Navigation
-
-Navigate between panes using:
-- `<C-h>` - Move to the left window
-- `<C-j>` - Move to the window below
-- `<C-k>` - Move to the window above
-- `<C-l>` - Move to the right window
-
-Or use the leader-based commands:
-- `<leader>ww` - Cycle through windows
-- `<leader>wp` - Go to previous window
-
-## 🛠️ Customization
-
-You can customize this configuration by editing the relevant files:
-- Main settings: `~/.config/nvim/init.lua`
-- Key mappings: `~/.config/nvim/lua/mappings.lua`
-- Plugin configuration: `~/.config/nvim/lua/plugins/`
-- LSP configuration: `~/.config/nvim/lua/plugins/lsp.lua`
-
-## 🎨 UI/UX
-
-This configuration includes a clean, modern UI with the Tokyonight theme:
-
-- Uses a balanced, easy-on-the-eyes color palette
-- Provides clear visual hierarchy to reduce distraction
-- Features a professional looking interface for long coding sessions
-- Ensures excellent readability for code and documentation
-
-The Tokyonight theme provides several variants (night, storm, day, and moon) which can be 
-configured in the `lua/plugins/ui.lua` file.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgements
 
-This configuration draws inspiration from:
-- ThePrimeagen's Neovim configuration
-- NvChad's simplicity and speed
-- TJ DeVries' Neovim tutorials
+- ThePrimeagen for workflow inspiration and key binding philosophy
+- NvChad for UI simplicity concepts
+- All plugin authors for their incredible work
 
-## 📄 License
+---
 
-MIT
+Happy coding with your ultimate backend development environment! 🚀

@@ -25,7 +25,7 @@ vim.opt.wrap = false          -- Don't wrap lines
 vim.opt.scrolloff = 8         -- Minimum number of screen lines above/below cursor
 vim.opt.sidescrolloff = 8     -- Minimum number of screen columns to keep left/right of cursor
 vim.opt.showmode = false      -- Don't show mode in command line 
-vim.opt.termcolors = 256      -- Use 256 colors
+vim.opt.termguicolors = true  -- Enable 24-bit RGB colors
 
 -- Ensure these directories exist
 local function ensure_dir(dir)

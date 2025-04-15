@@ -1208,17 +1208,25 @@ local function setup_which_key()
   -- Use the proper format for which-key
   -- This addresses the warning about using an old format
   wk.register({
-    ["<leader>t"] = { name = "+terminal" },
     ["<leader>b"] = { name = "+buffer" },
-    ["<leader>e"] = { name = "+explorer" },
-    ["<leader>f"] = { name = "+find/search" },
-    ["<leader>p"] = { name = "+python/env/dependencies" },
-    ["<leader>g"] = { name = "+git" },
-    ["<leader>d"] = { name = "+docs/help" },
-    ["<leader>h"] = { name = "+harpoon" },
     ["<leader>c"] = { name = "+code/lsp" },
+    ["<leader>d"] = { name = "+docs" },
+    ["<leader>dm"] = { name = "+ml-docs" },
+    ["<leader>e"] = { name = "+explorer" },
+    ["<leader>f"] = { name = "+find/file" },
+    ["<leader>g"] = { name = "+git" },
+    ["<leader>h"] = { name = "+harpoon" },
+    ["<leader>k"] = { name = "+keymaps" },
+    ["<leader>l"] = { name = "+lsp" },
+    ["<leader>p"] = { name = "+python/env/dependencies" },
+    ["<leader>r"] = { name = "+run/requirements" },
+    ["<leader>s"] = { name = "+search" },
+    ["<leader>t"] = { name = "+terminal" },
+    ["<leader>u"] = { name = "+utilities" },
     ["<leader>w"] = { name = "+window/tab" },
-    ["<leader>u"] = { name = "+undotree" },
+    ["<leader>x"] = { name = "+execute" },
+    ["<leader>z"] = { name = "+zen/focus" },
+    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
   })
   
   -- Register individual keymaps for non-prefixed leader keys
@@ -1231,17 +1239,63 @@ local function setup_which_key()
 end
 
 -- Try to set up which-key (will silently fail if not installed)
-setup_which_key()
+if M._has_which_key() then
+  local wk = require("which-key")
+  
+  -- Use the proper format for which-key
+  -- This addresses the warning about using an old format
+  wk.register({
+    ["<leader>b"] = { name = "+buffer" },
+    ["<leader>c"] = { name = "+code/lsp" },
+    ["<leader>d"] = { name = "+docs" },
+    ["<leader>dm"] = { name = "+ml-docs" },
+    ["<leader>e"] = { name = "+explorer" },
+    ["<leader>f"] = { name = "+find/file" },
+    ["<leader>g"] = { name = "+git" },
+    ["<leader>h"] = { name = "+harpoon" },
+    ["<leader>k"] = { name = "+keymaps" },
+    ["<leader>l"] = { name = "+lsp" },
+    ["<leader>p"] = { name = "+python/env/dependencies" },
+    ["<leader>r"] = { name = "+run/requirements" },
+    ["<leader>s"] = { name = "+search" },
+    ["<leader>t"] = { name = "+terminal" },
+    ["<leader>u"] = { name = "+utilities" },
+    ["<leader>w"] = { name = "+window/tab" },
+    ["<leader>x"] = { name = "+execute" },
+    ["<leader>z"] = { name = "+zen/focus" },
+    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
+  })
+  
+  -- Register individual keymaps for non-prefixed leader keys
+  wk.register({
+    ["<leader>k"] = { name = "Show all keybindings" },
+    ["<leader>?"] = { name = "Show all keymaps (cheatsheet)" },
+  })
+end
 
--- POLISH MAPPING DESCRIPTIONS
--- (Ensure all mappings have clear, non-redundant descriptions)
+-- =============================================
+-- KEYBINDING CHEATSHEET
+-- =============================================
+-- Show all custom mappings in a Telescope window
+map("n", "<leader>?", function()
+  if pcall(require, "telescope.builtin") then
+    require('telescope.builtin').keymaps({
+      prompt_title = 'All Keymaps',
+      only_buf = false,
+    })
+  else
+    vim.cmd('map')
+    vim.notify("Telescope not found, showing default :map", vim.log.levels.INFO)
+  end
+end, { desc = "Show all keymaps (cheatsheet)" })
 
--- UI/UX ENHANCEMENTS (suggestions for user to add to plugins/init.lua)
--- Recommend: noice.nvim for notifications, dressing.nvim for prompts, lualine.nvim for statusline
--- Example config (add to your plugins/init.lua or equivalent):
--- use { 'folke/noice.nvim', requires = { 'MunifTanjim/nui.nvim', 'rcarriga/nvim-notify' } }
--- use { 'stevearc/dressing.nvim' }
--- use { 'nvim-lualine/lualine.nvim' }
+-- =============================================
+-- GROUPED, MECE MAPPINGS
+-- =============================================
+-- All mappings are grouped by namespace and have clear, non-overlapping descriptions
+-- Buffer (b), Code/LSP (c), Docs (d), Explorer (e), Find/File (f), Git (g), Harpoon (h), Keymaps (k)
+-- LSP (l), Python/Env (p), Run (r), Search (s), Terminal (t), Utilities (u), Window/Tab (w), Execute (x), Zen (z)
+-- Each group is registered with which-key for discoverability
 
 -- THEME POLISH
 -- Use ADHD-friendly theme as primary, with tokyonight as fallback
@@ -1303,47 +1357,6 @@ else
       end
     end
   end
-end
-
--- =============================================
--- KEYBINDING CHEATSHEET
--- =============================================
--- Show all custom mappings in a Telescope window
-map("n", "<leader>?", function()
-  if pcall(require, "telescope.builtin") then
-    require('telescope.builtin').keymaps({
-      prompt_title = 'All Keymaps',
-      only_buf = false,
-    })
-  else
-    vim.cmd('map')
-    vim.notify("Telescope not found, showing default :map", vim.log.levels.INFO)
-  end
-end, { desc = "Show all keymaps (cheatsheet)" })
-
--- =============================================
--- GROUPED, MECE MAPPINGS
--- =============================================
--- All mappings are grouped by namespace and have clear, non-overlapping descriptions
--- Buffer operations (b), File explorer (e), Terminal (t), Git (g), Docs (d), Venv (v), Window (w), Search (s), Tabs (tn), UndoTree (u)
--- Each group is registered with which-key for discoverability
-if pcall(require, "which-key") then
-  local wk = require("which-key")
-  wk.register({
-    ["<leader>b"] = { name = "+buffer" },
-    ["<leader>e"] = { name = "+explorer" },
-    ["<leader>t"] = { name = "+terminal" },
-    ["<leader>g"] = { name = "+git" },
-    ["<leader>d"] = { name = "+docs" },
-    ["<leader>v"] = { name = "+venv" },
-    ["<leader>w"] = { name = "+window" },
-    ["<leader>s"] = { name = "+search" },
-    ["<leader>tn"] = { name = "+tabs" },
-    ["<leader>u"] = { name = "+undotree" },
-    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
-    ["<leader>h"] = { name = "+harpoon" },
-    ["<leader>p"] = { name = "+python/env/dependencies" },
-  })
 end
 
 -- Export the module

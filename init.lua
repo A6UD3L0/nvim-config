@@ -1,11 +1,46 @@
 -- Streamlined Neovim Configuration for Backend Development and Data Science
 -- Based on ThePrimeagen's style with NvChad simplicity
 
--- Set leader key to space (must be before lazy bootstrap)
+-- Set leader key to space
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Bootstrap and configure lazy.nvim (plugin manager)
+-- Basic settings (moved directly into init.lua)
+vim.opt.number = true         -- Show line numbers
+vim.opt.relativenumber = true -- Show relative line numbers
+vim.opt.cursorline = true     -- Highlight current line
+vim.opt.mouse = 'a'           -- Enable mouse support
+vim.opt.clipboard = 'unnamedplus' -- Use system clipboard
+vim.opt.smartcase = true      -- Smart case searching
+vim.opt.ignorecase = true     -- Ignore case in searches
+vim.opt.smartindent = true    -- Smart autoindenting
+vim.opt.expandtab = true      -- Use spaces instead of tabs
+vim.opt.shiftwidth = 2        -- Number of spaces for indentation
+vim.opt.tabstop = 2           -- Number of spaces for tab
+vim.opt.undofile = true       -- Persistent undo
+vim.opt.updatetime = 300      -- Faster completion
+vim.opt.timeoutlen = 300      -- Faster key sequence completion
+vim.opt.completeopt = {'menuone', 'noselect'} -- Better completion
+vim.opt.wrap = false          -- Don't wrap lines
+vim.opt.scrolloff = 8         -- Minimum number of screen lines above/below cursor
+vim.opt.sidescrolloff = 8     -- Minimum number of screen columns to keep left/right of cursor
+vim.opt.showmode = false      -- Don't show mode in command line 
+vim.opt.termcolors = 256      -- Use 256 colors
+
+-- Ensure these directories exist
+local function ensure_dir(dir)
+  local is_dir = vim.fn.isdirectory(dir)
+  if is_dir == 0 then
+    vim.fn.mkdir(dir, "p")
+  end
+end
+
+-- Create necessary directories if they don't exist
+ensure_dir(vim.fn.stdpath("data") .. "/undo")
+ensure_dir(vim.fn.stdpath("data") .. "/swap")
+ensure_dir(vim.fn.stdpath("data") .. "/shada")
+
+-- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -13,46 +48,30 @@ if not vim.loop.fs_stat(lazypath) then
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", 
+    "--branch=stable",
     lazypath,
   })
 end
 vim.opt.rtp:prepend(lazypath)
 
--- UI Tweaks for a better experience
-vim.opt.termguicolors = true               -- Enable 24-bit RGB colors
-vim.opt.number = true                      -- Show line numbers
-vim.opt.relativenumber = true              -- Show relative line numbers
-vim.opt.cursorline = true                  -- Highlight the current line
-vim.opt.scrolloff = 8                      -- Keep 8 lines above/below cursor
-vim.opt.sidescrolloff = 8                  -- Keep 8 columns left/right of cursor
-vim.opt.showmode = false                   -- Don't show mode (shown in statusline)
-vim.opt.signcolumn = "yes"                 -- Always show the signcolumn
-vim.opt.wrap = false                       -- Don't wrap lines by default
-vim.opt.linebreak = true                   -- Wrap at word boundaries if wrap is on
-vim.opt.list = true                        -- Show whitespace characters
-vim.opt.listchars = {                      -- Configure whitespace characters
-  tab = "→ ",
-  trail = "·",
-  extends = "▶",
-  precedes = "◀",
-  nbsp = "␣",
-}
-vim.opt.fillchars:append({                 -- Make splits look nicer
-  horiz = "━",
-  horizup = "┻",
-  horizdown = "┳",
-  vert = "┃",
-  vertleft = "┫",
-  vertright = "┣",
-  verthoriz = "╋",
-})
-vim.opt.mouse = "a"                        -- Enable mouse in all modes
-vim.opt.splitbelow = true                  -- Open new horizontal splits below
-vim.opt.splitright = true                  -- Open new vertical splits to the right
-vim.opt.pumheight = 15                     -- Maximum number of items in popup menu
-vim.opt.pumblend = 10                      -- Pseudo-transparency for popup menu
-vim.opt.winblend = 10                      -- Pseudo-transparency for floating windows
+-- Set up which-key
+local ok, which_key_setup = pcall(require, "which_key_setup")
+if ok then
+  which_key_setup.setup()
+end
+
+-- Basic colorscheme (no custom theme)
+pcall(function()
+  vim.cmd("colorscheme tokyonight")
+end)
+
+-- Load plugins
+require("lazy").setup("plugins")
+
+-- Load mappings, with fallback in case file is missing
+pcall(function()
+  require("mappings")
+end)
 
 -- Enhanced window/pane management
 vim.opt.equalalways = true                 -- Make window size equal when splitting
@@ -169,10 +188,10 @@ ensure_dir(vim.fn.stdpath("data") .. "/swap")
 ensure_dir(vim.fn.stdpath("data") .. "/shada")
 
 -- Load settings
-require("settings")
+-- require("settings")
 
 -- Set up which-key before loading other plugins
-require("which_key_setup").setup()
+-- require("which_key_setup").setup()
 
 -- Load plugins
 require("lazy").setup({
@@ -418,7 +437,7 @@ vim.api.nvim_create_autocmd("FileType", {
     elseif vim.bo.filetype == "python" then
       vim.opt_local.colorcolumn = "88" -- Black formatter uses 88 characters
     end
-  end,
+  end
 })
 
 -- Ensure terminal opens in the bottom center

@@ -168,44 +168,89 @@ This configuration includes carefully selected plugins for backend development:
 ### Common Issues and Fixes
 
 1. **Invalid Plugin Specs**
+   If you see errors like these:
    ```
-   Error: Invalid plugin spec {colors = {...}, setup = <function>}
+   Invalid plugin spec { colors = {...}, setup = <function> }
+   Invalid plugin spec { log = {}, logfile = "...", setup = <function> }
+   Invalid plugin spec { config = <function>, name = "lualine_config" }
+   Invalid plugin spec { config = <function>, name = "notify_config" }
    ```
-   Fix: Run the fix_plugins.sh script to reorganize utility modules:
+   
+   This happens because some utility modules are being loaded as plugins. The fix is easy:
+   
    ```bash
+   # Navigate to your config
    cd ~/.config/nvim
+   
+   # Make the fix script executable
+   chmod +x fix_plugins.sh
+   
+   # Run the script
    ./fix_plugins.sh
    ```
+   
+   This script will:
+   - Move utility modules out of the plugins directory
+   - Create proper plugin specifications
+   - Install required plugins
+   - Set up the configuration correctly
 
 2. **Module Not Found Errors**
+   If you see errors like:
    ```
    module 'nvim-notify' not found
    ```
-   Fix: Make sure all plugins are properly installed:
+   
+   Run these commands inside Neovim:
    ```
    :Lazy sync
+   :checkhealth
    ```
+   
+   If that doesn't fix it, run the fix_plugins.sh script as described above.
 
 3. **Theme Not Applied**
-   Apply the ADHD-friendly theme manually:
+   If your ADHD-friendly theme isn't loading, manually apply it:
    ```
    :lua _G.ADHD_THEME.setup()
    ```
-
-4. **Missing Language Support**
-   Install language servers via Mason:
+   
+   To make it load automatically, add this to your init.lua:
+   ```lua
+   vim.api.nvim_create_autocmd("VimEnter", {
+     callback = function()
+       if _G.ADHD_THEME and _G.ADHD_THEME.setup then
+         _G.ADHD_THEME.setup()
+       end
+     end
+   })
    ```
-   :Mason
-   ```
-   Then navigate to the language server you need and press `i` to install.
 
-### Reset Your Configuration
+### Complete Reset and Installation
 
-If you need a completely fresh start:
+If you're still experiencing issues, here's a complete reset and installation procedure:
+
 ```bash
+# Step 1: Clean all Neovim files
 rm -rf ~/.config/nvim ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
+
+# Step 2: Clone the repository
 git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+
+# Step 3: Run the fix_plugins script
+cd ~/.config/nvim
+chmod +x fix_plugins.sh
+./fix_plugins.sh
+
+# Step 4: Start Neovim
+nvim
+
+# Step 5: Inside Neovim, run:
+# :Lazy sync
+# :checkhealth
 ```
+
+This procedure ensures all plugins are properly installed and configured.
 
 ## 🔑 Key Productivity Shortcuts
 

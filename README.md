@@ -52,38 +52,44 @@ A comprehensive Neovim configuration optimized for backend development and data 
 
 ## 🚀 Installation
 
-### One-Command Installation
+### 1. Clean Old Neovim Configurations (Recommended)
+
+To ensure a fresh start, remove or back up any previous Neovim configuration. **This will delete your old config!**
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/A6UD3L0/nvim-config/main/install.sh | bash
+mv ~/.config/nvim ~/.config/nvim_backup_$(date +%Y%m%d%H%M%S) 2>/dev/null || true
+mv ~/.local/share/nvim ~/.local/share/nvim_backup_$(date +%Y%m%d%H%M%S) 2>/dev/null || true
+mv ~/.local/state/nvim ~/.local/state/nvim_backup_$(date +%Y%m%d%H%M%S) 2>/dev/null || true
+mv ~/.cache/nvim ~/.cache/nvim_backup_$(date +%Y%m%d%H%M%S) 2>/dev/null || true
 ```
 
-The installation script will:
-1. Back up your existing Neovim configuration
-2. Clone this repository to the proper location
-3. Install dependencies as needed
-4. Configure everything automatically
+### 2. Clone the Configuration
 
-### Manual Installation
+```bash
+git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+```
 
-If you prefer to install manually:
+### 3. Launch Neovim and Install Plugins
 
-1. Backup your existing configuration:
-   ```bash
-   mv ~/.config/nvim ~/.config/nvim.bak
-   ```
+Open Neovim (the first launch will install plugins):
+```bash
+nvim
+```
 
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
-   ```
+Then, in Neovim, run:
+```
+:Lazy sync
+```
+Wait for all plugins to finish installing, then restart Neovim.
 
-3. Start Neovim to automatically install plugins:
-   ```bash
-   nvim
-   ```
+### 4. Verify Setup
 
-4. Verify installation with `:checkhealth`
+Check for errors and missing dependencies:
+```
+:checkhealth
+```
+
+If you see any issues, follow the suggestions or install missing system dependencies as needed.
 
 ## ⚡ MECE Keybinding Structure
 

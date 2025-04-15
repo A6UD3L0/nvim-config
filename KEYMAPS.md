@@ -88,6 +88,17 @@ The leader key is set to `<Space>`. All other keybindings are organized under th
 | `<leader>prq`    | Edit requirements.txt         | Edit the requirements.txt file              |
 | `<leader>pinst`  | Install requirements          | Install from requirements.txt               |
 
+## Harpoon (`<leader>h`)
+
+| Keybinding       | Action                        | Description                                 |
+|------------------|-------------------------------|---------------------------------------------|
+| `<leader>ha`     | Add file                      | Add file to Harpoon                         |
+| `<leader>hh`     | Toggle menu                   | Toggle Harpoon menu                         |
+| `<leader>h1`     | Jump to file 1                | Jump to first Harpoon file                  |
+| `<leader>h2`     | Jump to file 2                | Jump to second Harpoon file                 |
+| `<leader>h3`     | Jump to file 3                | Jump to third Harpoon file                  |
+| `<leader>h4`     | Jump to file 4                | Jump to fourth Harpoon file                 |
+
 ## Git Operations (`<leader>g`)
 
 | Keybinding       | Action                        | Description                                 |
@@ -125,17 +136,6 @@ The leader key is set to `<Space>`. All other keybindings are organized under th
 | `<leader>dmt`    | TensorFlow docs               | Open TensorFlow documentation               |
 | `<leader>dmy`    | PyTorch docs                  | Open PyTorch documentation                  |
 | `<leader>dmm`    | Matplotlib docs               | Open Matplotlib documentation               |
-
-## Harpoon (`<leader>h`)
-
-| Keybinding       | Action                        | Description                                 |
-|------------------|-------------------------------|---------------------------------------------|
-| `<leader>ha`     | Add file                      | Add file to Harpoon                         |
-| `<leader>hh`     | Toggle menu                   | Toggle Harpoon menu                         |
-| `<leader>h1`     | Jump to file 1                | Jump to first Harpoon file                  |
-| `<leader>h2`     | Jump to file 2                | Jump to second Harpoon file                 |
-| `<leader>h3`     | Jump to file 3                | Jump to third Harpoon file                  |
-| `<leader>h4`     | Jump to file 4                | Jump to fourth Harpoon file                 |
 
 ## Code/LSP Operations (`<leader>c`)
 

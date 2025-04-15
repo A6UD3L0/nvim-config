@@ -49,7 +49,6 @@ A comprehensive Neovim configuration optimized for backend development and data 
 
 - **Productivity Boosters**
   - Terminal integration with Toggleterm
-  - Project management with Telescope
   - MECE-compliant keybinding system with logical namespaces
   - File navigation with Telescope fuzzy finder
   - Undotree for change history visualization
@@ -80,13 +79,11 @@ This configuration uses a **M**utually **E**xclusive, **C**ollectively **E**xhau
 | `<leader>h`  | Harpoon operations                          |
 | `<leader>k`  | Keymaps (show key bindings, help)           |
 | `<leader>l`  | LSP operations (diagnostics, actions)       |
-| `<leader>o`  | Organize (Poetry package management)        |
-| `<leader>p`  | Project operations                          |
+| `<leader>p`  | Python/Environment/Dependencies             |
 | `<leader>r`  | Run/Requirements                            |
 | `<leader>s`  | Search/Replace operations                   |
 | `<leader>t`  | Terminal/Tab operations                     |
 | `<leader>u`  | Utilities (undotree, helpers)               |
-| `<leader>v`  | Virtual environment (Python venv)           |
 | `<leader>w`  | Window operations                           |
 | `<leader>x`  | Execute code (run scripts, REPL)            |
 | `<leader>z`  | Zen/Focus mode                              |

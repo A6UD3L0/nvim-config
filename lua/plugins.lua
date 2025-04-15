@@ -40,7 +40,8 @@ return {
   
   -- Which-key with PROPER ERROR HANDLING
   { "folke/which-key.nvim", 
-    event = "VeryLazy", 
+    lazy = false, -- Load immediately to ensure it's available for leader key press
+    priority = 100, -- High priority to ensure it loads early
     config = function()
       -- Create a basic setup that won't fail
       local ok, wk = pcall(require, "which-key")
@@ -74,7 +75,14 @@ return {
           spacing = 6,
         },
         hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
+        triggers = {"<leader>"}, -- Only show which-key for leader
+        triggers_nowait = {}, -- Don't use nowait triggers
+        triggers_blacklist = {
+          i = { "j", "k" },
+          v = { "j", "k" },
+        },
         show_help = true,
+        show_keys = true,
       })
       
       -- Register key groups

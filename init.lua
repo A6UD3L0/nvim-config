@@ -168,13 +168,13 @@ ensure_dir(vim.fn.stdpath("data") .. "/backup")
 ensure_dir(vim.fn.stdpath("data") .. "/swap")
 ensure_dir(vim.fn.stdpath("data") .. "/shada")
 
--- Load mappings
-require("mappings")
+-- Load settings
+require("settings")
 
--- Load backend-essential configurations
-local backend = require("backend-essentials")
+-- Set up which-key before loading other plugins
+require("which_key_setup").setup()
 
--- Set up plugin management with Lazy
+-- Load plugins
 require("lazy").setup({
   -- Core plugins
   { import = "plugins" },
@@ -313,6 +313,12 @@ require("lazy").setup({
     },
   },
 })
+
+-- Load mappings
+require("mappings")
+
+-- Load backend-essential configurations
+local backend = require("backend-essentials")
 
 -- Language-specific settings for backend development
 vim.api.nvim_create_autocmd("FileType", {

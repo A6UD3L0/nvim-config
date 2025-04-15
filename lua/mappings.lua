@@ -1199,8 +1199,13 @@ end
 -- =============================================
 -- WHICH-KEY GROUP REGISTRATION (for MECE clarity)
 -- =============================================
-if M._has_which_key() then
-  local wk = require("which-key")
+local function setup_which_key()
+  local wk_ok, wk = pcall(require, "which-key")
+  if not wk_ok then
+    -- Don't show errors if which-key is not installed
+    return false
+  end
+  
   wk.register({
     ["<leader>t"] = { name = "+terminal" },
     ["<leader>b"] = { name = "+buffer" },
@@ -1216,7 +1221,12 @@ if M._has_which_key() then
     ["<leader>u"] = { name = "+undotree" },
     ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
   })
+  
+  return true
 end
+
+-- Try to set up which-key (will silently fail if not installed)
+setup_which_key()
 
 -- POLISH MAPPING DESCRIPTIONS
 -- (Ensure all mappings have clear, non-redundant descriptions)
@@ -1230,7 +1240,26 @@ end
 
 -- THEME POLISH
 -- Ensure all plugin popups and dashboard use your chosen colorscheme
-vim.cmd([[colorscheme rose-pine-moon]])
+local function set_colorscheme(name)
+  local status_ok, _ = pcall(vim.cmd.colorscheme, name)
+  if not status_ok then
+    vim.notify("Could not find colorscheme: " .. name, vim.log.levels.WARN)
+    return false
+  end
+  return true
+end
+
+-- Try rose-pine-moon first, fall back to a default theme if not installed
+if not set_colorscheme("rose-pine-moon") then
+  -- Try rose-pine (might be installed without the moon variant)
+  if not set_colorscheme("rose-pine") then
+    -- Try these common alternatives
+    set_colorscheme("tokyonight") or
+    set_colorscheme("onedark") or
+    set_colorscheme("gruvbox") or
+    set_colorscheme("default")
+  end
+end
 
 -- =============================================
 -- KEYBINDING CHEATSHEET

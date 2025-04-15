@@ -1140,16 +1140,37 @@ return {
       { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
     },
     config = function()
-      -- Automatically hide diff window
-      vim.g.undotree_SetFocusWhenToggle = 1
-      -- Window layout setup
-      vim.g.undotree_WindowLayout = 2
-      -- Highlight changed text
-      vim.g.undotree_HighlightChangedText = 1
-      -- Show help text
-      vim.g.undotree_HelpLine = 1
-      -- Show time difference
-      vim.g.undotree_ShowTimestamp = 1
+      -- Configure UndoTree for better UX/UI
+      vim.g.undotree_WindowLayout = 2       -- Layout 2: tree on the left, diff at the bottom
+      vim.g.undotree_SplitWidth = 35        -- Wider tree panel for better readability
+      vim.g.undotree_DiffpanelHeight = 12   -- Higher diff panel to show more context
+      vim.g.undotree_SetFocusWhenToggle = 1 -- Automatically focus on undotree when opened
+      vim.g.undotree_ShortIndicators = 0    -- Use regular indicators for better readability
+      vim.g.undotree_HelpLine = 1           -- Show help text for better usability
+      vim.g.undotree_TreeNodeShape = '●'    -- Use a clear node indicator
+      vim.g.undotree_TreeVertShape = '│'    -- Use proper box drawing character
+      vim.g.undotree_TreeSplitShape = '╱'   -- Use angled split shape
+      vim.g.undotree_TreeReturnShape = '╲'  -- Use angled return shape
+      vim.g.undotree_DiffCommand = 'diff'   -- Default diff command
+      vim.g.undotree_RelativeTimestamp = 1  -- Show relative timestamps
+      vim.g.undotree_HighlightChangedText = 1       -- Highlight changed text
+      vim.g.undotree_HighlightChangedWithSign = 1   -- Show signs in the gutter
+      vim.g.undotree_HighlightSyntaxAdd = "DiffAdd" -- Use diff colors for additions
+      vim.g.undotree_HighlightSyntaxChange = "DiffChange" -- Use diff colors for changes
+      vim.g.undotree_HighlightSyntaxDel = "DiffDelete"    -- Use diff colors for deletions
+      
+      -- Create custom highlights for UndoTree that match your colorscheme
+      vim.cmd([[
+        hi! link UndotreeNode Statement
+        hi! link UndotreeNodeCurrent Identifier
+        hi! link UndotreeTimeStamp Comment
+        hi! link UndotreeFirstNode Character
+        hi! link UndotreeHeadNode WarningMsg
+        hi! link UndotreeBranch Special
+        hi! link UndotreeCurrent Constant
+        hi! link UndotreeSavedBig WarningMsg
+        hi! link UndotreeSavedSmall WarningMsg
+      ]])
     end,
   },
   
@@ -1169,18 +1190,31 @@ return {
       { "<leader>gc", "<cmd>LazyGitCurrentFile<CR>", desc = "LazyGit Current File" },
     },
     config = function()
-      -- We're using <leader>gg for toggling LazyGit
-      vim.g.lazygit_floating_window_scaling_factor = 0.9
-      vim.g.lazygit_floating_window_use_plenary = 1
+      -- LazyGit floating window configuration for beautiful UI
+      vim.g.lazygit_floating_window_scaling_factor = 0.9    -- Large window that doesn't take over the screen
+      vim.g.lazygit_floating_window_use_plenary = 1         -- Use plenary for better experience
       
-      -- Set the border type for floating windows
-      vim.g.lazygit_floating_window_border_chars = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
+      -- Set beautiful border characters for LazyGit floating window
+      vim.g.lazygit_floating_window_border_chars = {
+        '╭', '─', '╮', '│', '╯', '─', '╰', '│'  -- Rounded box drawing chars
+      }
       
-      -- Make the LazyGit floating window highlight readable
-      vim.cmd [[
-        highlight link LazyGitFloat NormalFloat
-        highlight link LazyGitBorder FloatBorder
-      ]]
+      -- Center the LazyGit floating window
+      vim.g.lazygit_floating_window_winblend = 0  -- No transparency for better readability
+      
+      -- Use cursor line highlighting in LazyGit
+      vim.g.lazygit_use_cursor_line_highlighting = 1
+      
+      -- Enhanced UI with custom highlights
+      vim.cmd([[
+        augroup LazyGitHighlight
+          autocmd!
+          autocmd FileType lazygit setlocal cursorline
+          autocmd FileType lazygit,lazygitfilter highlight clear LazyGitBorder
+          autocmd FileType lazygit,lazygitfilter highlight LazyGitBorder guifg=#5eacd3 guibg=NONE
+          autocmd FileType lazygit,lazygitfilter highlight LazyGitFloat guibg=#1a1b26
+        augroup END
+      ]])
     end,
   },
   
@@ -1202,11 +1236,14 @@ return {
       end
       
       devdocs.setup({
-        previewer_cmd = "glow",
+        -- Beautiful previewer setup
+        previewer_cmd = vim.fn.executable("glow") == 1 and "glow" or nil,
         cmd_args = { "-s", "dark", "-w", "80" },
         picker_cmd = true,
         picker_cmd_args = { "-p" },
+        
         after_open = function(bufnr)
+          -- Better keymaps for documentation navigation
           vim.api.nvim_buf_set_keymap(
             bufnr,
             "n",
@@ -1221,22 +1258,53 @@ return {
             ":close<CR>",
             { noremap = true, silent = true }
           )
+          
+          -- Better UI/UX with proper window setup
+          vim.api.nvim_buf_set_option(bufnr, "foldenable", false)
+          vim.api.nvim_buf_set_option(bufnr, "conceallevel", 2)
+          vim.api.nvim_buf_set_option(bufnr, "wrap", true)
+          
+          -- Add syntax highlighting to code blocks if not using glow
+          if vim.fn.executable("glow") ~= 1 then
+            vim.cmd("TSBufEnable highlight")
+          end
+          
+          -- Show helpful message
+          vim.notify("DevDocs opened - press q or <Esc> to close", vim.log.levels.INFO, {
+            title = "DevDocs",
+            icon = "📚",
+            timeout = 3000
+          })
         end,
-        mappings = {
-          -- Custom mappings for the devdocs buffer
-          open_in_browser = "<C-o>",
-        },
-        float_win = {
-          -- Border for the floating window
-          border = "rounded",
-          -- Maximum dimensions
-          max_width = 80,
-          max_height = 40,
-        },
-        wrap = true,
-        silent = false,
-        directory = vim.fn.stdpath("data") .. "/devdocs",
         
+        mappings = {
+          -- Custom mappings for the devdocs buffer with better descriptions
+          open_in_browser = "<C-o>",
+          search = "/",
+        },
+        
+        float_win = {
+          -- Beautiful floating window configuration
+          relative = "editor", -- Position relative to editor
+          height = 0.8,        -- Take 80% of height
+          width = 0.8,         -- Take 80% of width
+          border = "rounded",  -- Rounded borders
+          zindex = 100,        -- Show above other windows
+          title = "DevDocs",   -- Clear title
+          title_pos = "center",
+          -- Margin for better readability
+          row = 2,
+          col = 2,
+          -- Maximum dimensions to avoid overflow
+          max_width = 250,
+          max_height = 100,
+        },
+        
+        wrap = true,         -- Wrap content for readability
+        silent = false,      -- Show notifications for better UX
+        directory = vim.fn.stdpath("data") .. "/devdocs", -- Storage location
+        
+        -- Ensure commonly used docs are installed
         ensure_installed = {
           -- Python docs
           "python~3.11",
@@ -1277,14 +1345,25 @@ return {
         },
       })
       
-      -- Create a wrapper function for handling errors
+      -- Create a wrapper function for handling errors with better UI feedback
       local function open_devdocs(lang)
+        -- Show loading notification for better UX
+        local notify_id = vim.notify("Loading documentation...", vim.log.levels.INFO, {
+          title = "DevDocs",
+          icon = "📚",
+          timeout = 3000,
+          replace = notify_id
+        })
+        
         local success, err = pcall(function()
           devdocs.open_float(lang)
         end)
         
         if not success then
-          vim.notify("Error opening DevDocs: " .. tostring(err), vim.log.levels.ERROR)
+          vim.notify("Error opening DevDocs: " .. tostring(err), vim.log.levels.ERROR, {
+            title = "DevDocs Error",
+            icon = "❌"
+          })
         end
       end
       

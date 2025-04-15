@@ -1419,7 +1419,7 @@ M.setup_diagnostic_window_mappings = function(buf)
     "    1     - Show errors only",
     "    2     - Show warnings & errors",
     "    3     - Show info & above",
-    "    4     - Show hints & above",
+    "    4     - Show all diagnostics",
     "",
     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
     ""
@@ -1929,5 +1929,7 @@ map("n", "<leader>lr", "<cmd>LspRestart<CR>", { desc = "LSP restart" })
 map("n", "<leader>ls", "<cmd>LspStart<CR>", { desc = "LSP start" })
 map("n", "<leader>lS", "<cmd>LspStop<CR>", { desc = "LSP stop" })
 
--- Export the module 
+-- Make Q behave the same as q (for macro recording)
+map("n", "Q", "q", { desc = "Use Q for macro recording (same as q)" })
+
 return M

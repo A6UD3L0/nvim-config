@@ -235,4 +235,145 @@ return {
       })
     end
   },
+
+  -- Telescope UI/UX improvements
+  {
+    "nvim-telescope/telescope.nvim",
+    config = function()
+      require('telescope').setup{
+        defaults = {
+          borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
+          prompt_prefix = '🔍 ',
+          selection_caret = ' ',
+          entry_prefix = '  ',
+          layout_strategy = 'horizontal',
+          layout_config = {
+            prompt_position = 'top',
+            width = 0.95,
+            height = 0.85,
+            preview_cutoff = 120,
+          },
+          sorting_strategy = 'ascending',
+          winblend = 10,
+          color_devicons = true,
+          results_title = false,
+          preview_title = false,
+        },
+        pickers = {
+          find_files = {
+            theme = "dropdown",
+          },
+          live_grep = {
+            theme = "dropdown",
+          },
+        },
+        extensions = {},
+      }
+    end
+  },
+
+  -- NvimTree UI/UX improvements
+  {
+    "nvim-tree/nvim-tree.lua",
+    config = function()
+      require("nvim-tree").setup {
+        view = {
+          width = 35,
+          side = "left",
+          number = false,
+          relativenumber = false,
+          signcolumn = "yes",
+          float = {
+            enable = true,
+            open_win_config = {
+              border = "rounded"
+            }
+          }
+        },
+        renderer = {
+          highlight_git = true,
+          highlight_opened_files = "all",
+          root_folder_label = ":t",
+          indent_markers = {
+            enable = true
+          },
+          icons = {
+            show = {
+              file = true,
+              folder = true,
+              folder_arrow = true,
+              git = true,
+            },
+          },
+        },
+        diagnostics = {
+          enable = true,
+          show_on_dirs = true,
+          show_on_open_dirs = true,
+        },
+        filters = {
+          dotfiles = false,
+          custom = { ".git", "node_modules", ".cache" }
+        },
+      }
+    end
+  },
+
+  -- Mason UI/UX improvements
+  {
+    "williamboman/mason.nvim",
+    config = function()
+      require("mason").setup {
+        ui = {
+          border = "rounded",
+          icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗"
+          }
+        }
+      }
+    end
+  },
+
+  -- Lazy plugin manager UI/UX improvements
+  {
+    "folke/lazy.nvim",
+    config = function()
+      require("lazy").setup {
+        ui = {
+          border = "rounded",
+          icons = {
+            cmd = "⌘",
+            config = "🛠",
+            event = "📅",
+            ft = "📄",
+            init = "⚙️ ",
+            keys = "🗝",
+            plugin = "🔌",
+            runtime = "💻",
+            source = "📦",
+            start = "🚀",
+            task = "📌",
+          },
+        },
+      }
+    end
+  },
+
+  -- LSP UI/UX improvements (if using lspsaga)
+  {
+    "nvimdev/lspsaga.nvim",
+    config = function()
+      require('lspsaga').setup({
+        ui = {
+          border = 'rounded',
+          code_action = '💡',
+          colors = {
+            normal_bg = '#1e2030',
+          },
+        },
+      })
+    end
+  },
 }

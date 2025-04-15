@@ -106,141 +106,49 @@ function M.setup()
     harpoon = "🔱 ",
   }
   
-  -- Visual grouping of keybindings for better UX
-  local groups = {
-    code = { "c", "l" },           -- Code and LSP
-    navigation = { "f", "h", "p" }, -- File, Harpoon, Project
-    git = { "g" },                 -- Git
-    ui = { "z", "u" },             -- Zen, Utilities
-    window = { "w" },              -- Window
-    tests = { "r" },               -- Run tests
-    docs = { "d" },                -- Documentation
-    misc = { "b", "q", "s", "t", "x", "k", "e" }, -- Buffer, quickfix, etc.
-  }
-  
-  -- Color-coded groups
-  local group_colors = {
-    code = "#7DCFFF",      -- Blue for code/LSP
-    navigation = "#BB9AF7", -- Purple for navigation
-    git = "#9ECE6A",       -- Green for git
-    ui = "#FF9E64",        -- Orange for UI
-    window = "#2AC3DE",    -- Cyan for windows
-    tests = "#E0AF68",     -- Yellow for tests 
-    docs = "#7AA2F7",      -- Light blue for docs
-    misc = "#F7768E",      -- Red for misc
-  }
-  
-  -- Set up color highlighting for which-key groups
-  for group_name, color in pairs(group_colors) do
-    for _, prefix in ipairs(groups[group_name] or {}) do
-      vim.api.nvim_set_hl(0, "WhichKey" .. prefix:upper(), { fg = color, bold = true })
-    end
-  end
-  
-  -- Register key groups with icons for better visual organization
+  -- Unified and MECE group registration with icons and color highlights
   which_key.register({
-    ["<leader>b"] = { name = icons.buffer .. "+buffer" },
-    ["<leader>c"] = { name = icons.code .. "+code/lsp" },
-    ["<leader>ca"] = { name = "Code actions" },
-    ["<leader>cr"] = { name = "Rename symbol" },
-    ["<leader>cf"] = { name = "Format code" },
-    ["<leader>cd"] = { name = "Line diagnostics" },
-    ["<leader>cq"] = { name = "List diagnostics" },
-    ["<leader>cw"] = { name = "Add workspace folder" },
-    ["<leader>cW"] = { name = "Remove workspace folder" },
-    ["<leader>cl"] = { name = "List workspace folders" },
-    ["<leader>cs"] = { name = "Document symbols" },
-    ["<leader>cS"] = { name = "Workspace symbols" },
-    ["<leader>ci"] = { name = "Find implementations" },
-    ["<leader>cD"] = { name = "Find type definitions" },
-    ["<leader>cu"] = { name = "Find usages/references" },
-    ["<leader>cC"] = { name = "Incoming calls" },
-    ["<leader>cO"] = { name = "Outgoing calls" },
-    ["<leader>cT"] = { name = "Toggle inline diagnostics" },
-    ["<leader>cI"] = { name = "LSP info" },
-    ["<leader>cR"] = { name = "LSP restart" },
-    ["<leader>cp"] = { name = "Peek definition" },
-    ["<leader>d"] = { name = icons.docs .. "+docs" },
-    ["<leader>df"] = { name = "Docs for current filetype" },
-    ["<leader>dm"] = { name = "+ml-docs" },
-    ["<leader>e"] = { name = icons.files .. "+explorer" },
-    ["<leader>f"] = { name = icons.search .. "+find/file" },
-    ["<leader>g"] = { name = icons.git .. "+git" },
-    ["<leader>gs"] = { name = "Stage hunk" },
-    ["<leader>gr"] = { name = "Reset hunk" },
-    ["<leader>gS"] = { name = "Stage buffer" },
-    ["<leader>gu"] = { name = "Undo stage hunk" },
-    ["<leader>gR"] = { name = "Reset buffer" },
-    ["<leader>gp"] = { name = "Preview hunk" },
-    ["<leader>gB"] = { name = "Blame line (full)" },
-    ["<leader>gL"] = { name = "Toggle line blame" },
-    ["<leader>gd"] = { name = "Diff this" },
-    ["<leader>gx"] = { name = "Toggle deleted" },
-    ["<leader>gb"] = { name = "Git blame (LazyGit)" },
-    ["<leader>gl"] = { name = "Git logs for current file" },
-    ["<leader>gg"] = { name = "Open LazyGit" },
-    ["<leader>gf"] = { name = "LazyGit File History" },
-    ["<leader>gc"] = { name = "LazyGit Current File" },
-    ["<leader>h"] = { name = icons.harpoon .. "+harpoon" },
-    ["<leader>k"] = { name = icons.keymaps .. "+keymaps" },
-    ["<leader>l"] = { name = icons.code .. "+lsp" },
-    ["<leader>lh"] = { name = "Toggle inlay hints" },
-    ["<leader>li"] = { name = "LSP info" },
-    ["<leader>lr"] = { name = "LSP restart" },
-    ["<leader>ls"] = { name = "LSP start" },
-    ["<leader>lS"] = { name = "LSP stop" },
-    ["<leader>p"] = { name = icons.python .. "+project/python" },
-    ["<leader>pf"] = { name = "Find files in project" },
-    ["<leader>ps"] = { name = "Project search (grep)" },
-    ["<leader>q"] = { name = "+quickfix" },
-    ["<leader>r"] = { name = icons.test .. "+run/requirements" },
-    ["<leader>s"] = { name = icons.search .. "+search/substitute" },
-    ["<leader>t"] = { name = icons.terminal .. "+terminal" },
-    ["<leader>u"] = { name = icons.undo .. "+undotree/utilities" },
-    ["<leader>ut"] = { name = "Toggle Undotree" },
-    ["<leader>uf"] = { name = "Focus Undotree" },
-    ["<leader>w"] = { name = icons.windows .. "+window/tab" },
-    ["<leader>x"] = { name = icons.util .. "+execute" },
-    ["<leader>y"] = { name = "Yank to system clipboard" },
-    ["<leader>Y"] = { name = "Yank line to system clipboard" },
-    ["<leader>z"] = { name = "+zen/focus" },
-    ["<leader>/"] = { name = "Fuzzy find in buffer" },
-    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
-    ["<leader>1"] = { name = "Harpoon file 1" },
-    ["<leader>2"] = { name = "Harpoon file 2" },
-    ["<leader>3"] = { name = "Harpoon file 3" },
-    ["<leader>4"] = { name = "Harpoon file 4" },
-    ["<leader>5"] = { name = "Harpoon file 5" },
-    ["[c"] = { name = "Previous git hunk" },
-    ["]c"] = { name = "Next git hunk" },
-    ["[d"] = { name = "Previous diagnostic" },
-    ["]d"] = { name = "Next diagnostic" },
-    ["[e"] = { name = "Previous error" },
-    ["]e"] = { name = "Next error" },
-    ["[w"] = { name = "Previous warning" },
-    ["]w"] = { name = "Next warning" },
-  })
-  
-  -- Register insert mode key mappings to be shown in which-key
-  which_key.register({
-    ["jk"] = { "<ESC>", "Exit insert mode" },
-  }, { mode = "i" })
-  
+    ["<leader>b"] = { name = icons.buffer .. "Buffers & Tabs" },
+    ["<leader>c"] = { name = icons.code .. "Code Actions & LSP" },
+    ["<leader>d"] = { name = icons.docs .. "Docs & Help" },
+    ["<leader>e"] = { name = icons.files .. "File Explorer" },
+    ["<leader>f"] = { name = icons.search .. "Find & Search" },
+    ["<leader>g"] = { name = icons.git .. "Git & VCS" },
+    ["<leader>h"] = { name = icons.harpoon .. "Harpoon (Marks)" },
+    ["<leader>k"] = { name = icons.keymaps .. "Keymaps & Cheatsheet" },
+    ["<leader>l"] = { name = icons.code .. "LSP" },
+    ["<leader>p"] = { name = icons.python .. "Python/Project" },
+    ["<leader>q"] = { name = "Quickfix & Lists" },
+    ["<leader>r"] = { name = icons.test .. "Run & Test" },
+    ["<leader>s"] = { name = icons.search .. "Substitute/Search" },
+    ["<leader>t"] = { name = icons.terminal .. "Terminal" },
+    ["<leader>u"] = { name = icons.undo .. "Undo/Utilities" },
+    ["<leader>w"] = { name = icons.windows .. "Window/Tab" },
+    ["<leader>x"] = { name = icons.util .. "Execute/Utils" },
+    ["<leader>z"] = { name = "+Zen/Focus" },
+    ["<leader>?"] = { name = "Show all keymaps (cheatsheet)" },
+  }, { mode = "n", prefix = "<leader>" })
+
   -- Register visual mode key mappings
   which_key.register({
-    ["<leader>y"] = { "\"+y", "Yank to system clipboard" },
-    ["<leader>d"] = { "\"_d", "Delete to void register" },
-    ["<leader>p"] = { "\"_dP", "Paste without overwriting register" },
+    ["<leader>y"] = { '"+y', "Yank to system clipboard" },
+    ["<leader>d"] = { '"_d', "Delete to void register" },
+    ["<leader>p"] = { '"_dP', "Paste without overwriting register" },
     ["J"] = { ":m '>+1<CR>gv=gv", "Move selected lines down" },
     ["K"] = { ":m '<-2<CR>gv=gv", "Move selected lines up" },
   }, { mode = "v" })
-  
-  -- Create a help message keymap to show all keys (as a cheat sheet)
+
+  -- Insert mode: escape with jk
+  which_key.register({
+    ["jk"] = { "<ESC>", "Exit insert mode" },
+  }, { mode = "i" })
+
+  -- Show all keymaps with <leader>?
   vim.keymap.set("n", "<leader>?", function()
     which_key.show("", {mode = "n", auto = true})
   end, { desc = "Show all keymaps (cheatsheet)" })
-  
-  -- Ensure leader key works as expected
+
+  -- Ensure leader key is always mapped (no accidental spacebar insert)
   vim.keymap.set("n", "<Space>", "<Nop>", { silent = true })
 end
 

@@ -982,6 +982,22 @@ map("n", "<leader>ef", function() M._focus_nvim_tree() end, { desc = "Focus file
 -- Quick access to built-in file explorer (complements NvimTree)
 map("n", "<leader>pv", vim.cmd.Ex, { desc = "Open Netrw file explorer" })
 
+-- Custom: Smart VenvSelect with cwd and NvimTree sync
+map("n", "<leader>vs", function()
+  -- Change to the directory of the current file
+  local file_dir = vim.fn.expand('%:p:h')
+  vim.cmd('cd ' .. file_dir)
+  -- Run VenvSelect
+  vim.cmd('VenvSelect')
+  -- Sync NvimTree root to new cwd
+  if package.loaded["nvim-tree"] then
+    require("nvim-tree.api").tree.change_root(file_dir)
+    require("nvim-tree.api").tree.open()
+  else
+    vim.cmd('NvimTreeOpen')
+  end
+end, { desc = "Smart VenvSelect + sync NvimTree" })
+
 -- =============================================
 -- FILE/FIND OPERATIONS (f namespace)
 -- =============================================

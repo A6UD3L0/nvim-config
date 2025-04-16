@@ -315,6 +315,10 @@ return {
           dotfiles = false,
           custom = { ".git", "node_modules", ".cache" }
         },
+        update_cwd = true,
+        respect_buf_cwd = true,
+        sync_root_with_cwd = true,
+        reload_on_bufenter = true,
       }
     end
   },

@@ -948,8 +948,12 @@ return {
         
         -- Enhanced search settings for 2024 regexp version
         auto_refresh = true,
-        search_venv_managers = true,
-        search_workspace = true,
+        search_venv_managers = false, -- Only search in project, not $HOME
+        search_workspace = false, -- Only search in cwd
+        ignore_hidden = true, -- Skip hidden folders
+        search = {
+          cwd = vim.fn.getcwd(),
+        },
         
         -- Improved regexp search patterns
         search_patterns = {
@@ -1158,7 +1162,7 @@ return {
       -- Call the init function
       if vim.fn.exists('*_wilder_init') == 0 then
         vim.cmd([[
-          function! _wilder_init() abort
+          function! _wilder_init(...) abort
             lua _G._wilder_init()
           endfunction
           

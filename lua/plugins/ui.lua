@@ -186,15 +186,6 @@ return {
   },
 
   {
-    "shortcuts/no-neck-pain.nvim",
-    version = "*",
-    config = function()
-      -- grab & initialize with defaults
-      require("no-neck-pain").setup()
-    end,
-  },
-
-  {
     "folke/which-key.nvim",
     lazy = false,
     priority = 100,

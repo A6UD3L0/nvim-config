@@ -1,6 +1,6 @@
--- Essential plugins for backend development and data science
+-- This file contains ONLY plugin specs and plugin-specific config.
 return {
-  -- LSP Configuration
+  -- Essential plugins for backend development and data science
   {
     "neovim/nvim-lspconfig",
     dependencies = {

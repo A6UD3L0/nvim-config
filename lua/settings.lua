@@ -23,7 +23,7 @@ vim.opt.syntax = "on"         -- Enable syntax highlighting
 
 -- Appearance
 vim.opt.wrap = false          -- Don't wrap lines
-vim.opt.scrolloff = 8         -- Minimum number of screen lines above/below cursor
+vim.opt.scrolloff = 20        -- Minimum number of screen lines above/below cursor
 vim.opt.sidescrolloff = 8     -- Minimum number of screen columns to keep left/right of cursor
 vim.opt.showmode = false      -- Don't show mode in command line (use statusline instead)
 vim.opt.signcolumn = 'yes'    -- Always show sign column

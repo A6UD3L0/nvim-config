@@ -56,7 +56,7 @@ vim.opt.winblend = 10                      -- Pseudo-transparency for floating w
 
 -- Eye comfort settings for long coding sessions
 vim.opt.syntax = "on"                      -- Enable syntax highlighting with optimizations
-vim.opt.lazyredraw = true                  -- Don't redraw screen during macros (performance)
+vim.opt.lazyredraw = false                 -- Don't use lazyredraw as it conflicts with noice.nvim
 vim.opt.ttyfast = true                     -- Faster terminal connection
 vim.opt.conceallevel = 0                   -- Don't hide characters in markdown/etc
 vim.opt.background = "dark"                -- Dark background for less eye strain

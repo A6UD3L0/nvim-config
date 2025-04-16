@@ -1747,7 +1747,40 @@ map("n", "<leader>/", function()
   end
 end, { desc = "Fuzzy find in buffer" })
 
--- Git Mappings from ThePrimeagen's setup
+-- Improved Git mappings for <leader>g group
+local wk = require("which-key")
+wk.register({
+  g = {
+    name = "+git",
+    s = { function() require('gitsigns').stage_hunk() end, "Stage hunk" },
+    r = { function() require('gitsigns').reset_hunk() end, "Reset hunk" },
+    S = { function() require('gitsigns').stage_buffer() end, "Stage buffer" },
+    u = { function() require('gitsigns').undo_stage_hunk() end, "Undo stage hunk" },
+    R = { function() require('gitsigns').reset_buffer() end, "Reset buffer" },
+    p = { function() require('gitsigns').preview_hunk() end, "Preview hunk" },
+    B = { function() require('gitsigns').blame_line({full=true}) end, "Blame line (full)" },
+    L = { function() require('gitsigns').toggle_current_line_blame() end, "Toggle line blame" },
+    d = { function() require('gitsigns').diffthis() end, "Diff this" },
+    x = { function() require('gitsigns').toggle_deleted() end, "Toggle deleted" },
+    f = { "<cmd>Telescope git_files<CR>", "Find git files" },
+    c = { "<cmd>Telescope git_commits<CR>", "Git commits" },
+    b = { "<cmd>Telescope git_branches<CR>", "Git branches" },
+    l = { "<cmd>LazyGit<CR>", "Open LazyGit" },
+  }
+}, { prefix = "<leader>" })
+
+-- Visual mode mappings for hunks
+vim.keymap.set("v", "<leader>gs", function()
+  require('gitsigns').stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+end, { desc = "Stage hunk (visual)" })
+
+vim.keymap.set("v", "<leader>gr", function()
+  require('gitsigns').reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+end, { desc = "Reset hunk (visual)" })
+
+-- =============================================
+-- GIT MAPPINGS
+-- =============================================
 -- Git integration with superior UX
 M.setup_git_mappings = function()
   -- Check if gitsigns is available

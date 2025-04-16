@@ -1,0 +1,40 @@
+# Neovim specific
+.netrwhist
+plugin/packer_compiled.lua
+/lazy-lock.json
+
+# Compiled Lua sources
+luac.out
+
+# Directories created by package managers
+lazy/
+plugged/
+pack/
+/mason/
+
+# Logs
+*.log
+
+# OS specific
+.DS_Store
+*~
+.*.swp
+.*.swo
+
+# Node modules (for language servers)
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Editor config
+*.session
+sessions/
+undodir/
+
+# Shada files (session data)
+/shada/

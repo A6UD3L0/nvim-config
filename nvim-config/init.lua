@@ -22,13 +22,35 @@ vim.opt.updatetime = 300      -- Faster completion
 vim.opt.timeoutlen = 300      -- Faster key sequence completion
 vim.opt.completeopt = {'menuone', 'noselect'} -- Better completion
 vim.opt.wrap = false          -- Don't wrap lines
-vim.opt.scrolloff = 8         -- Minimum number of screen lines above/below cursor
+vim.opt.scrolloff = 12        -- Keep cursor centered vertically with 12 lines
 vim.opt.sidescrolloff = 8     -- Minimum number of screen columns to keep left/right of cursor
 vim.opt.showmode = false      -- Don't show mode in command line 
 vim.opt.termguicolors = true  -- Enable 24-bit RGB colors
 vim.opt.splitbelow = true     -- Open horizontal splits below
 vim.opt.splitright = true     -- Open vertical splits to the right
 vim.opt.signcolumn = "yes"    -- Always show sign column
+
+-- Keep cursor vertically centered in insert mode
+vim.api.nvim_create_autocmd("InsertEnter", {
+  callback = function()
+    vim.opt.scrolloff = 999  -- Center cursor in insert mode
+  end
+})
+
+vim.api.nvim_create_autocmd("InsertLeave", {
+  callback = function()
+    vim.opt.scrolloff = 12   -- Return to normal scrolloff
+  end
+})
+
+-- Configure float window appearance
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {"help", "man", "lspinfo", "checkhealth", "qf", "Telescope*", "mason", "notify", "floaterm", "toggleterm"},
+  callback = function()
+    vim.opt_local.signcolumn = "no"
+    vim.opt_local.colorcolumn = ""
+  end
+})
 
 -- Create necessary directories
 local function ensure_dir(dir)

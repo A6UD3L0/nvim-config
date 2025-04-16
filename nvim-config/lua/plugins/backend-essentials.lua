@@ -292,7 +292,7 @@ return {
           -- Try to load telescope for enhanced LSP commands if available
           local has_telescope = pcall(require, "telescope")
           if has_telescope then
-            local telescope = require("telescope.builtin")
+            local telescope = require("telescope")
             map("n", "<leader>cs", telescope.lsp_document_symbols, { buffer = bufnr, desc = "Document symbols" })
             map("n", "<leader>cS", telescope.lsp_workspace_symbols, { buffer = bufnr, desc = "Workspace symbols" })
             map("n", "<leader>cC", telescope.lsp_incoming_calls, { buffer = bufnr, desc = "Incoming calls" })
@@ -653,9 +653,13 @@ return {
         git = { enable = true, ignore = false },
         view = {
           width = 30, -- Match the width of undotree
-          side = "left", -- Position on the left side
-          preserve_window_proportions = true, -- Keep editing window large
+          side = "right", -- Position on the right side
+          preserve_window_proportions = false, -- Allow editing window to resize
           signcolumn = "yes",
+          float = {
+            enable = false, -- Disable floating window mode
+            quit_on_focus_loss = false,
+          },
         },
         actions = {
           open_file = {
@@ -1454,5 +1458,30 @@ return {
     config = function()
       require("dashboard").setup()
     end,
+  },
+  
+  -- Hardtime plugin to break bad habits
+  {
+    "m4xshen/hardtime.nvim",
+    event = "VeryLazy",
+    dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
+    opts = {
+      max_count = 3,
+      disabled_filetypes = { "qf", "help", "nvim-tree", "lazy", "mason", "alpha", "NvimTree" },
+      disabled_keys = {
+        ["<Up>"] = {},
+        ["<Down>"] = {},
+        ["<Left>"] = {},
+        ["<Right>"] = {},
+      },
+      restricted_keys = {
+        ["h"] = { "n", "x" },
+        ["j"] = { "n", "x" },
+        ["k"] = { "n", "x" },
+        ["l"] = { "n", "x" },
+      },
+      hint = true,
+      notification = true,
+    },
   },
 }

@@ -82,11 +82,24 @@ return {
           WARN = ""
         },
         level = 2,
-        minimum_width = 50,
-        render = "default",
+        minimum_width = 30,
+        maximum_width = 60,  -- Limit width to avoid taking full screen
+        render = "wrapped-compact", -- Use compact rendering style
         stages = "fade",
         timeout = 3000,
-        top_down = true
+        top_down = true,
+        on_open = function(win)
+          -- Set window options for better appearance
+          vim.api.nvim_win_set_config(win, {
+            border = "rounded",
+            -- Position notifications in the top right
+            relative = "editor",
+            width = math.min(60, vim.api.nvim_win_get_width(0) / 3), -- Maximum 1/3 of editor width
+            height = math.min(10, vim.api.nvim_win_get_height(0) / 4), -- Maximum 1/4 of editor height
+            row = 1, -- Top of screen
+            col = vim.api.nvim_win_get_width(0) - 62, -- Right side with padding
+          })
+        end
       })
       vim.notify = notify
     end
@@ -114,6 +127,11 @@ return {
             help = { icon = "?" },
           },
         },
+        popupmenu = {
+          enabled = true,
+          backend = "nui", -- Use nui for better styling
+          kind_icons = {}, -- Use lsp kind icons
+        },
         lsp = {
           -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
           override = {
@@ -123,9 +141,18 @@ return {
           },
           hover = {
             enabled = true,
+            max_width = 80, -- Limit width for better readability
+            max_height = 20, -- Limit height to avoid taking full screen
           },
           signature = {
             enabled = true,
+            max_width = 80, -- Limit width for better readability
+            max_height = 20, -- Limit height to avoid taking full screen
+            auto_open = {
+              enabled = true,
+              trigger = true, -- Automatically show signature help when typing a trigger character
+              luasnip = true, -- Will open signature help when jumping to luasnip insert nodes
+            },
           },
         },
         -- you can enable a preset for easier configuration
@@ -135,6 +162,48 @@ return {
           long_message_to_split = true, -- long messages will be sent to a split
           inc_rename = false, -- enables an input dialog for inc-rename.nvim
           lsp_doc_border = true, -- add a border to hover docs and signature help
+        },
+        views = { 
+          mini = {
+            win_options = {
+              winblend = 0,
+              winhighlight = {
+                Normal = "NoiceMini",
+                IncSearch = "",
+                Search = "",
+              },
+            },
+          },
+          cmdline_popup = {
+            position = {
+              row = "50%",
+              col = "50%",
+            },
+            size = {
+              min_width = 60,
+              width = "auto",
+              height = "auto",
+            },
+            border = {
+              style = "rounded",
+              padding = { 0, 1 },
+            },
+            win_options = {
+              winhighlight = { Normal = "NoiceCmdlinePopup" },
+            },
+          },
+          hover = {
+            border = {
+              style = "rounded",
+              padding = { 0, 1 },
+            },
+            position = { row = 2, col = 0 },
+            size = {
+              width = "auto",
+              max_height = "50%",
+              max_width = 80,
+            },
+          },
         },
       })
     end

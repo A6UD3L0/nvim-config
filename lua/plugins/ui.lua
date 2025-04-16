@@ -6,9 +6,9 @@ return {
     lazy = false,
     priority = 1000, -- Load first
     config = function()
-      require("tokyonight").setup({
-        style = "night",        -- The theme comes in night, storm, day, and moon variants
-        transparent = false,    -- Enable this to disable setting the background color
+      require("tokyonight").setup {
+        style = "night", -- The theme comes in night, storm, day, and moon variants
+        transparent = false, -- Enable this to disable setting the background color
         terminal_colors = true, -- Configure the colors used when opening a `:terminal`
         styles = {
           -- Style to be applied to different syntax groups
@@ -16,27 +16,27 @@ return {
           keywords = { italic = true },
           functions = {},
           variables = {},
-          sidebars = "dark",   -- style for sidebars
-          floats = "dark",     -- style for floating windows
+          sidebars = "dark", -- style for sidebars
+          floats = "dark", -- style for floating windows
         },
         sidebars = { "qf", "help", "terminal", "telescope", "explorer", "packer" }, -- Set a darker background on sidebar-like windows
-        day_brightness = 0.3,  -- Adjusts the brightness of the colors of the **Day** style
+        day_brightness = 0.3, -- Adjusts the brightness of the colors of the **Day** style
         hide_inactive_statusline = false, -- Hide inactive statuslines
-        dim_inactive = false,  -- dims inactive windows
-        lualine_bold = false,  -- When true, section headers in the lualine theme will be bold
-      })
-      
-      -- Set colorscheme after options - explicitly use night variant
-      vim.cmd("colorscheme tokyonight-night")
-    end
+        dim_inactive = false, -- dims inactive windows
+        lualine_bold = false, -- When true, section headers in the lualine theme will be bold
+      }
+
+      -- Set colorscheme after options
+      vim.cmd "colorscheme tokyonight"
+    end,
   },
-  
+
   -- Status line (lualine)
   {
     "nvim-lualine/lualine.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("lualine").setup({
+      require("lualine").setup {
         options = {
           theme = "tokyonight",
           component_separators = { left = "", right = "" },
@@ -44,34 +44,41 @@ return {
           globalstatus = true,
         },
         sections = {
-          lualine_a = {{"mode", fmt = function(str) return str:sub(1,1) end}},
+          lualine_a = {
+            {
+              "mode",
+              fmt = function(str)
+                return str:sub(1, 1)
+              end,
+            },
+          },
           lualine_b = {
-            {"branch", icon = ""},
-            {"diff", symbols = {added = " ", modified = " ", removed = " "}},
+            { "branch", icon = "" },
+            { "diff", symbols = { added = " ", modified = " ", removed = " " } },
           },
           lualine_c = {
-            {"filename", path = 1}, -- 0 = just filename, 1 = relative path, 2 = absolute path
-            {"diagnostics", sources = {"nvim_diagnostic"}}
+            { "filename", path = 1 }, -- 0 = just filename, 1 = relative path, 2 = absolute path
+            { "diagnostics", sources = { "nvim_diagnostic" } },
           },
           lualine_x = {
-            {"encoding"},
-            {"fileformat"},
-            {"filetype", icon_only = true}
+            { "encoding" },
+            { "fileformat" },
+            { "filetype", icon_only = true },
           },
-          lualine_y = {"progress"},
-          lualine_z = {"location"}
+          lualine_y = { "progress" },
+          lualine_z = { "location" },
         },
-        extensions = {"nvim-tree", "toggleterm", "quickfix"}
-      })
-    end
+        extensions = { "nvim-tree", "toggleterm", "quickfix" },
+      }
+    end,
   },
 
   -- Notifications
   {
     "rcarriga/nvim-notify",
     config = function()
-      local notify = require("notify")
-      notify.setup({
+      local notify = require "notify"
+      notify.setup {
         background_colour = "#000000",
         fps = 60,
         icons = {
@@ -79,30 +86,17 @@ return {
           ERROR = "",
           INFO = "",
           TRACE = "✎",
-          WARN = ""
+          WARN = "",
         },
         level = 2,
-        minimum_width = 30,
-        maximum_width = 60,  -- Limit width to avoid taking full screen
-        render = "wrapped-compact", -- Use compact rendering style
+        minimum_width = 50,
+        render = "default",
         stages = "fade",
         timeout = 3000,
         top_down = true,
-        on_open = function(win)
-          -- Set window options for better appearance
-          vim.api.nvim_win_set_config(win, {
-            border = "rounded",
-            -- Position notifications in the top right
-            relative = "editor",
-            width = math.min(60, vim.api.nvim_win_get_width(0) / 3), -- Maximum 1/3 of editor width
-            height = math.min(10, vim.api.nvim_win_get_height(0) / 4), -- Maximum 1/4 of editor height
-            row = 1, -- Top of screen
-            col = vim.api.nvim_win_get_width(0) - 62, -- Right side with padding
-          })
-        end
-      })
+      }
       vim.notify = notify
-    end
+    end,
   },
 
   -- Improved command line experience (centered command line)
@@ -114,7 +108,7 @@ return {
       "rcarriga/nvim-notify",
     },
     config = function()
-      require("noice").setup({
+      require("noice").setup {
         cmdline = {
           enabled = true,
           view = "cmdline_popup", -- "cmdline_popup" for centered popup
@@ -127,11 +121,6 @@ return {
             help = { icon = "?" },
           },
         },
-        popupmenu = {
-          enabled = true,
-          backend = "nui", -- Use nui for better styling
-          kind_icons = {}, -- Use lsp kind icons
-        },
         lsp = {
           -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
           override = {
@@ -141,18 +130,9 @@ return {
           },
           hover = {
             enabled = true,
-            max_width = 80, -- Limit width for better readability
-            max_height = 20, -- Limit height to avoid taking full screen
           },
           signature = {
             enabled = true,
-            max_width = 80, -- Limit width for better readability
-            max_height = 20, -- Limit height to avoid taking full screen
-            auto_open = {
-              enabled = true,
-              trigger = true, -- Automatically show signature help when typing a trigger character
-              luasnip = true, -- Will open signature help when jumping to luasnip insert nodes
-            },
           },
         },
         -- you can enable a preset for easier configuration
@@ -163,50 +143,8 @@ return {
           inc_rename = false, -- enables an input dialog for inc-rename.nvim
           lsp_doc_border = true, -- add a border to hover docs and signature help
         },
-        views = { 
-          mini = {
-            win_options = {
-              winblend = 0,
-              winhighlight = {
-                Normal = "NoiceMini",
-                IncSearch = "",
-                Search = "",
-              },
-            },
-          },
-          cmdline_popup = {
-            position = {
-              row = "50%",
-              col = "50%",
-            },
-            size = {
-              min_width = 60,
-              width = "auto",
-              height = "auto",
-            },
-            border = {
-              style = "rounded",
-              padding = { 0, 1 },
-            },
-            win_options = {
-              winhighlight = { Normal = "NoiceCmdlinePopup" },
-            },
-          },
-          hover = {
-            border = {
-              style = "rounded",
-              padding = { 0, 1 },
-            },
-            position = { row = 2, col = 0 },
-            size = {
-              width = "auto",
-              max_height = "50%",
-              max_width = 80,
-            },
-          },
-        },
-      })
-    end
+      }
+    end,
   },
 
   -- Dashboard (start screen)
@@ -215,7 +153,7 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("alpha").setup(require("alpha.themes.dashboard").config)
-      local dashboard = require("alpha.themes.dashboard")
+      local dashboard = require "alpha.themes.dashboard"
       dashboard.section.header.val = {
         "                                                     ",
         "  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗",
@@ -238,16 +176,30 @@ return {
         dashboard.button("q", "  Quit", ":qa<CR>"),
       }
       dashboard.section.footer.val = "Streamlined for Backend Development"
-    end
+    end,
   },
 
-  -- Which-key for better keybindings display
+  {
+    "m4xshen/hardtime.nvim",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    opts = {},
+  },
+
+  {
+    "shortcuts/no-neck-pain.nvim",
+    version = "*",
+    config = function()
+      -- grab & initialize with defaults
+      require("no-neck-pain").setup()
+    end,
+  },
+
   {
     "folke/which-key.nvim",
     lazy = false,
     priority = 100,
     config = function()
-      require("which-key").setup({
+      require("which-key").setup {
         plugins = {
           marks = true,
           registers = true,
@@ -270,7 +222,7 @@ return {
           spacing = 6,
         },
         hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
-        triggers = {"<leader>"},
+        triggers = { "<leader>" },
         triggers_nowait = {},
         triggers_blacklist = {
           i = { "j", "k" },
@@ -278,10 +230,10 @@ return {
         },
         show_help = true,
         show_keys = true,
-      })
-      
+      }
+
       -- Register key groups
-      require("which-key").register({
+      require("which-key").register {
         ["<leader>b"] = { name = "+buffer" },
         ["<leader>c"] = { name = "+code/lsp" },
         ["<leader>d"] = { name = "+docs" },
@@ -301,28 +253,28 @@ return {
         ["<leader>x"] = { name = "+execute" },
         ["<leader>z"] = { name = "+zen/focus" },
         ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
-      })
-    end
+      }
+    end,
   },
 
   -- Telescope UI/UX improvements
   {
     "nvim-telescope/telescope.nvim",
     config = function()
-      require('telescope').setup{
+      require("telescope").setup {
         defaults = {
-          borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
-          prompt_prefix = '🔍 ',
-          selection_caret = ' ',
-          entry_prefix = '  ',
-          layout_strategy = 'horizontal',
+          borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+          prompt_prefix = "🔍 ",
+          selection_caret = " ",
+          entry_prefix = "  ",
+          layout_strategy = "horizontal",
           layout_config = {
-            prompt_position = 'top',
+            prompt_position = "top",
             width = 0.95,
             height = 0.85,
             preview_cutoff = 120,
           },
-          sorting_strategy = 'ascending',
+          sorting_strategy = "ascending",
           winblend = 10,
           color_devicons = true,
           results_title = false,
@@ -338,7 +290,7 @@ return {
         },
         extensions = {},
       }
-    end
+    end,
   },
 
   -- NvimTree UI/UX improvements
@@ -348,23 +300,17 @@ return {
       require("nvim-tree").setup {
         view = {
           width = 35,
-          side = "left",
+          side = "right",
           number = false,
           relativenumber = false,
           signcolumn = "yes",
-          float = {
-            enable = true,
-            open_win_config = {
-              border = "rounded"
-            }
-          }
         },
         renderer = {
           highlight_git = true,
           highlight_opened_files = "all",
           root_folder_label = ":t",
           indent_markers = {
-            enable = true
+            enable = true,
           },
           icons = {
             show = {
@@ -382,14 +328,14 @@ return {
         },
         filters = {
           dotfiles = false,
-          custom = { ".git", "node_modules", ".cache" }
+          custom = { ".git", "node_modules", ".cache" },
         },
         update_cwd = true,
         respect_buf_cwd = true,
         sync_root_with_cwd = true,
         reload_on_bufenter = true,
       }
-    end
+    end,
   },
 
   -- Mason UI/UX improvements
@@ -402,11 +348,11 @@ return {
           icons = {
             package_installed = "✓",
             package_pending = "➜",
-            package_uninstalled = "✗"
-          }
-        }
+            package_uninstalled = "✗",
+          },
+        },
       }
-    end
+    end,
   },
 
   -- Lazy plugin manager UI/UX improvements
@@ -431,22 +377,22 @@ return {
           },
         },
       }
-    end
+    end,
   },
 
   -- LSP UI/UX improvements (if using lspsaga)
   {
     "nvimdev/lspsaga.nvim",
     config = function()
-      require('lspsaga').setup({
+      require("lspsaga").setup {
         ui = {
-          border = 'rounded',
-          code_action = '💡',
+          border = "rounded",
+          code_action = "💡",
           colors = {
-            normal_bg = '#1e2030',
+            normal_bg = "#1e2030",
           },
         },
-      })
-    end
+      }
+    end,
   },
 }

@@ -1,40 +1,37 @@
-# Neovim specific
+# Neovim specific files
+*.swp
+*.swo
 .netrwhist
-plugin/packer_compiled.lua
-/lazy-lock.json
 
 # Compiled Lua sources
 luac.out
 
-# Directories created by package managers
-lazy/
-plugged/
-pack/
-/mason/
+# Lua language server
+.luarc.json
 
-# Logs
-*.log
+# Plugin directories
+plugin/packer_compiled.lua
+/plugin/packer_compiled.vim
+lazy-lock.json
 
-# OS specific
+# Cache and temp files
+.cache/
+.temp/
 .DS_Store
-*~
-.*.swp
-.*.swo
 
-# Node modules (for language servers)
-node_modules/
+# Base46 cache and compiled themes
+/lua/core/default_config.lua
+*.cache
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
-venv/
+# Compiled language support files
+parser/
 
-# Editor config
-*.session
-sessions/
-undodir/
+# Local dev files
+/dev/
+local.vim
+.vscode/
+.idea/
+/sessions/
 
-# Shada files (session data)
-/shada/
+# Log files
+*.log

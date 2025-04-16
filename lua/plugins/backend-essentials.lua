@@ -257,8 +257,58 @@ return {
           -- Enable completion triggered by <c-x><c-o>
           vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
           
-          -- Load all LSP-related keymappings from the central mappings file
-          require("mappings").setup_lsp_mappings(bufnr)
+          -- Define LSP mappings directly here instead of requiring the mappings module
+          -- This avoids the circular dependency while maintaining all functionality
+          local map = vim.keymap.set
+          
+          -- Go to definition/references commands
+          map("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+          map("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
+          map("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
+          map("n", "gt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
+          
+          -- Documentation and signature help
+          map("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Show documentation" })
+          map("n", "<C-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Show signature help" })
+          
+          -- Code actions and workspace management
+          map("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
+          map("n", "<leader>cr", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
+          map("n", "<leader>cf", function() vim.lsp.buf.format { async = true } end, { buffer = bufnr, desc = "Format code" })
+          
+          -- Workspace folder management  
+          map("n", "<leader>cw", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "Add workspace folder" })
+          map("n", "<leader>cW", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "Remove workspace folder" })
+          map("n", "<leader>cl", function()
+            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+          end, { buffer = bufnr, desc = "List workspace folders" })
+          
+          -- Diagnostics navigation
+          map("n", "[d", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Previous diagnostic" })
+          map("n", "]d", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
+          map("n", "<leader>cd", vim.diagnostic.open_float, { buffer = bufnr, desc = "Line diagnostics" })
+          map("n", "<leader>cq", vim.diagnostic.setloclist, { buffer = bufnr, desc = "Diagnostics to quickfix" })
+          
+          -- Try to load telescope for enhanced LSP commands if available
+          local has_telescope = pcall(require, "telescope")
+          if has_telescope then
+            local telescope = require("telescope.builtin")
+            map("n", "<leader>cs", telescope.lsp_document_symbols, { buffer = bufnr, desc = "Document symbols" })
+            map("n", "<leader>cS", telescope.lsp_workspace_symbols, { buffer = bufnr, desc = "Workspace symbols" })
+            map("n", "<leader>cC", telescope.lsp_incoming_calls, { buffer = bufnr, desc = "Incoming calls" })
+            map("n", "<leader>cO", telescope.lsp_outgoing_calls, { buffer = bufnr, desc = "Outgoing calls" })
+          end
+          
+          -- Toggle Inline Diagnostics
+          map("n", "<leader>cT", function()
+            local current = vim.diagnostic.config().virtual_text
+            vim.diagnostic.config({ virtual_text = not current })
+            vim.notify("Inline diagnostics " .. (not current and "enabled" or "disabled"))
+          end, { buffer = bufnr, desc = "Toggle inline diagnostics" })
+          
+          -- LSP Info and Restart
+          map("n", "<leader>cI", "<cmd>LspInfo<CR>", { buffer = bufnr, desc = "LSP info" })
+          map("n", "<leader>cR", "<cmd>LspRestart<CR>", { buffer = bufnr, desc = "LSP restart" })
         end,
       })
       
@@ -283,7 +333,12 @@ return {
       local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
       for type, icon in pairs(signs) do
         local hl = "DiagnosticSign" .. type
-        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        if vim.fn.has("nvim-0.10") == 1 and vim.fn.sign_define then
+          vim.api.nvim_set_hl(0, hl, { default = true })
+          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        else
+          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+        end
       end
     end,
   },
@@ -409,6 +464,253 @@ return {
     end,
   },
   
+  -- Git integration
+  {
+    "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    opts = {
+      signs = {
+        add = { text = "│" },
+        change = { text = "│" },
+        delete = { text = "_" },
+        topdelete = { text = "‾" },
+        changedelete = { text = "~" },
+        untracked = { text = "┆" },
+      },
+      signcolumn = true,
+      on_attach = function(bufnr)
+        local gs = package.loaded.gitsigns
+        
+        -- Use centralized git mappings
+        require("mappings").setup_git_mappings(gs)
+      end,
+    },
+  },
+  
+  -- LazyGit integration
+  {
+    "kdheepak/lazygit.nvim",
+    cmd = {
+      "LazyGit",
+      "LazyGitConfig",
+      "LazyGitCurrentFile",
+      "LazyGitFilter",
+      "LazyGitFilterCurrentFile",
+    },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    init = function()
+      vim.g.lazygit_floating_window_winblend = 0
+      vim.g.lazygit_floating_window_scaling_factor = 0.9
+      vim.g.lazygit_floating_window_border_chars = {'╭','─','╮','│','╯','─','╰','│'}
+      vim.g.lazygit_use_neovim_remote = 0
+    end,
+    config = function()
+      vim.keymap.set("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "LazyGit" })
+    end,
+  },
+  
+  -- Fuzzy finder
+  {
+    "nvim-telescope/telescope.nvim",
+    branch = "0.1.x",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      { 
+        "nvim-telescope/telescope-fzf-native.nvim", 
+        build = "make",
+        cond = function() return vim.fn.executable "make" == 1 end,
+      },
+    },
+    cmd = "Telescope",
+    keys = {
+      { "<leader>f", desc = "Telescope" },
+      { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find files" },
+      { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live grep" },
+      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Buffers" },
+      { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help tags" },
+      { "<leader>fc", "<cmd>Telescope commands<CR>", desc = "Commands" },
+      { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent files" },
+      { "<leader>fk", "<cmd>Telescope keymaps<CR>", desc = "Keymaps" },
+      { "<leader>fd", "<cmd>Telescope diagnostics<CR>", desc = "Diagnostics" },
+      { "<leader>fs", "<cmd>Telescope lsp_document_symbols<CR>", desc = "Document symbols" },
+      { "<leader>fS", "<cmd>Telescope lsp_workspace_symbols<CR>", desc = "Workspace symbols" },
+    },
+    config = function()
+      local telescope = require("telescope")
+      local actions = require("telescope.actions")
+      
+      telescope.setup({
+        defaults = {
+          path_display = { "truncate" },
+          sorting_strategy = "ascending",
+          layout_config = {
+            horizontal = {
+              prompt_position = "top",
+              preview_width = 0.55,
+            },
+            vertical = {
+              mirror = false,
+            },
+            width = 0.87,
+            height = 0.80,
+            preview_cutoff = 120,
+          },
+          mappings = {
+            i = {
+              ["<C-j>"] = actions.move_selection_next,
+              ["<C-k>"] = actions.move_selection_previous,
+              ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+              ["<esc>"] = actions.close,
+            },
+            n = {
+              ["q"] = actions.close,
+            },
+          },
+          file_ignore_patterns = {
+            "node_modules",
+            ".git/",
+            ".cache",
+            "%.o",
+            "%.a",
+            "%.out",
+            "%.class",
+            "%.pdf",
+            "%.mkv",
+            "%.mp4",
+            "%.zip",
+          },
+          vimgrep_arguments = {
+            "rg",
+            "--color=never",
+            "--no-heading",
+            "--with-filename",
+            "--line-number",
+            "--column",
+            "--smart-case",
+            "--hidden",
+            "--glob=!.git/",
+          },
+        },
+        pickers = {
+          find_files = {
+            hidden = true,
+            find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
+          },
+        },
+        extensions = {
+          fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = "smart_case",
+          },
+        },
+      })
+      
+      -- Load extensions
+      pcall(telescope.load_extension, "fzf")
+    end,
+  },
+  
+  -- Terminal integration
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    cmd = "ToggleTerm",
+    keys = { 
+      { "<leader>tt", "<cmd>ToggleTerm direction=horizontal<CR>", desc = "Toggle terminal" },
+      { "<C-t>", "<cmd>ToggleTerm direction=horizontal<CR>", desc = "Toggle terminal with Ctrl+t" },
+    },
+    opts = {
+      open_mapping = [[<c-\>]],
+      direction = "horizontal",
+      size = function()
+        return math.floor(vim.o.lines * 0.3)
+      end,
+      autochdir = true,
+      shade_terminals = true,
+      start_in_insert = true,
+    },
+  },
+  
+  -- File explorer
+  {
+    "nvim-tree/nvim-tree.lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+    keys = {
+      { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
+      { "<leader>ef", "<cmd>NvimTreeFocus<CR>", desc = "Focus file explorer" },
+    },
+    config = function()
+      require("nvim-tree").setup({
+        filters = { dotfiles = false },
+        disable_netrw = true,
+        hijack_netrw = true,
+        hijack_cursor = true,
+        git = { enable = true, ignore = false },
+        view = {
+          width = 30, -- Match the width of undotree
+          side = "left", -- Position on the left side
+          preserve_window_proportions = true, -- Keep editing window large
+          signcolumn = "yes",
+        },
+        actions = {
+          open_file = {
+            resize_window = true, -- Resize the window upon file open
+            window_picker = {
+              enable = true,
+              chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+            },
+          },
+          change_dir = {
+            enable = true,             -- Change directory when changing root
+            global = true,             -- Change the working directory globally
+            restrict_above_cwd = false, -- No restrictions on changing directory
+          },
+        },
+        renderer = {
+          root_folder_label = ":~:s?$?/..?", -- Show parent directory
+          icons = {
+            show = {
+              file = true,
+              folder = true,
+              folder_arrow = true,
+              git = true,
+            },
+            glyphs = {
+              default = "",
+              symlink = "",
+              folder = {
+                default = "",
+                open = "",
+                empty = "",
+                empty_open = "",
+                symlink = "",
+              },
+              git = {
+                unstaged = "✗",
+                staged = "✓",
+                unmerged = "",
+                renamed = "➜",
+                untracked = "★",
+                deleted = "",
+                ignored = "◌",
+              },
+            },
+          },
+        },
+        update_focused_file = {
+          enable = true,       -- Update the focused file on cursor hold
+          update_root = true,  -- Update the root directory if top level changes
+          ignore_list = {},    -- Don't ignore any files
+        },
+      })
+    end,
+  },
+  
   -- Syntax highlighting
   {
     "nvim-treesitter/nvim-treesitter",
@@ -474,264 +776,6 @@ return {
     end,
   },
   
-  -- Git integration
-  {
-    "lewis6991/gitsigns.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    opts = {
-      signs = {
-        add = { text = "│" },
-        change = { text = "│" },
-        delete = { text = "_" },
-        topdelete = { text = "‾" },
-        changedelete = { text = "~" },
-        untracked = { text = "┆" },
-      },
-      signcolumn = true,
-      on_attach = function(bufnr)
-        local gs = package.loaded.gitsigns
-        
-        -- Use centralized git mappings
-        require("mappings").setup_git_mappings(gs)
-      end,
-    },
-  },
-  
-  -- LazyGit integration
-  {
-    "kdheepak/lazygit.nvim",
-    cmd = {
-      "LazyGit",
-      "LazyGitConfig",
-      "LazyGitCurrentFile",
-      "LazyGitFilter",
-      "LazyGitFilterCurrentFile",
-    },
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-  },
-  
-  -- Fuzzy finder
-  {
-    "nvim-telescope/telescope.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
-    },
-    cmd = "Telescope",
-    keys = {
-      { "<leader>ff", "<cmd>Telescope find_files<CR>", desc = "Find files" },
-      { "<leader>fg", "<cmd>Telescope live_grep<CR>", desc = "Live grep" },
-      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Find buffers" },
-      { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Help tags" },
-      { "<leader>fr", "<cmd>Telescope oldfiles<CR>", desc = "Recent files" },
-      { "<leader>fc", "<cmd>Telescope commands<CR>", desc = "Commands" },
-      { "<leader>f/", "<cmd>Telescope current_buffer_fuzzy_find<CR>", desc = "Find in current buffer" },
-      { "<leader>fd", "<cmd>Telescope diagnostics<CR>", desc = "Diagnostics" },
-      { "<leader>fs", "<cmd>Telescope lsp_document_symbols<CR>", desc = "Document symbols" },
-      { "<leader>fS", "<cmd>Telescope lsp_workspace_symbols<CR>", desc = "Workspace symbols" },
-    },
-    config = function()
-      local telescope = require("telescope")
-      local actions = require("telescope.actions")
-      
-      telescope.setup({
-        defaults = {
-          mappings = {
-            i = {
-              ["<C-j>"] = actions.move_selection_next,
-              ["<C-k>"] = actions.move_selection_previous,
-              ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
-              ["<esc>"] = actions.close,
-            },
-          },
-          file_ignore_patterns = {
-            "node_modules",
-            ".git/",
-            ".pytest_cache/",
-            "__pycache__/",
-            "venv/",
-            ".venv/",
-            "%.pyc",
-            "%.pyo",
-            "%.obj",
-            "%.o",
-            "%.a",
-            "%.bin",
-            "%.tar.gz",
-            "%.zip",
-            "%.7z",
-            "%.so",
-          },
-          path_display = { "truncate" },
-          sorting_strategy = "ascending",
-          layout_config = {
-            horizontal = {
-              prompt_position = "top",
-              preview_width = 0.55,
-            },
-            width = 0.87,
-            height = 0.80,
-            preview_cutoff = 120,
-          },
-        },
-        pickers = {
-          find_files = {
-            hidden = true, -- Show hidden files
-            find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
-          },
-          live_grep = {
-            additional_args = function()
-              return { "--hidden" }
-            end,
-          },
-        },
-        extensions = {
-          fzf = {
-            fuzzy = true,
-            override_generic_sorter = true,
-            override_file_sorter = true,
-            case_mode = "smart_case",
-          },
-        },
-      })
-      
-      telescope.load_extension("fzf")
-    end,
-  },
-  
-  -- Terminal integration
-  {
-    "akinsho/toggleterm.nvim",
-    version = "*",
-    cmd = "ToggleTerm",
-    keys = { 
-      { "<leader>tt", "<cmd>ToggleTerm direction=horizontal<CR>", desc = "Toggle terminal" },
-      { "<C-t>", "<cmd>ToggleTerm direction=horizontal<CR>", desc = "Toggle terminal with Ctrl+t" },
-    },
-    opts = {
-      open_mapping = [[<c-\>]],
-      direction = "horizontal",
-      size = function()
-        return math.floor(vim.o.lines * 0.3)
-      end,
-      autochdir = true,
-      shade_terminals = true,
-      start_in_insert = true,
-    },
-  },
-  
-  -- File explorer
-  {
-    "nvim-tree/nvim-tree.lua",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    cmd = { "NvimTreeToggle", "NvimTreeFocus" },
-    keys = {
-      { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
-      { "<leader>ef", "<cmd>NvimTreeFindFile<CR>", desc = "Explorer find file" },
-      { "<leader>er", "<cmd>NvimTreeRefresh<CR>", desc = "Explorer refresh" },
-    },
-    config = function()
-      require("nvim-tree").setup({
-        disable_netrw = true,
-        hijack_cursor = true,
-        sync_root_with_cwd = true,
-        respect_buf_cwd = true,
-        update_focused_file = {
-          enable = true,
-          update_root = false,
-        },
-        view = {
-          adaptive_size = false,
-          side = "right",  -- Position tree on the right side
-          width = 35,      -- Wider tree for better file visibility
-          preserve_window_proportions = true,
-        },
-        filesystem_watchers = {
-          enable = true,
-        },
-        actions = {
-          open_file = {
-            resize_window = true,
-            window_picker = {
-              enable = true,
-            },
-          },
-        },
-        renderer = {
-          root_folder_label = false,
-          highlight_git = true,
-          highlight_opened_files = "icon",
-          indent_markers = {
-            enable = true,       -- Show indent markers for better structure
-            icons = {
-              corner = "└ ",
-              edge = "│ ",
-              none = "  ",
-            },
-          },
-          icons = {
-            show = {
-              file = true,
-              folder = true,
-              folder_arrow = true,
-              git = true,
-            },
-            glyphs = {
-              default = "",
-              symlink = "",
-              git = {
-                unstaged = "✗",
-                staged = "✓",
-                unmerged = "",
-                renamed = "➜",
-                untracked = "★",
-                deleted = "",
-                ignored = "◌",
-              },
-              folder = {
-                arrow_open = "",
-                arrow_closed = "",
-                default = "",
-                open = "",
-                empty = "",
-                empty_open = "",
-                symlink = "",
-                symlink_open = "",
-              },
-            },
-          },
-        },
-        filters = {
-          dotfiles = false,      -- Show dotfiles by default
-          custom = { 
-            "^\\.git$", 
-            "^node_modules$",
-            "^__pycache__$",
-            "^\\.pytest_cache$",
-            "^\\.venv$",
-            "^\\.DS_Store$"
-          },
-        },
-        git = {
-          enable = true,
-          ignore = false,        -- Don't ignore git files
-        },
-        diagnostics = {
-          enable = true,
-          show_on_dirs = true,
-          icons = {
-            hint = "",
-            info = "",
-            warning = "",
-            error = "",
-          },
-        },
-      })
-    end,
-  },
-  
   -- Harpoon for quick file navigation
   {
     "ThePrimeagen/harpoon",
@@ -739,7 +783,7 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
     config = true,
     keys = {
-      { "<leader>a", function() require("harpoon"):list():append() end, desc = "Harpoon add file" },
+      { "<leader>a", function() require("harpoon"):list():add() end, desc = "Harpoon add file" },
       { "<leader>h", function() local harpoon = require("harpoon") harpoon.ui:toggle_quick_menu(harpoon:list()) end, desc = "Harpoon menu" },
       { "<leader>1", function() require("harpoon"):list():select(1) end, desc = "Harpoon file 1" },
       { "<leader>2", function() require("harpoon"):list():select(2) end, desc = "Harpoon file 2" },
@@ -882,38 +926,84 @@ return {
   -- Python environment management with improved regexp search
   {
     "linux-cultist/venv-selector.nvim",
-    branch = "regexp",  -- Use the latest 2024 version with regexp support
-    cmd = "VenvSelect",
+    branch = "regexp",  -- Use the 2024 version with regexp support
+    dependencies = {
+      "neovim/nvim-lspconfig",
+      "nvim-telescope/telescope.nvim",
+      "mfussenegger/nvim-dap-python", -- For debugging integration
+    },
+    event = "VeryLazy",
     keys = {
-      { "<leader>yv", "<cmd>VenvSelect<CR>", desc = "Select Python venv" },
-      { "<leader>yd", "<cmd>VenvSelectCached<CR>", desc = "Select cached venv" },
+      { "<leader>pa", "<cmd>VenvSelect<CR>", desc = "Select Python venv" },
+      { "<leader>pc", "<cmd>VenvSelectCached<CR>", desc = "Use cached venv" },
     },
-    opts = {
-      name = { "venv", ".venv", "env", ".env" },
-      auto_refresh = true,
-      search_venv_managers = true,
-      search_workspace = true,
-      search_patterns = {
-        -- Custom search patterns
-        { "venv", "env", ".venv", ".env" },                       -- Common venv folder names
-        { "*/venv", "*/env", "*/.venv", "*/.env" },               -- Search for venvs one level down
-        { "**/venv", "**/env", "**/.venv", "**/.env" },           -- Search for venvs anywhere below
-        { "global", "**/*venv*", "**/*env*" },                   -- Match any path with venv/env in the name
-      },
-      dap_enabled = true,  -- Enable DAP support
-      parents = 2,         -- Search 2 levels up for venvs
-      path_to_python = "bin/python",  -- Path to the python executable
-      change_venv_hooks = {
-        function(venv_path)
-          -- Update python3_host_prog
-          vim.g.python3_host_prog = venv_path .. "/bin/python"
-          -- Notify the user
-          vim.notify("Activated venv: " .. venv_path, vim.log.levels.INFO, { title = "Python Environment" })
+    config = function()
+      require("venv-selector").setup({
+        -- Common venv names to look for
+        name = { 
+          "venv", ".venv", "env", ".env", 
+          "virtualenv", ".virtualenv", 
+          "pyenv", ".python-venv",
+        },
+        
+        -- Enhanced search settings for 2024 regexp version
+        auto_refresh = true,
+        search_venv_managers = false, -- Only search in project, not $HOME
+        search_workspace = false, -- Only search in cwd
+        ignore_hidden = true, -- Skip hidden folders
+        search = {
+          cwd = vim.fn.getcwd(),
+        },
+        
+        -- Improved regexp search patterns
+        search_patterns = {
+          -- Basic patterns
+          { "venv", "env", ".venv", ".env" },
+          
+          -- One level deep patterns
+          { "*/venv", "*/env", "*/.venv", "*/.env" },
+          { "*/virtualenv", "*/.virtualenv" },
+          
+          -- Project-specific patterns for common Python project structures
+          { "*/python/*venv*", "*/python*/*env*" },
+          { "*/projects/**/venv", "*/dev/**/venv" },
+          
+          -- Deep search with regular expressions
+          { "global", "**/*venv*", "**/*env*" },
+        },
+        
+        -- Search up to 3 levels up for virtual environments
+        parents = 3,
+        
+        -- Cross-platform path to Python executable
+        path_to_python = vim.fn.has("win32") == 1 
+          and "Scripts\\python.exe" 
+          or "bin/python",
+        
+        -- Debugging integration
+        dap_enabled = true,
+        
+        -- Notification and hooks
+        notify_user_on_activate = true,
+        
+        -- Callback when changing environments
+        changed_venv_hook = function(venv)
+          if venv then
+            -- Update Python path for diagnostics tools
+            if vim.fn.executable(venv .. "/bin/python") == 1 then
+              vim.g.python3_host_prog = venv .. "/bin/python"
+            end
+            
+            -- Notification with more details about the environment
+            local python_version = vim.fn.system(venv .. "/bin/python --version"):gsub("\n", "")
+            vim.notify(
+              "Activated: " .. venv .. "\n" .. python_version,
+              vim.log.levels.INFO, 
+              { title = "Python Environment" }
+            )
+          end
         end,
-      },
-    },
-    init = function()
-      -- Setup quick access shortcuts, mapped already in mappings.lua
+      })
     end,
   },
   
@@ -997,138 +1087,88 @@ return {
     event = "CmdlineEnter",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
-      {
-        "romgrk/fzy-lua-native",
-        build = "make",
-      },
+      "romgrk/fzy-lua-native", -- For better fuzzy finding
     },
     config = function()
-      local wilder = require("wilder")
-      wilder.setup({
-        modes = { ":", "/", "?" },
-        next_key = "<Tab>",
-        previous_key = "<S-Tab>",
-        accept_key = "<Down>",
-        reject_key = "<Up>",
-      })
-
-      -- Use only Lua-based functionality to avoid Python errors
-      -- Create file finder function using Lua
-      local file_finder = function(prefix, check_dirname)
-        return function(path)
-          local base = vim.fn.fnamemodify(path.."x", ":h:r")  -- add a dummy 'x' to handle empty paths
-          base = base == "." and "" or base
-          base = base..(base == "" and "" or "/")
-          
-          local cmd = "find "..vim.fn.shellescape(base).." -maxdepth 1 -type f,l"
-          if prefix then
-            cmd = cmd.." -name "..vim.fn.shellescape(prefix.."*")
-          end
-          cmd = cmd.." 2>/dev/null"
-          
-          local handle = io.popen(cmd)
-          if not handle then return {} end
-          
-          local result = handle:read("*a")
-          handle:close()
-          
-          local names = {}
-          for name in string.gmatch(result, "[^\n]+") do
-            table.insert(names, name)
-          end
-          
-          return names
-        end
+      -- Define the _wilder_init function globally to avoid the error
+      _G._wilder_init = function()
+        local wilder = require("wilder")
+        wilder.setup({
+          modes = {':', '/', '?'},
+          next_key = '<Tab>',
+          previous_key = '<S-Tab>',
+          accept_key = '<Down>',
+          reject_key = '<Up>',
+        })
+        
+        -- Use a simple pipeline that doesn't require Python
+        wilder.set_option('pipeline', wilder.branch(
+          wilder.cmdline_pipeline({
+            language = 'vim',
+            fuzzy = 1,
+          }),
+          wilder.search_pipeline()
+        ))
+        
+        -- Get Rose Pine colors for a consistent theme
+        local rose_pine_colors = {
+          base = "#191724",
+          surface = "#1f1d2e",
+          overlay = "#26233a",
+          muted = "#6e6a86",
+          subtle = "#908caa",
+          text = "#e0def4",
+          love = "#eb6f92",
+          gold = "#f6c177",
+          rose = "#ebbcba",
+          pine = "#31748f",
+          foam = "#9ccfd8",
+          iris = "#c4a7e7",
+          highlight_low = "#21202e",
+          highlight_med = "#403d52",
+          highlight_high = "#524f67",
+          accent = "#524f67",
+          error = "#eb6f92",
+          bg = "#191724",
+          fg = "#e0def4",
+          border = "#1f1d2e",
+        }
+        
+        -- Create highlight groups for wilder
+        vim.cmd(string.format("hi WilderBorder guifg=%s guibg=%s", rose_pine_colors.border, rose_pine_colors.bg))
+        vim.cmd(string.format("hi WilderAccent guifg=%s guibg=%s", rose_pine_colors.accent, rose_pine_colors.bg))
+        vim.cmd(string.format("hi WilderSelected guifg=%s guibg=%s gui=bold", rose_pine_colors.text, rose_pine_colors.highlight_med))
+        vim.cmd(string.format("hi WilderMenu guifg=%s guibg=%s", rose_pine_colors.text, rose_pine_colors.bg))
+        
+        -- Create a simple renderer with minimal dependencies
+        local renderer = wilder.popupmenu_renderer(
+          wilder.popupmenu_border_theme({
+            highlights = {
+              border = 'WilderBorder',
+              default = 'WilderMenu',
+            },
+            border = 'rounded',
+            pumblend = 10,
+            min_width = '25%',
+            max_height = '25%',
+            reverse = 0,
+          })
+        )
+        
+        -- Set the renderer
+        wilder.set_option('renderer', renderer)
       end
       
-      -- Create custom file completion using Lua only
-      local file_completion = {
-        expand = function(arg)
-          if arg == nil then
-            return ""
-          end
-          return vim.fn.fnamemodify(arg, ":p")
-        end,
-        
-        dict = file_finder(),
-      }
-
-      -- Use native Lua-based fuzzy search and completion
-      wilder.set_option("pipeline", {
-        wilder.branch(
-          -- Use cmdline engine for command completion
-          wilder.cmdline_pipeline({
-            fuzzy = 1,
-            fuzzy_filter = wilder.lua_fzy_filter(),
-            file_completion = function(_, arg)
-              return wilder.vim_filepath_completion(arg)
-            end,
-            language = "lua",
-          }),
+      -- Call the init function
+      if vim.fn.exists('*_wilder_init') == 0 then
+        vim.cmd([[
+          function! _wilder_init(...) abort
+            lua _G._wilder_init()
+          endfunction
           
-          -- Use vim search for / and ? mode
-          wilder.vim_search_pipeline()
-        ),
-      })
-
-      -- Rose Pine color scheme for wilder.nvim
-      local rose_pine_colors = {
-        bg = "#1a1d23",
-        fg = "#aeaebf",
-        accent = "#dca561",
-        selected = "#2a2b33",
-        border = "#3b3f4e",
-        gray = "#565f89",
-        error = "#f7768e",
-        warning = "#e0af68",
-        info = "#7dcfff",
-        hint = "#9ece6a",
-      }
-
-      -- Create highlight groups for wilder
-      local popupmenu_renderer = wilder.popupmenu_renderer(
-        wilder.popupmenu_border_theme({
-          highlights = {
-            default = "Pmenu",
-            border = "WilderBorder",
-            accent = "WilderAccent",
-            selected = "PmenuSel",
-            error = "WilderError",
-          },
-          border = "rounded",
-          left = {
-            " ",
-            wilder.popupmenu_devicons(),
-            wilder.popupmenu_buffer_flags({
-              flags = " a + ",
-              icons = { ["+"] = "", ["a"] = "", ["h"] = "" },
-            }),
-          },
-          right = {
-            " ",
-            wilder.popupmenu_scrollbar({
-              thumb_char = '┃',
-              minheight = 1,
-            }),
-          },
-          empty_message = wilder.popupmenu_empty_message({
-            message = " No matches ",
-          }),
-          min_width = "15%",
-          min_height = "10%",
-          max_height = "30%",
-          reverse = 0,
-        })
-      )
-
-      -- Create highlight commands for wilder
-      vim.cmd(string.format("hi WilderBorder guifg=%s guibg=%s", rose_pine_colors.border, rose_pine_colors.bg))
-      vim.cmd(string.format("hi WilderAccent guifg=%s guibg=%s", rose_pine_colors.accent, rose_pine_colors.bg))
-      vim.cmd(string.format("hi WilderError guifg=%s guibg=%s", rose_pine_colors.error, rose_pine_colors.bg))
-      vim.cmd(string.format("hi WilderScrollbar guifg=%s", rose_pine_colors.accent))
-     
-      -- Set the renderer
-      wilder.set_option('renderer', popupmenu_renderer)
+          call _wilder_init()
+        ]])
+      end
     end,
   },
   
@@ -1146,7 +1186,7 @@ return {
     config = true,
   },
   
-  -- Undotree
+  -- Undotree for visualizing file history
   {
     "mbbill/undotree",
     cmd = "UndotreeToggle",
@@ -1154,43 +1194,94 @@ return {
       { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
     },
     config = function()
-      vim.g.undotree_WindowLayout = 3  -- Layout 3 puts tree on the right, diff on the bottom
-      vim.g.undotree_SplitWidth = 25   -- Reduced from 30 to 25
-      vim.g.undotree_DiffpanelHeight = 8  -- Reduced from 10 to 8
-      vim.g.undotree_SetFocusWhenToggle = 0  -- Don't focus undotree when opened (stay in the file)
-      vim.g.undotree_ShortIndicators = 1  -- Use short indicators
-      vim.g.undotree_TreeNodeShape = '●'  -- Use a smaller icon for nodes
-      vim.g.undotree_TreeVertShape = '│'  -- Use simpler vertical lines
-      vim.g.undotree_TreeSplitShape = '╱'  -- Use simpler split shapes
-      vim.g.undotree_TreeReturnShape = '╲'  -- Use simpler return shapes
-      vim.g.undotree_DiffCommand = "diff"  -- Use standard diff command
-      vim.g.undotree_RelativeTimestamp = 1  -- Use relative timestamps
-      vim.g.undotree_HighlightChangedText = 1  -- Highlight changed text
-      vim.g.undotree_HighlightChangedWithSign = 1  -- Show signs for changed text
+      -- Configure UndoTree for better UX/UI
+      vim.g.undotree_WindowLayout = 2       -- Layout 2: tree on the left, diff at the bottom
+      vim.g.undotree_SplitWidth = 30        -- Match width with nvim-tree (30)
+      vim.g.undotree_DiffpanelHeight = 12   -- Higher diff panel to show more context
+      vim.g.undotree_SetFocusWhenToggle = 1 -- Automatically focus on undotree when opened
+      vim.g.undotree_ShortIndicators = 0    -- Use regular indicators for better readability
+      vim.g.undotree_HelpLine = 1           -- Show help text for better usability
+      vim.g.undotree_TreeNodeShape = '●'    -- Use a clear node indicator
+      vim.g.undotree_TreeVertShape = '│'    -- Use proper box drawing character
+      vim.g.undotree_TreeSplitShape = '╱'   -- Use angled split shape
+      vim.g.undotree_TreeReturnShape = '╲'  -- Use angled return shape
+      vim.g.undotree_DiffCommand = 'diff'   -- Default diff command
+      vim.g.undotree_RelativeTimestamp = 1  -- Show relative timestamps
+      vim.g.undotree_HighlightChangedText = 1       -- Highlight changed text
+      vim.g.undotree_HighlightChangedWithSign = 1   -- Show signs in the gutter
+      vim.g.undotree_HighlightSyntaxAdd = "DiffAdd" -- Use diff colors for additions
+      vim.g.undotree_HighlightSyntaxChange = "DiffChange" -- Use diff colors for changes
+      vim.g.undotree_HighlightSyntaxDel = "DiffDelete"    -- Use diff colors for deletions
+      
+      -- Create custom highlights for UndoTree that match your colorscheme
+      vim.cmd([[
+        hi! link UndotreeNode Statement
+        hi! link UndotreeNodeCurrent Identifier
+        hi! link UndotreeTimeStamp Comment
+        hi! link UndotreeFirstNode Character
+        hi! link UndotreeHeadNode WarningMsg
+        hi! link UndotreeBranch Special
+        hi! link UndotreeCurrent Constant
+        hi! link UndotreeSavedBig WarningMsg
+        hi! link UndotreeSavedSmall WarningMsg
+      ]])
     end,
   },
   
-  -- DevDocs integration for programming language documentation
+  -- LazyGit integration for Git operations
+  {
+    "kdheepak/lazygit.nvim",
+    cmd = {
+      "LazyGit",
+      "LazyGitConfig",
+      "LazyGitCurrentFile",
+      "LazyGitFilter",
+      "LazyGitFilterCurrentFile",
+    },
+    keys = {
+      { "<leader>gg", "<cmd>LazyGit<CR>", desc = "Open LazyGit" },
+      { "<leader>gf", "<cmd>LazyGitFilter<CR>", desc = "LazyGit File History" },
+      { "<leader>gc", "<cmd>LazyGitCurrentFile<CR>", desc = "LazyGit Current File" },
+    },
+    config = function()
+      -- LazyGit floating window configuration for beautiful UI
+      vim.g.lazygit_floating_window_scaling_factor = 0.9    -- Large window that doesn't take over the screen
+      vim.g.lazygit_floating_window_use_plenary = 1         -- Use plenary for better experience
+      
+      -- Set beautiful border characters for LazyGit floating window
+      vim.g.lazygit_floating_window_border_chars = {
+        '╭', '─', '╮', '│', '╯', '─', '╰', '│'  -- Rounded box drawing chars
+      }
+      
+      -- Center the LazyGit floating window
+      vim.g.lazygit_floating_window_winblend = 0  -- No transparency for better readability
+      
+      -- Use cursor line highlighting in LazyGit
+      vim.g.lazygit_use_cursor_line_highlighting = 1
+      
+      -- Enhanced UI with custom highlights
+      vim.cmd([[
+        augroup LazyGitHighlight
+          autocmd!
+          autocmd FileType lazygit setlocal cursorline
+          autocmd FileType lazygit,lazygitfilter highlight clear LazyGitBorder
+          autocmd FileType lazygit,lazygitfilter highlight LazyGitBorder guifg=#5eacd3 guibg=NONE
+          autocmd FileType lazygit,lazygitfilter highlight LazyGitFloat guibg=#1a1b26
+        augroup END
+      ]])
+    end,
+  },
+  
+  -- Enhanced DevDocs for programming documentation
   {
     "luckasRanarison/nvim-devdocs",
-    lazy = false,  -- Load on startup instead of lazy loading
+    lazy = false,  -- Load on startup for immediate access
     priority = 100,  -- Higher priority for loading
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
-    build = function()
-      -- Force installation of required documentation on initial setup
-      -- Don't call vim.cmd here as the plugin may not be loaded yet
-      vim.defer_fn(function()
-        local py_doc_path = vim.fn.stdpath("data") .. "/devdocs/docs/python~3.11"
-        if not vim.loop.fs_stat(py_doc_path) then
-          pcall(vim.cmd, "DevdocsFetch")
-          pcall(vim.cmd, "DevdocsInstall python~3.11")
-        end
-      end, 3000)  -- Delay to ensure plugin is loaded
-    end,
     config = function()
       local status_ok, devdocs = pcall(require, "nvim-devdocs")
       if not status_ok then
@@ -1198,145 +1289,160 @@ return {
         return
       end
       
-      -- Force installation for Python
-      local function install_python_docs()
-        -- Create a temporary buffer for output
-        local buf = vim.api.nvim_create_buf(false, true)
-        
-        -- Set up job to fetch documentation registry
-        vim.fn.jobstart("curl -s https://devdocs.io/docs.json", {
-          stdout_buffered = true,
-          on_stdout = function(_, data)
-            if data and data[1] ~= "" then
-              local success, json_data = pcall(vim.fn.json_decode, table.concat(data, "\n"))
-              if success then
-                -- Find Python documentation versions
-                local python_docs = {}
-                for _, doc in ipairs(json_data) do
-                  if doc.name:match("^Python") or doc.slug:match("^python") then
-                    table.insert(python_docs, doc.slug)
-                  end
-                end
-                
-                -- Install docs
-                if #python_docs > 0 then
-                  vim.defer_fn(function()
-                    pcall(vim.cmd, "DevdocsInstall " .. python_docs[1])
-                    vim.notify("Installing Python documentation: " .. python_docs[1], vim.log.levels.INFO)
-                  end, 500)
-                end
-              end
-            end
-          end,
-          on_exit = function()
-            -- Clean up
-            vim.api.nvim_buf_delete(buf, { force = true })
-          end
-        })
-      end
-      
-      -- Setup DevDocs
       devdocs.setup({
-        dir_path = vim.fn.stdpath("data") .. "/devdocs", -- documentation storage path
-        telescope = {
-          width = 0.85, -- 85% of the screen width
-          height = 0.75, -- 75% of the screen height
-          previewer_width = 0.6, -- 60% of the telescope width for the document previewer
-        },
-        float_win = {
-          relative = "editor",
-          height = 0.9, -- 90% of the screen height
-          width = 0.9, -- 90% of the screen width
-          border = "rounded",
-        },
-        wrap = true, -- Wrap content in devdocs buffer
+        -- Beautiful previewer setup
+        previewer_cmd = vim.fn.executable("glow") == 1 and "glow" or nil,
+        cmd_args = { "-s", "dark", "-w", "80" },
+        picker_cmd = true,
+        picker_cmd_args = { "-p" },
+        
         after_open = function(bufnr)
-          -- Set buffer options for better reading experience
+          -- Better keymaps for documentation navigation
+          vim.api.nvim_buf_set_keymap(
+            bufnr,
+            "n",
+            "q",
+            ":close<CR>",
+            { noremap = true, silent = true }
+          )
+          vim.api.nvim_buf_set_keymap(
+            bufnr,
+            "n",
+            "<Esc>",
+            ":close<CR>",
+            { noremap = true, silent = true }
+          )
+          
+          -- Better UI/UX with proper window setup
           vim.api.nvim_buf_set_option(bufnr, "foldenable", false)
-          vim.api.nvim_buf_set_option(bufnr, "spell", false)
+          vim.api.nvim_buf_set_option(bufnr, "conceallevel", 2)
+          vim.api.nvim_buf_set_option(bufnr, "wrap", true)
           
-          -- Add keymappings specific to documentation buffer
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'q', ':close<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '<Esc>', ':close<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', ':DevdocsOpenFloat<CR>', { noremap = true, silent = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', '/', '/', { noremap = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'n', 'n', { noremap = true })
-          vim.api.nvim_buf_set_keymap(bufnr, 'n', 'N', 'N', { noremap = true })
+          -- Add syntax highlighting to code blocks if not using glow
+          if vim.fn.executable("glow") ~= 1 then
+            vim.cmd("TSBufEnable highlight")
+          end
           
-          -- Notify user about search capabilities
-          vim.notify("Use '/' to search within documentation. Press 'q' to close.", vim.log.levels.INFO)
+          -- Show helpful message
+          vim.notify("DevDocs opened - press q or <Esc> to close", vim.log.levels.INFO, {
+            title = "DevDocs",
+            icon = "📚",
+            timeout = 3000
+          })
         end,
+        
+        mappings = {
+          -- Custom mappings for the devdocs buffer with better descriptions
+          open_in_browser = "<C-o>",
+          search = "/",
+        },
+        
+        float_win = {
+          -- Beautiful floating window configuration
+          relative = "editor", -- Position relative to editor
+          height = 0.8,        -- Take 80% of height
+          width = 0.8,         -- Take 80% of width
+          border = "rounded",  -- Rounded borders
+          zindex = 100,        -- Show above other windows
+          title = "DevDocs",   -- Clear title
+          title_pos = "center",
+          -- Margin for better readability
+          row = 2,
+          col = 2,
+          -- Maximum dimensions to avoid overflow
+          max_width = 250,
+          max_height = 100,
+        },
+        
+        wrap = true,         -- Wrap content for readability
+        silent = false,      -- Show notifications for better UX
+        directory = vim.fn.stdpath("data") .. "/devdocs", -- Storage location
+        
+        -- Ensure commonly used docs are installed
         ensure_installed = {
-          -- Automatically install these documentations on startup
-          "python~3.11",  -- Specific Python version
+          -- Python docs
+          "python~3.11",
+          "flask~2.3",
+          "fastapi~0.95",
+          "django~4.2",
+          "sqlalchemy~2.0",
+          "pandas~1.5",
+          "numpy~1.25",
+          "pytest~7.3",
+          
+          -- Data and ML
+          "scikit_learn~1.2",
+          
+          -- Go docs
+          "go~1.20",
+          
+          -- Linux and infrastructure
+          "bash",
+          "docker~23",
+          "kubernetes~1.27",
+          "terraform~1.4",
+          
+          -- Git
+          "git",
+          
+          -- SQL
+          "postgresql~15",
+          "mysql~8.0",
+          
+          -- Web development
+          "http",
+          "nginx",
           "javascript",
           "typescript",
-          "go",
-          "bash",
-          "css",
           "html",
-          "http",
-          "git",
-          "docker",
-          "sql",
-          "postgresql",
-          "rust",
-        },
-        mappings = {
-          open_in_split = "<C-s>",  -- Open in horizontal split
-          open_in_vsplit = "<C-v>", -- Open in vertical split
-          open_in_tab = "<C-t>",    -- Open in new tab
+          "css",
         },
       })
       
-      -- Register commands manually to ensure they're available
-      vim.api.nvim_create_user_command("DevdocsFetch", function()
-        vim.cmd("lua require('nvim-devdocs.fetch').fetch_all_docs()")
-      end, {})
-      
-      vim.api.nvim_create_user_command("DevdocsInstall", function(opts)
-        vim.cmd("lua require('nvim-devdocs.install').install('" .. opts.args .. "')")
-      end, { nargs = 1 })
-      
-      vim.api.nvim_create_user_command("DevdocsUninstall", function(opts)
-        vim.cmd("lua require('nvim-devdocs.install').uninstall('" .. opts.args .. "')")
-      end, { nargs = 1 })
-      
-      vim.api.nvim_create_user_command("DevdocsOpen", function(opts)
-        if opts.args and opts.args ~= "" then
-          vim.cmd("lua require('nvim-devdocs').open('" .. opts.args .. "')")
-        else
-          vim.cmd("lua require('nvim-devdocs').open()")
+      -- Create a wrapper function for handling errors with better UI feedback
+      local function open_devdocs(lang)
+        -- Show loading notification for better UX
+        local notify_id = vim.notify("Loading documentation...", vim.log.levels.INFO, {
+          title = "DevDocs",
+          icon = "📚",
+          timeout = 3000,
+          replace = notify_id
+        })
+        
+        local success, err = pcall(function()
+          devdocs.open_float(lang)
+        end)
+        
+        if not success then
+          vim.notify("Error opening DevDocs: " .. tostring(err), vim.log.levels.ERROR, {
+            title = "DevDocs Error",
+            icon = "❌"
+          })
         end
-      end, { nargs = "?" })
+      end
       
+      -- Register commands
       vim.api.nvim_create_user_command("DevdocsOpenFloat", function(opts)
         if opts.args and opts.args ~= "" then
-          vim.cmd("lua require('nvim-devdocs').open_float('" .. opts.args .. "')")
+          open_devdocs(opts.args)
         else
-          vim.cmd("lua require('nvim-devdocs').open_float()")
+          open_devdocs()
         end
-      end, { nargs = "?" })
+      end, { nargs = "?", desc = "Open DevDocs with an optional language" })
       
-      vim.api.nvim_create_user_command("DevdocsUpdate", function(opts)
-        vim.cmd("lua require('nvim-devdocs.update').update('" .. opts.args .. "')")
-      end, { nargs = 1 })
-      
-      vim.api.nvim_create_user_command("DevdocsUpdateAll", function()
-        vim.cmd("lua require('nvim-devdocs.update').update_all()")
-      end, {})
-      
-      vim.api.nvim_create_user_command("DevdocsSearch", function()
-        vim.cmd("lua require('telescope').extensions.devdocs.search()")
-      end, {})
-      
-      -- Check and install Python documentation
-      vim.defer_fn(function()
-        local py_doc_path = vim.fn.stdpath("data") .. "/devdocs/docs/python~3.11"
-        if not vim.loop.fs_stat(py_doc_path) then
-          install_python_docs()
-        end
-      end, 5000)
+      -- Key mappings for accessing documentation
+      vim.keymap.set("n", "<leader>dd", function() open_devdocs() end, { desc = "Open DevDocs" })
+      vim.keymap.set("n", "<leader>dP", function() open_devdocs("python") end, { desc = "Python docs" })
+      vim.keymap.set("n", "<leader>dg", function() open_devdocs("go") end, { desc = "Go docs" })
+      vim.keymap.set("n", "<leader>dt", function() open_devdocs("terraform") end, { desc = "Terraform docs" })
+      vim.keymap.set("n", "<leader>dk", function() open_devdocs("kubernetes") end, { desc = "Kubernetes docs" })
+      vim.keymap.set("n", "<leader>dD", function() open_devdocs("docker") end, { desc = "Docker docs" })
+      vim.keymap.set("n", "<leader>ds", function() open_devdocs("sql") end, { desc = "SQL docs" })
+      vim.keymap.set("n", "<leader>db", function() open_devdocs("bash") end, { desc = "Bash docs" })
+      vim.keymap.set("n", "<leader>dh", function() open_devdocs("http") end, { desc = "HTTP docs" })
+      vim.keymap.set("n", "<leader>dG", function() open_devdocs("git") end, { desc = "Git docs" })
+      vim.keymap.set("n", "<leader>dI", "<cmd>DevdocsInstall<CR>", { desc = "Install DevDocs" })
+      vim.keymap.set("n", "<leader>dU", "<cmd>DevdocsUpdateAll<CR>", { desc = "Update all DevDocs" })
     end,
   },
   
@@ -1347,149 +1453,6 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("dashboard").setup()
-    end,
-  },
-  
-  -- Hardtime.nvim: Break bad Vim habits by forcing efficient movement
-  {
-    "m4xshen/hardtime.nvim",
-    dependencies = { "MunifTanjim/nui.nvim", "nvim-lua/plenary.nvim" },
-    event = "VeryLazy",
-    opts = {
-      max_time = 1000,
-      max_count = 3,
-      disable_mouse = false,
-      hint = true,
-      notification = true,
-      allow_different_key = false,
-      enabled = true,
-      restricted_keys = {
-        ["h"] = { "n", "x" },
-        ["j"] = { "n", "x" },
-        ["k"] = { "n", "x" },
-        ["l"] = { "n", "x" },
-        ["-"] = { "n", "x" },
-        ["+"] = { "n", "x" },
-        ["gj"] = { "n", "x" },
-        ["gk"] = { "n", "x" },
-        ["<CR>"] = { "n", "x" },
-        ["<C-M>"] = { "n", "x" },
-        ["<C-N>"] = { "n", "x" },
-        ["<C-P>"] = { "n", "x" },
-      },
-      disabled_keys = {},
-      disabled_filetypes = { "qf", "netrw", "NvimTree", "lazy", "mason", "oil" },
-    },
-    config = function(_, opts)
-      require("hardtime").setup(opts)
-      
-      -- Add toggle keybinding
-      vim.keymap.set("n", "<leader>ht", function()
-        require("hardtime").toggle()
-        local state = require("hardtime").is_enabled() and "enabled" or "disabled"
-        vim.notify("Hardtime " .. state, vim.log.levels.INFO)
-      end, { desc = "Toggle Hardtime" })
-    end,
-  },
-  
-  -- Zen Mode for distraction-free coding sessions
-  {
-    "folke/zen-mode.nvim",
-    cmd = "ZenMode",
-    keys = {
-      { "<leader>z", "<cmd>ZenMode<CR>", desc = "Toggle Zen Mode" }
-    },
-    opts = {
-      window = {
-        backdrop = 0.95,
-        width = 0.85,
-        height = 0.95,
-        options = {
-          signcolumn = "no",       -- disable signcolumn
-          number = false,          -- disable number column
-          relativenumber = false,  -- disable relative numbers
-          cursorline = false,      -- disable cursorline
-          cursorcolumn = false,    -- disable cursor column
-          foldcolumn = "0",        -- disable fold column
-          list = false,            -- disable whitespace characters
-        },
-      },
-      plugins = {
-        -- Disable tmux status line while in zen mode
-        tmux = { enabled = true },
-        -- Keep your current colorscheme for a consistent experience
-        kitty = { enabled = false, font = "+4" },
-        -- Disable gitsigns in zen mode
-        gitsigns = { enabled = false },
-        -- Keep twilight enabled for an even more focused experience
-        twilight = { enabled = true },
-      },
-      -- Don't hide the statusline in zen mode for a better UX
-      on_open = function()
-        vim.g.zen_mode_active = true
-        -- Set transparent background when in zen mode
-        vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
-        vim.opt.scrolloff = math.floor(vim.api.nvim_win_get_height(0) * 0.4)
-      end,
-      on_close = function()
-        vim.g.zen_mode_active = false
-        -- Restore scrolloff to dynamic setting
-        local win_height = vim.api.nvim_win_get_height(0)
-        vim.opt.scrolloff = math.floor(win_height * 0.75)
-      end,
-    },
-  },
-  
-  -- Rose Pine theme
-  {
-    "rose-pine/neovim",
-    name = "rose-pine",
-    lazy = false,
-    priority = 1000,
-  },
-  
-  -- Tokyo Night theme
-  {
-    "folke/tokyonight.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require("tokyonight").setup({
-        -- Configure Tokyo Night with transparent backgrounds
-        style = "night", -- The theme comes in four styles: storm, moon, night, day
-        transparent = true,
-        terminal_colors = true,
-        styles = {
-          comments = { italic = true },
-          keywords = { italic = true },
-          functions = {},
-          variables = {},
-          sidebars = "dark",
-          floats = "dark",
-        },
-        sidebars = { "qf", "help", "terminal", "packer", "NvimTree" },
-        day_brightness = 0.3,
-        hide_inactive_statusline = false,
-        dim_inactive = false,
-        lualine_bold = false,
-        
-        -- Enhance contrast for better readability
-        on_colors = function(colors)
-          colors.border = "#565f89"
-          colors.bg_highlight = "#292e42"
-        end,
-        
-        on_highlights = function(highlights, colors)
-          -- Enhanced cursor line for better visibility
-          highlights.CursorLine = { bg = "#292e42" }
-          -- Better visibility for search results
-          highlights.Search = { fg = "#c0caf5", bg = "#3d59a1" }
-          highlights.IncSearch = { fg = "#c0caf5", bg = "#9d7cd8" }
-          -- Improve line number contrast
-          highlights.LineNr = { fg = "#565f89" }
-          highlights.CursorLineNr = { fg = "#7aa2f7", bold = true }
-        end,
-      })
     end,
   },
 }

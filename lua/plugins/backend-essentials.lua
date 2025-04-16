@@ -1439,4 +1439,57 @@ return {
       end,
     },
   },
+  
+  -- Rose Pine theme
+  {
+    "rose-pine/neovim",
+    name = "rose-pine",
+    lazy = false,
+    priority = 1000,
+  },
+  
+  -- Tokyo Night theme
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require("tokyonight").setup({
+        -- Configure Tokyo Night with transparent backgrounds
+        style = "night", -- The theme comes in four styles: storm, moon, night, day
+        transparent = true,
+        terminal_colors = true,
+        styles = {
+          comments = { italic = true },
+          keywords = { italic = true },
+          functions = {},
+          variables = {},
+          sidebars = "dark",
+          floats = "dark",
+        },
+        sidebars = { "qf", "help", "terminal", "packer", "NvimTree" },
+        day_brightness = 0.3,
+        hide_inactive_statusline = false,
+        dim_inactive = false,
+        lualine_bold = false,
+        
+        -- Enhance contrast for better readability
+        on_colors = function(colors)
+          colors.border = "#565f89"
+          colors.bg_highlight = "#292e42"
+        end,
+        
+        on_highlights = function(highlights, colors)
+          -- Enhanced cursor line for better visibility
+          highlights.CursorLine = { bg = "#292e42" }
+          -- Better visibility for search results
+          highlights.Search = { fg = "#c0caf5", bg = "#3d59a1" }
+          highlights.IncSearch = { fg = "#c0caf5", bg = "#9d7cd8" }
+          -- Improve line number contrast
+          highlights.LineNr = { fg = "#565f89" }
+          highlights.CursorLineNr = { fg = "#7aa2f7", bold = true }
+        end,
+      })
+    end,
+  },
 }

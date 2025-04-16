@@ -232,16 +232,16 @@ vim.api.nvim_create_autocmd({"VimEnter", "FocusGained"}, {
     local is_night = current_hour < 7 or current_hour >= 19  -- Night: 7pm to 7am
     
     if is_night then
-      -- Night settings (darker, warmer)
+      -- Night settings (darker theme)
       vim.opt.background = "dark"
-      vim.cmd("colorscheme rose-pine-moon")  -- Use the darker variant
+      vim.cmd("colorscheme tokyonight-night")  -- Use the darker variant
       -- Slightly reduce contrast for night viewing
       vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })  -- Transparent background
       vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
     else
-      -- Day settings
+      -- Day settings (lighter theme)
       vim.opt.background = "light"
-      vim.cmd("colorscheme rose-pine-dawn")  -- Use the lighter variant
+      vim.cmd("colorscheme tokyonight-day")  -- Use the lighter variant
     end
   end,
 })
@@ -470,7 +470,7 @@ require("lazy").setup({
 
 }, {
   install = {
-    colorscheme = { "rose-pine" },
+    colorscheme = { "tokyonight" },
   },
   ui = {
     border = "rounded",

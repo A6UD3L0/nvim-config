@@ -632,7 +632,7 @@ M._open_ml_docs = function(doc_type)
 end
 
 -- Machine learning documentation keybindings
-map("n", "<leader>dm", function() 
+map("n", "<leader>dm", function()
   vim.ui.select(
     { "sklearn", "numpy", "pandas", "tensorflow", "pytorch", "matplotlib" },
     { prompt = "Select ML Documentation:" },
@@ -1623,6 +1623,12 @@ setup_theme()
 -- ===========================================
 -- ThePrimeagen's keybindings integration
 -- ===========================================
+
+-- Map Q to q in normal and visual mode (disable Ex mode)
+map({"n", "v"}, "Q", "q", { noremap = true, silent = true, desc = "Q is q (macro)" })
+
+-- Map <Esc> to <A-Esc> (Option+Esc) in normal, insert, and visual mode
+map({"n", "i", "v"}, "<Esc>", "<A-Esc>", { noremap = true, silent = true, desc = "Esc is Option+Esc" })
 
 -- Exit insert mode with jk (faster than Escape)
 map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })

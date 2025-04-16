@@ -26,8 +26,8 @@ return {
         lualine_bold = false,  -- When true, section headers in the lualine theme will be bold
       })
       
-      -- Set colorscheme after options
-      vim.cmd("colorscheme tokyonight")
+      -- Set colorscheme after options - explicitly use night variant
+      vim.cmd("colorscheme tokyonight-night")
     end
   },
   

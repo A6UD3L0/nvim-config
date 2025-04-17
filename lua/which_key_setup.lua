@@ -76,16 +76,13 @@ function M.setup()
       i = { "j", "k" },
       v = { "j", "k" },
     },
-    -- Custom highlight colors
-    -- NOTE: To get matching colors, use :hi to see your theme's highlights
-    color_devicons = true,                -- Make icons colorful
     disable = {                           
       buftypes = {},
       filetypes = { "TelescopePrompt" },  -- Don't activate in Telescope prompt
     },
   })
   
-  -- Set up custom icons and groupings for better organization
+  -- Set up custom icons for better visual organization
   local icons = {
     code = "⚙️ ",
     search = "🔍 ",
@@ -101,33 +98,101 @@ function M.setup()
     util = "🔧 ", 
     test = "🧪 ", 
     keymaps = "⌨️ ",
-    ai = "🤖 ",
-    python = "🐍 ",
     harpoon = "🔱 ",
+    run = "▶️ "
   }
   
-  -- Register essential group names (individual mappings should be registered in their respective modules)
+  -- Register keymapping groups to match our streamlined config
   which_key.register({
-    ["<leader>b"] = { name = icons.buffer .. "Buffers & Tabs" },
-    ["<leader>c"] = { name = icons.code .. "Code Actions & LSP" },
+    ["<leader>b"] = { name = icons.buffer .. "Buffers" },
+    ["<leader>c"] = { name = icons.code .. "Code Actions" },
     ["<leader>d"] = { name = icons.docs .. "Docs & Help" },
-    ["<leader>e"] = { name = icons.files .. "File Explorer" },
-    ["<leader>f"] = { name = icons.search .. "Find & Search" },
-    ["<leader>g"] = { name = icons.git .. "Git & VCS" },
-    ["<leader>h"] = { name = icons.harpoon .. "Harpoon (Marks)" },
-    ["<leader>k"] = { name = icons.keymaps .. "Keymaps & Cheatsheet" },
+    ["<leader>e"] = { name = icons.files .. "Explorer" },
+    ["<leader>f"] = { name = icons.search .. "Find/Telescope" },
+    ["<leader>g"] = { name = icons.git .. "Git" },
+    ["<leader>h"] = { name = icons.harpoon .. "Harpoon" },
     ["<leader>l"] = { name = icons.code .. "LSP" },
-    ["<leader>p"] = { name = icons.python .. "Python/Project" },
-    ["<leader>q"] = { name = "Quickfix & Lists" },
-    ["<leader>r"] = { name = icons.test .. "Run & Test" },
-    ["<leader>s"] = { name = icons.search .. "Substitute/Search" },
-    ["<leader>t"] = { name = icons.terminal .. "Terminal" },
-    ["<leader>u"] = { name = icons.undo .. "Undo/Utilities" },
-    ["<leader>w"] = { name = icons.windows .. "Window/Tab" },
-    ["<leader>x"] = { name = icons.util .. "Execute/Utils" },
-    ["<leader>z"] = { name = "+Zen/Focus" },
-    ["<leader>?"] = { name = "Show all keymaps (cheatsheet)" },
+    ["<leader>r"] = { name = icons.run .. "Run" },
+    ["<leader>u"] = { name = icons.undo .. "Undotree" },
+    ["<leader>v"] = { name = "VirtualEnv" },
+    ["<leader>w"] = { name = icons.windows .. "Windows" },
   }, { mode = "n", prefix = "<leader>" })
+
+  -- Git submenu
+  which_key.register({
+    g = {
+      name = icons.git .. "Git",
+      g = { "<cmd>Neogit<CR>", "Neogit" },
+      l = { "<cmd>LazyGit<CR>", "LazyGit" },
+      b = { "<cmd>Telescope git_branches<CR>", "Branches" },
+      c = { "<cmd>Telescope git_commits<CR>", "Commits" },
+      s = { "<cmd>Telescope git_status<CR>", "Status" },
+    }
+  }, { prefix = "<leader>" })
+
+  -- LSP submenu
+  which_key.register({
+    l = {
+      name = icons.code .. "LSP",
+      f = { function() vim.lsp.buf.format({ async = true }) end, "Format" },
+      r = { "<cmd>LspRestart<CR>", "Restart LSP" },
+      i = { "<cmd>LspInfo<CR>", "LSP Info" },
+      s = { "<cmd>Telescope lsp_document_symbols<CR>", "Document Symbols" },
+      d = { "<cmd>Telescope diagnostics<CR>", "Diagnostics" },
+      t = { function() 
+        local current = vim.diagnostic.config().virtual_text
+        vim.diagnostic.config({ virtual_text = not current })
+      end, "Toggle Inline Diagnostics" },
+    }
+  }, { prefix = "<leader>" })
+
+  -- Find (Telescope) submenu
+  which_key.register({
+    f = {
+      name = icons.search .. "Find/Telescope",
+      f = { "<cmd>Telescope find_files<CR>", "Find Files" },
+      g = { "<cmd>Telescope live_grep<CR>", "Live Grep" },
+      b = { "<cmd>Telescope buffers<CR>", "Buffers" },
+      h = { "<cmd>Telescope help_tags<CR>", "Help Tags" },
+      r = { "<cmd>Telescope oldfiles<CR>", "Recent Files" },
+    }
+  }, { prefix = "<leader>" })
+
+  -- Harpoon submenu
+  which_key.register({
+    h = {
+      name = icons.harpoon .. "Harpoon",
+      a = { function() require("harpoon"):list():append() end, "Add File" },
+      t = { function() local harpoon = require("harpoon") harpoon.ui:toggle_quick_menu(harpoon:list()) end, "Toggle Menu" },
+      ["1"] = { function() require("harpoon"):list():select(1) end, "File 1" },
+      ["2"] = { function() require("harpoon"):list():select(2) end, "File 2" },
+      ["3"] = { function() require("harpoon"):list():select(3) end, "File 3" },
+      ["4"] = { function() require("harpoon"):list():select(4) end, "File 4" },
+    }
+  }, { prefix = "<leader>" })
+
+  -- Run submenu
+  which_key.register({
+    r = {
+      name = icons.run .. "Run",
+      r = { function() require("mappings")._run_file() end, "Run Current File" },
+      n = { function() require("mappings")._python_run_file() end, "Run Python File" },
+    }
+  }, { prefix = "<leader>" })
+
+  -- Window submenu
+  which_key.register({
+    w = {
+      name = icons.windows .. "Windows",
+      ["-"] = { "<cmd>split<CR>", "Split Horizontal" },
+      ["|"] = { "<cmd>vsplit<CR>", "Split Vertical" },
+      q = { "<cmd>q<CR>", "Close Window" },
+      h = { "<C-w>h", "Go Left" },
+      j = { "<C-w>j", "Go Down" },
+      k = { "<C-w>k", "Go Up" },
+      l = { "<C-w>l", "Go Right" },
+    }
+  }, { prefix = "<leader>" })
 
   -- Show all keymaps with <leader>?
   vim.keymap.set("n", "<leader>?", function()

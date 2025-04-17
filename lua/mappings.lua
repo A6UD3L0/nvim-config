@@ -1155,27 +1155,27 @@ local function setup_harpoon_mappings()
 
   -- Set up harpoon keymaps
   map("n", "<leader>ha", function()
-    harpoon:list():append()
+    harpoon.list():append()
   end, { desc = "Add to Harpoon" })
   map("n", "<leader>hh", function()
-    harpoon.ui:toggle_quick_menu(harpoon:list())
+    harpoon.ui:toggle_quick_menu(harpoon.list())
   end, { desc = "Show Harpoon" })
 
   -- Quick file navigation with harpoon
   map("n", "<leader>1", function()
-    harpoon:list():select(1)
+    harpoon.list():select(1)
   end, { desc = "Harpoon file 1" })
   map("n", "<leader>2", function()
-    harpoon:list():select(2)
+    harpoon.list():select(2)
   end, { desc = "Harpoon file 2" })
   map("n", "<leader>3", function()
-    harpoon:list():select(3)
+    harpoon.list():select(3)
   end, { desc = "Harpoon file 3" })
   map("n", "<leader>4", function()
-    harpoon:list():select(4)
+    harpoon.list():select(4)
   end, { desc = "Harpoon file 4" })
   map("n", "<leader>5", function()
-    harpoon:list():select(5)
+    harpoon.list():select(5)
   end, { desc = "Harpoon file 5" })
 end
 
@@ -1320,15 +1320,6 @@ wk.register({
   },
 }, { prefix = "<leader>" })
 
--- Visual mode mappings for hunks
-vim.keymap.set("v", "<leader>gs", function()
-  require("gitsigns").stage_hunk { vim.fn.line ".", vim.fn.line "v" }
-end, { desc = "Stage hunk (visual)" })
-
-vim.keymap.set("v", "<leader>gr", function()
-  require("gitsigns").reset_hunk { vim.fn.line ".", vim.fn.line "v" }
-end, { desc = "Reset hunk (visual)" })
-
 -- =============================================
 -- GIT MAPPINGS
 -- =============================================
@@ -1383,13 +1374,48 @@ M.setup_git_mappings = function()
   map("n", "<leader>gx", function()
     gitsigns.toggle_deleted()
   end, { desc = "Toggle deleted" })
+  
+  -- Telescope git integration
+  if M._has_plugin("telescope.builtin") then
+    local telescope = require("telescope.builtin")
+    map("n", "<leader>gf", telescope.git_files, { desc = "Find git files" })
+    map("n", "<leader>gc", telescope.git_commits, { desc = "Git commits" })
+    map("n", "<leader>gb", telescope.git_branches, { desc = "Git branches" })
+  end
+  
+  -- LazyGit integration
+  if M._command_exists("lazygit") then
+    map("n", "<leader>gl", "<cmd>LazyGit<CR>", { desc = "Open LazyGit" })
+  end
+  
+  -- Register with which-key
+  if M._has_plugin("which_key_setup") then
+    require("which_key_setup").register_group({
+      g = {
+        name = "+git",
+        s = { function() gitsigns.stage_hunk() end, "Stage hunk" },
+        r = { function() gitsigns.reset_hunk() end, "Reset hunk" },
+        S = { function() gitsigns.stage_buffer() end, "Stage buffer" },
+        u = { function() gitsigns.undo_stage_hunk() end, "Undo stage hunk" },
+        R = { function() gitsigns.reset_buffer() end, "Reset buffer" },
+        p = { function() gitsigns.preview_hunk() end, "Preview hunk" },
+        B = { function() gitsigns.blame_line { full = true } end, "Blame line (full)" },
+        L = { function() gitsigns.toggle_current_line_blame() end, "Toggle line blame" },
+        d = { function() gitsigns.diffthis() end, "Diff this" },
+        x = { function() gitsigns.toggle_deleted() end, "Toggle deleted" },
+        f = { "<cmd>Telescope git_files<CR>", "Find git files" },
+        c = { "<cmd>Telescope git_commits<CR>", "Git commits" },
+        b = { "<cmd>Telescope git_branches<CR>", "Git branches" },
+        l = { "<cmd>LazyGit<CR>", "Open LazyGit" },
+      },
+    }, { prefix = "<leader>" })
+  end
 end
 
 -- Set up git mappings if available
 pcall(M.setup_git_mappings)
 
--- Enhanced LSP mappings with better UX from ThePrimeagen's config
--- Update our existing LSP mappings function
+-- Enhanced LSP mappings with better UX
 M.setup_lsp_mappings = function(bufnr)
   -- Enable completion triggered by <c-x><c-o>
   vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
@@ -1399,95 +1425,61 @@ M.setup_lsp_mappings = function(bufnr)
   local opts = { buffer = bufnr, noremap = true, silent = true }
 
   -- Go to definition/references commands
-  map("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-  map("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
-  map("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
-  map("n", "gt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
+  map("n", "gd", function() vim.lsp.buf.definition() end, opts)
+  map("n", "gD", function() vim.lsp.buf.declaration() end, opts)
+  map("n", "gr", function() vim.lsp.buf.references() end, opts)
+  map("n", "gi", function() vim.lsp.buf.implementation() end, opts)
+  map("n", "gt", function() vim.lsp.buf.type_definition() end, opts)
 
-  -- Documentation and signature help
-  map("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Show documentation" })
-  map("n", "<C-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Show signature help" })
+  -- Documentation and help
+  map("n", "K", function() vim.lsp.buf.hover() end, opts)
+  map("n", "<C-k>", function() vim.lsp.buf.signature_help() end, opts)
 
-  -- Code actions and workspace management
-  map("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
-  map("n", "<leader>cr", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
-  map("n", "<leader>cf", function()
-    vim.lsp.buf.format { async = true }
-  end, { buffer = bufnr, desc = "Format code" })
-
-  -- Advanced Diagnostics
-  map("n", "<leader>cd", vim.diagnostic.open_float, { buffer = bufnr, desc = "Line diagnostics" })
-  map("n", "[d", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Previous diagnostic" })
-  map("n", "]d", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
-  map("n", "<leader>cq", vim.diagnostic.setloclist, { buffer = bufnr, desc = "List all diagnostics" })
-
-  -- Diagnostic severity navigation (only go to errors/warnings)
-  map("n", "[e", function()
-    vim.diagnostic.goto_prev { severity = vim.diagnostic.severity.ERROR }
-  end, { buffer = bufnr, desc = "Previous error" })
-
-  map("n", "]e", function()
-    vim.diagnostic.goto_next { severity = vim.diagnostic.severity.ERROR }
-  end, { buffer = bufnr, desc = "Next error" })
-
-  map("n", "[w", function()
-    vim.diagnostic.goto_prev { severity = vim.diagnostic.severity.WARN }
-  end, { buffer = bufnr, desc = "Previous warning" })
-
-  map("n", "]w", function()
-    vim.diagnostic.goto_next { severity = vim.diagnostic.severity.WARN }
-  end, { buffer = bufnr, desc = "Next warning" })
+  -- Code actions and navigation
+  map("n", "<leader>ca", function() vim.lsp.buf.code_action() end, opts)
+  map("n", "<leader>rn", function() vim.lsp.buf.rename() end, opts)
+  map("n", "<leader>cf", function() vim.lsp.buf.format { async = true } end, opts)
 
   -- Workspace management
-  map("n", "<leader>cw", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "Add workspace folder" })
-  map("n", "<leader>cW", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "Remove workspace folder" })
-  map("n", "<leader>cl", function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, { buffer = bufnr, desc = "List workspace folders" })
+  map("n", "<leader>wa", function() vim.lsp.buf.add_workspace_folder() end, opts)
+  map("n", "<leader>wr", function() vim.lsp.buf.remove_workspace_folder() end, opts)
+  map("n", "<leader>wl", function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
 
-  -- Advanced Symbol Navigation
-  local ok_telescope, telescope = pcall(require, "telescope.builtin")
-  if ok_telescope then
-    -- Symbol navigation with Telescope
-    map("n", "<leader>cs", telescope.lsp_document_symbols, { buffer = bufnr, desc = "Document symbols" })
-    map("n", "<leader>cS", telescope.lsp_workspace_symbols, { buffer = bufnr, desc = "Workspace symbols" })
-    map("n", "<leader>ci", telescope.lsp_implementations, { buffer = bufnr, desc = "Find implementations" })
-    map("n", "<leader>cD", telescope.lsp_type_definitions, { buffer = bufnr, desc = "Find type definitions" })
-    map("n", "<leader>cu", telescope.lsp_references, { buffer = bufnr, desc = "Find usages/references" })
-    map("n", "<leader>cC", telescope.lsp_incoming_calls, { buffer = bufnr, desc = "Incoming calls" })
-    map("n", "<leader>cO", telescope.lsp_outgoing_calls, { buffer = bufnr, desc = "Outgoing calls" })
+  -- Diagnostic navigation
+  map("n", "[d", function() vim.diagnostic.goto_prev() end, opts)
+  map("n", "]d", function() vim.diagnostic.goto_next() end, opts)
+  map("n", "<leader>e", function() vim.diagnostic.open_float() end, opts)
+  map("n", "<leader>q", function() vim.diagnostic.setloclist() end, opts)
+  
+  -- Register with which-key
+  if M._has_plugin("which_key_setup") then
+    local wk_status_ok, wk_setup = pcall(require, "which_key_setup")
+    if wk_status_ok then
+      wk_setup.register_group({
+        ["g"] = {
+          d = { function() vim.lsp.buf.definition() end, "Go to definition" },
+          D = { function() vim.lsp.buf.declaration() end, "Go to declaration" },
+          r = { function() vim.lsp.buf.references() end, "Go to references" },
+          i = { function() vim.lsp.buf.implementation() end, "Go to implementation" },
+          t = { function() vim.lsp.buf.type_definition() end, "Go to type definition" },
+        },
+        ["<leader>"] = {
+          c = {
+            a = { function() vim.lsp.buf.code_action() end, "Code action" },
+            f = { function() vim.lsp.buf.format { async = true } end, "Format code" },
+          },
+          r = {
+            n = { function() vim.lsp.buf.rename() end, "Rename symbol" },
+          },
+          w = {
+            a = { function() vim.lsp.buf.add_workspace_folder() end, "Add workspace folder" },
+            r = { function() vim.lsp.buf.remove_workspace_folder() end, "Remove workspace folder" },
+            l = { function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, "List workspace folders" },
+          },
+        },
+      }, { buffer = bufnr })
+    end
   end
-
-  -- Toggle Inline Diagnostics
-  map("n", "<leader>cT", function()
-    local current = vim.diagnostic.config().virtual_text
-    vim.diagnostic.config { virtual_text = not current }
-    vim.notify("Inline diagnostics " .. (not current and "enabled" or "disabled"))
-  end, { buffer = bufnr, desc = "Toggle inline diagnostics" })
-
-  -- LSP Info and Restart
-  map("n", "<leader>cI", "<cmd>LspInfo<CR>", { buffer = bufnr, desc = "LSP info" })
-  map("n", "<leader>cR", "<cmd>LspRestart<CR>", { buffer = bufnr, desc = "LSP restart" })
-
-  -- Peek Definition
-  map("n", "<leader>cp", function()
-    local params = vim.lsp.util.make_position_params()
-    vim.lsp.buf_request(0, "textDocument/definition", params, function(_, result)
-      if not result or vim.tbl_isempty(result) then
-        vim.notify("No definition found", vim.log.levels.INFO)
-        return
-      end
-
-      local target = result[1]
-      if target.targetUri then
-        target.uri = target.targetUri
-        target.range = target.targetSelectionRange
-      end
-
-      -- Create a small floating window to preview definition
-      vim.lsp.util.preview_location(target, { border = "rounded" })
-    end)
-  end, { buffer = bufnr, desc = "Peek definition" })
 end
 
 -- Function for diagnostic window keybindings
@@ -1509,9 +1501,6 @@ M.toggle_inlay_hints = function(bufnr)
 end
 
 -- Global LSP keymaps (not buffer-specific)
-map("n", "<leader>lh", function()
-  M.toggle_inlay_hints(0)
-end, { desc = "Toggle inlay hints" })
 map("n", "<leader>li", "<cmd>LspInfo<CR>", { desc = "LSP info" })
 map("n", "<leader>lr", "<cmd>LspRestart<CR>", { desc = "LSP restart" })
 map("n", "<leader>ls", "<cmd>LspStart<CR>", { desc = "LSP start" })

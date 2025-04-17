@@ -106,7 +106,7 @@ function M.setup()
     harpoon = "🔱 ",
   }
   
-  -- Unified and MECE group registration with icons and color highlights
+  -- Register essential group names (individual mappings should be registered in their respective modules)
   which_key.register({
     ["<leader>b"] = { name = icons.buffer .. "Buffers & Tabs" },
     ["<leader>c"] = { name = icons.code .. "Code Actions & LSP" },
@@ -129,20 +129,6 @@ function M.setup()
     ["<leader>?"] = { name = "Show all keymaps (cheatsheet)" },
   }, { mode = "n", prefix = "<leader>" })
 
-  -- Register visual mode key mappings
-  which_key.register({
-    ["<leader>y"] = { '"+y', "Yank to system clipboard" },
-    ["<leader>d"] = { '"_d', "Delete to void register" },
-    ["<leader>p"] = { '"_dP', "Paste without overwriting register" },
-    ["J"] = { ":m '>+1<CR>gv=gv", "Move selected lines down" },
-    ["K"] = { ":m '<-2<CR>gv=gv", "Move selected lines up" },
-  }, { mode = "v" })
-
-  -- Insert mode: escape with jk
-  which_key.register({
-    ["jk"] = { "<ESC>", "Exit insert mode" },
-  }, { mode = "i" })
-
   -- Show all keymaps with <leader>?
   vim.keymap.set("n", "<leader>?", function()
     which_key.show("", {mode = "n", auto = true})
@@ -150,6 +136,17 @@ function M.setup()
 
   -- Ensure leader key is always mapped (no accidental spacebar insert)
   vim.keymap.set("n", "<Space>", "<Nop>", { silent = true })
+end
+
+-- Expose a register_group function for plugin modules to use
+function M.register_group(group_mappings, opts)
+  opts = opts or {}
+  local status_ok, which_key = pcall(require, "which-key")
+  if not status_ok then
+    vim.notify("Which-key not found, unable to register mappings", vim.log.levels.WARN)
+    return
+  end
+  which_key.register(group_mappings, opts)
 end
 
 return M

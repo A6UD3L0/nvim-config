@@ -843,67 +843,9 @@ return {
     "folke/which-key.nvim",
     event = "VeryLazy",
     config = function()
-      local wk = require("which-key")
-      wk.setup({
-        plugins = {
-          marks = true,      -- shows marks when pressing '
-          registers = true,  -- shows registers when pressing "
-          spelling = {
-            enabled = true,  -- enables whichkey for spell suggestions
-            suggestions = 20,
-          },
-        },
-        window = {
-          border = "rounded", -- none, single, double, shadow, rounded
-          position = "bottom", -- bottom, top
-          margin = { 1, 0, 1, 0 }, -- top, right, bottom, left
-          padding = { 1, 2, 1, 2 }, -- top, right, bottom, left
-        },
-        layout = {
-          height = { min = 4, max = 25 }, -- min and max height of the columns
-          width = { min = 20, max = 50 }, -- min and max width of the columns
-          spacing = 3,                    -- spacing between columns
-          align = "center",               -- align columns left, center or right
-        },
-        icons = {
-          breadcrumb = "»",  -- Symbol in the command line area
-          separator = "➜",   -- Symbol between a key and its label
-          group = "+",       -- Symbol prepended to a group
-        },
-      })
-      
-      -- Register label namespaces only (all actual keybindings are in mappings.lua)
-      wk.register({
-        ["<leader>"] = {
-          ["<leader>"] = { name = "Show all keybindings" },
-          ["b"] = { name = " Buffers" },
-          ["c"] = { name = " Code Actions" },
-          ["cd"] = { name = " Change Directory" },
-          ["cf"] = { name = "Format code" },
-          ["d"] = { name = " Debug/Delete" },
-          ["do"] = { name = " Documentation" },
-          ["e"] = { name = " Explorer" },
-          ["f"] = { name = " Find/Files" },
-          ["g"] = { name = " Git" },
-          ["h"] = { name = " Harpoon" },
-          ["l"] = { name = " LSP" },
-          ["o"] = { name = " Poetry" },
-          ["p"] = { name = " Paste/Project" },
-          ["pv"] = { name = "Open Netrw" },
-          ["q"] = { name = " Quickfix" },
-          ["r"] = { name = " Requirements" },
-          ["s"] = { name = "Search and replace" },
-          ["t"] = { name = " Terminal" },
-          ["u"] = { name = "Toggle Undotree" },
-          ["v"] = { name = "󱎫 Python Tools" },
-          ["w"] = { name = " Window" },
-          ["x"] = { name = "Make executable" },
-          ["y"] = { name = " Python" },
-        },
-        ["w"] = { name = "Window/Write" },
-        ["g"] = { name = "Go to" },
-      })
-    end,
+      -- Removed duplicate configuration to prevent conflicts
+      -- Using centralized setup from which_key_setup.lua instead
+    end
   },
   
   -- Database explorer
@@ -923,10 +865,10 @@ return {
     end,
   },
   
-  -- Python environment management with improved regexp search
+  -- Python environment management
   {
     "linux-cultist/venv-selector.nvim",
-    branch = "regexp",  -- Use the 2024 version with regexp support
+    branch = "main",  -- Changed from "regexp" to "main" for stability
     dependencies = {
       "neovim/nvim-lspconfig",
       "nvim-telescope/telescope.nvim",
@@ -934,48 +876,22 @@ return {
     },
     event = "VeryLazy",
     keys = {
-      { "<leader>pa", "<cmd>VenvSelect<CR>", desc = "Select Python venv" },
-      { "<leader>pc", "<cmd>VenvSelectCached<CR>", desc = "Use cached venv" },
+      { "<leader>pa", desc = "Select Python venv" },
+      { "<leader>pc", desc = "Use cached venv" },
     },
     config = function()
       require("venv-selector").setup({
-        -- Common venv names to look for
+        -- Simplified configuration to avoid issues
         name = { 
           "venv", ".venv", "env", ".env", 
           "virtualenv", ".virtualenv", 
-          "pyenv", ".python-venv",
         },
-        
-        -- Enhanced search settings for 2024 regexp version
         auto_refresh = true,
-        search_venv_managers = false, -- Only search in project, not $HOME
-        search_workspace = false, -- Only search in cwd
-        ignore_hidden = true, -- Skip hidden folders
-        search = {
-          cwd = vim.fn.getcwd(),
-        },
+        search_venv_managers = true,
+        search_workspace = true,
+        parents = 2,
         
-        -- Improved regexp search patterns
-        search_patterns = {
-          -- Basic patterns
-          { "venv", "env", ".venv", ".env" },
-          
-          -- One level deep patterns
-          { "*/venv", "*/env", "*/.venv", "*/.env" },
-          { "*/virtualenv", "*/.virtualenv" },
-          
-          -- Project-specific patterns for common Python project structures
-          { "*/python/*venv*", "*/python*/*env*" },
-          { "*/projects/**/venv", "*/dev/**/venv" },
-          
-          -- Deep search with regular expressions
-          { "global", "**/*venv*", "**/*env*" },
-        },
-        
-        -- Search up to 3 levels up for virtual environments
-        parents = 3,
-        
-        -- Cross-platform path to Python executable
+        -- Path to Python
         path_to_python = vim.fn.has("win32") == 1 
           and "Scripts\\python.exe" 
           or "bin/python",
@@ -1030,7 +946,7 @@ return {
         cpp = { "clang_format" },
       },
       format_on_save = {
-        timeout_ms = 500,
+        timeout_ms = 5000,  -- Increased timeout from 500ms to 5000ms (5 seconds)
         lsp_fallback = true,
       },
     },

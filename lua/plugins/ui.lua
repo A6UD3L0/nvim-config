@@ -160,62 +160,9 @@ return {
     lazy = false,
     priority = 100,
     config = function()
-      require("which-key").setup {
-        plugins = {
-          marks = true,
-          registers = true,
-          spelling = { enabled = false },
-          presets = {
-            operators = true,
-            motions = true,
-            text_objects = true,
-            windows = true,
-            nav = true,
-            z = true,
-            g = true,
-          },
-        },
-        window = {
-          border = "single",
-          position = "bottom",
-        },
-        layout = {
-          spacing = 6,
-        },
-        hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
-        triggers = { "<leader>" },
-        triggers_nowait = {},
-        triggers_blacklist = {
-          i = { "j", "k" },
-          v = { "j", "k" },
-        },
-        show_help = true,
-        show_keys = true,
-      }
-
-      -- Register key groups
-      require("which-key").register {
-        ["<leader>b"] = { name = "+buffer" },
-        ["<leader>c"] = { name = "+code/lsp" },
-        ["<leader>d"] = { name = "+docs" },
-        ["<leader>dm"] = { name = "+ml-docs" },
-        ["<leader>e"] = { name = "+explorer" },
-        ["<leader>f"] = { name = "+find/file" },
-        ["<leader>g"] = { name = "+git" },
-        ["<leader>h"] = { name = "+harpoon" },
-        ["<leader>k"] = { name = "+keymaps" },
-        ["<leader>l"] = { name = "+lsp" },
-        ["<leader>p"] = { name = "+python/env/dependencies" },
-        ["<leader>r"] = { name = "+run/requirements" },
-        ["<leader>s"] = { name = "+search" },
-        ["<leader>t"] = { name = "+terminal" },
-        ["<leader>u"] = { name = "+utilities" },
-        ["<leader>w"] = { name = "+window/tab" },
-        ["<leader>x"] = { name = "+execute" },
-        ["<leader>z"] = { name = "+zen/focus" },
-        ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
-      }
-    end,
+      -- Do not configure which-key here, use the centralized setup
+      -- We'll let which_key_setup.lua handle the configuration
+    end
   },
 
   -- Telescope UI/UX improvements

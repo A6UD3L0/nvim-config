@@ -2,25 +2,25 @@ return {
   -- UI/Theme
   { "folke/tokyonight.nvim", lazy = false, priority = 1000 },
   { "nvim-lualine/lualine.nvim", config = true },
-  
+
   -- Telescope UI/UX improvements
   {
     "nvim-telescope/telescope.nvim",
     config = function()
-      require('telescope').setup{
+      require("telescope").setup {
         defaults = {
-          borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
-          prompt_prefix = '🔍 ',
-          selection_caret = ' ',
-          entry_prefix = '  ',
-          layout_strategy = 'horizontal',
+          borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+          prompt_prefix = "🔍 ",
+          selection_caret = " ",
+          entry_prefix = "  ",
+          layout_strategy = "horizontal",
           layout_config = {
-            prompt_position = 'top',
+            prompt_position = "top",
             width = 0.95,
             height = 0.85,
             preview_cutoff = 120,
           },
-          sorting_strategy = 'ascending',
+          sorting_strategy = "ascending",
           winblend = 10,
           color_devicons = true,
           results_title = false,
@@ -36,9 +36,13 @@ return {
         },
         extensions = {},
       }
-    end
+    end,
   },
-
+  {
+    "m4xshen/hardtime.nvim",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    opts = {},
+  },
   -- NvimTree UI/UX improvements
   {
     "nvim-tree/nvim-tree.lua",
@@ -50,19 +54,13 @@ return {
           number = false,
           relativenumber = false,
           signcolumn = "yes",
-          float = {
-            enable = true,
-            open_win_config = {
-              border = "rounded"
-            }
-          }
         },
         renderer = {
           highlight_git = true,
           highlight_opened_files = "all",
           root_folder_label = ":t",
           indent_markers = {
-            enable = true
+            enable = true,
           },
           icons = {
             show = {
@@ -80,10 +78,10 @@ return {
         },
         filters = {
           dotfiles = false,
-          custom = { ".git", "node_modules", ".cache" }
+          custom = { ".git", "node_modules", ".cache" },
         },
       }
-    end
+    end,
   },
 
   -- Mason UI/UX improvements
@@ -96,11 +94,11 @@ return {
           icons = {
             package_installed = "✓",
             package_pending = "➜",
-            package_uninstalled = "✗"
-          }
-        }
+            package_uninstalled = "✗",
+          },
+        },
       }
-    end
+    end,
   },
 
   -- Lazy plugin manager UI/UX improvements
@@ -125,27 +123,28 @@ return {
           },
         },
       }
-    end
+    end,
   },
 
   -- LSP UI/UX improvements (if using lspsaga)
   {
     "nvimdev/lspsaga.nvim",
     config = function()
-      require('lspsaga').setup({
+      require("lspsaga").setup {
         ui = {
-          border = 'rounded',
-          code_action = '💡',
+          border = "rounded",
+          code_action = "💡",
           colors = {
-            normal_bg = '#1e2030',
+            normal_bg = "#1e2030",
           },
         },
-      })
-    end
+      }
+    end,
   },
 
   -- Notifications with PROPER MODULE LOADING
-  { "rcarriga/nvim-notify", 
+  {
+    "rcarriga/nvim-notify",
     event = "VeryLazy",
     config = function()
       -- Create a basic fallback if notify isn't available
@@ -153,13 +152,13 @@ return {
       if not ok then
         -- If module isn't found, set up a simple fallback
         vim.notify = function(msg, level, opts)
-          return vim.api.nvim_echo({{msg, level or ""}}, true, {})
+          return vim.api.nvim_echo({ { msg, level or "" } }, true, {})
         end
         return
       end
-      
+
       -- Normal setup if module is found
-      notify.setup({
+      notify.setup {
         background_colour = "#000000",
         stages = "fade",
         timeout = 3000,
@@ -170,17 +169,24 @@ return {
           DEBUG = "",
           TRACE = "✎",
         },
-        max_width = function() return math.floor(vim.o.columns * 0.75) end,
-        max_height = function() return math.floor(vim.o.lines * 0.75) end,
-        on_open = function() pcall(vim.api.nvim_set_hl, 0, "NotifyBackground", { bg = "#000000" }) end,
+        max_width = function()
+          return math.floor(vim.o.columns * 0.75)
+        end,
+        max_height = function()
+          return math.floor(vim.o.lines * 0.75)
+        end,
+        on_open = function()
+          pcall(vim.api.nvim_set_hl, 0, "NotifyBackground", { bg = "#000000" })
+        end,
         silent = true,
-      })
+      }
       vim.notify = notify
-    end
+    end,
   },
-  
+
   -- Which-key with PROPER ERROR HANDLING
-  { "folke/which-key.nvim", 
+  {
+    "folke/which-key.nvim",
     lazy = false, -- Load immediately to ensure it's available for leader key press
     priority = 100, -- High priority to ensure it loads early
     config = function()
@@ -190,8 +196,8 @@ return {
         vim.notify("Which-key not found, some keybindings may not work", vim.log.levels.WARN)
         return
       end
-      
-      wk.setup({
+
+      wk.setup {
         plugins = {
           marks = true,
           registers = true,
@@ -216,7 +222,7 @@ return {
           spacing = 6,
         },
         hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "^:", "^ ", "^call ", "^lua " },
-        triggers = {"<leader>"}, -- Only show which-key for leader
+        triggers = { "<leader>" }, -- Only show which-key for leader
         triggers_nowait = {}, -- Don't use nowait triggers
         triggers_blacklist = {
           i = { "j", "k" },
@@ -224,10 +230,10 @@ return {
         },
         show_help = true,
         show_keys = true,
-      })
-      
+      }
+
       -- Register key groups
-      wk.register({
+      wk.register {
         ["<leader>b"] = { name = "+buffer" },
         ["<leader>c"] = { name = "+code/lsp" },
         ["<leader>d"] = { name = "+docs" },
@@ -247,7 +253,7 @@ return {
         ["<leader>x"] = { name = "+execute" },
         ["<leader>z"] = { name = "+zen/focus" },
         ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
-      })
-    end
+      }
+    end,
   },
 }

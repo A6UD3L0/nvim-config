@@ -44,14 +44,12 @@ return {
           globalstatus = true,
         },
         sections = {
-          lualine_a = {
-            {
-              "mode",
-              fmt = function(str)
-                return str:sub(1, 1)
-              end,
-            },
-          },
+          lualine_a = { {
+            "mode",
+            fmt = function(str)
+              return str:sub(1, 1)
+            end,
+          } },
           lualine_b = {
             { "branch", icon = "" },
             { "diff", symbols = { added = " ", modified = " ", removed = " " } },
@@ -152,39 +150,11 @@ return {
     "goolord/alpha-nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("alpha").setup(require("alpha.themes.dashboard").config)
-      local dashboard = require "alpha.themes.dashboard"
-      dashboard.section.header.val = {
-        "                                                     ",
-        "  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗",
-        "  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║",
-        "  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║",
-        "  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║",
-        "  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║",
-        "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝",
-        "                                                     ",
-        "            Backend Development Focused              ",
-        "                                                     ",
-      }
-      dashboard.section.buttons.val = {
-        dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("f", "  Find file", ":Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent files", ":Telescope oldfiles<CR>"),
-        dashboard.button("p", "  Projects", ":Telescope projects<CR>"),
-        dashboard.button("s", "  Settings", ":e $MYVIMRC <CR>"),
-        dashboard.button("u", "  Update Plugins", ":Lazy sync<CR>"),
-        dashboard.button("q", "  Quit", ":qa<CR>"),
-      }
-      dashboard.section.footer.val = "Streamlined for Backend Development"
+      require("dashboard").setup()
     end,
   },
 
-  {
-    "m4xshen/hardtime.nvim",
-    dependencies = { "MunifTanjim/nui.nvim" },
-    opts = {},
-  },
-
+  -- Which-key for better keybindings display
   {
     "folke/which-key.nvim",
     lazy = false,

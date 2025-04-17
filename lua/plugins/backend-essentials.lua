@@ -1,6 +1,6 @@
--- This file contains ONLY plugin specs and plugin-specific config.
+-- Essential plugins for backend development and data science
 return {
-  -- Essential plugins for backend development and data science
+  -- LSP Configuration
   {
     "neovim/nvim-lspconfig",
     dependencies = {
@@ -1196,7 +1196,7 @@ return {
     config = function()
       -- Configure UndoTree for better UX/UI
       vim.g.undotree_WindowLayout = 2       -- Layout 2: tree on the left, diff at the bottom
-      vim.g.undotree_SplitWidth = 30        -- Match width with nvim-tree (30)
+      vim.g.undotree_SplitWidth = 35        -- Wider tree panel for better readability
       vim.g.undotree_DiffpanelHeight = 12   -- Higher diff panel to show more context
       vim.g.undotree_SetFocusWhenToggle = 1 -- Automatically focus on undotree when opened
       vim.g.undotree_ShortIndicators = 0    -- Use regular indicators for better readability

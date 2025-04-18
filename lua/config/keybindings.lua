@@ -547,20 +547,53 @@ function M.setup()
   -- Register which-key groups
   local which_key_ok, which_key = pcall(require, "which-key")
   if which_key_ok then
-    -- Define groups using the new format
+    -- Use the key_icons from which-key config for consistency
+    local key_icons = {
+      f = "🔍 ", -- Find/Search
+      g = "🌿 ", -- Git
+      l = "⚙️ ", -- LSP
+      b = "📄 ", -- Buffer
+      t = "💻 ", -- Terminal
+      w = "🪟 ", -- Window
+      e = "🌲 ", -- Explorer
+      x = "🚨 ", -- Diagnostics 
+      a = "🤖 ", -- AI/Assist
+      h = "🔱 ", -- Marks
+      z = "🧘 ", -- Zen/Focus
+      u = "⏪ ", -- Undo/Utility
+      k = "⌨️ ", -- Keymaps
+      p = "📦 ", -- Project
+      r = "🏃 ", -- Run/Test
+      c = "📝 ", -- Code Actions
+      s = "🔄 ", -- Substitute
+      q = "📋 ", -- Quickfix
+    }
+    
+    -- Align groups with which-key.lua for MECE compliance
     local groups = {
-      { "<leader>b", group = " Buffers" },
-      { "<leader>f", group = " Find/Files" },
-      { "<leader>w", group = " Windows" },
-      { "<leader>t", group = " Terminal/Tabs" },
-      { "<leader>g", group = " Git" },
-      { "<leader>gh", group = "Hunks" },
-      { "<leader>gc", group = "Conflicts" },
-      { "<leader>l", group = " LSP" },
-      { "<leader>lw", group = "Workspace" },
-      { "<leader>e", group = " Explorer" },
-      { "<leader>x", group = " Diagnostics" },
-      { "<leader>a", group = " AI" },
+      { "<leader>f", group = key_icons.f .. "Find Files" },
+      { "<leader>g", group = key_icons.g .. "Git Operations" },
+      { "<leader>l", group = key_icons.l .. "LSP" },
+      { "<leader>b", group = key_icons.b .. "Buffers" },
+      { "<leader>t", group = key_icons.t .. "Terminal" },
+      { "<leader>w", group = key_icons.w .. "Windows" },
+      { "<leader>e", group = key_icons.e .. "Explorer" },
+      { "<leader>x", group = key_icons.x .. "Diagnostics" },
+      { "<leader>a", group = key_icons.a .. "AI & Assist" },
+      { "<leader>h", group = key_icons.h .. "Marks" },
+      { "<leader>z", group = key_icons.z .. "Zen & Focus" },
+      { "<leader>u", group = key_icons.u .. "Utilities" },
+      { "<leader>k", group = key_icons.k .. "Keymaps" },
+      { "<leader>p", group = key_icons.p .. "Project" },
+      { "<leader>r", group = key_icons.r .. "Run & Test" },
+      { "<leader>c", group = key_icons.c .. "Code Actions" },
+      { "<leader>s", group = key_icons.s .. "Substitute" },
+      { "<leader>q", group = key_icons.q .. "Quickfix" },
+      { "<leader>?", group = "Show All Keymaps" },
+      -- Subgroups for organized navigation
+      { "<leader>gh", group = key_icons.g .. "Git Hunks" },
+      { "<leader>gc", group = key_icons.g .. "Git Conflicts" },
+      { "<leader>lw", group = key_icons.l .. "Workspace" },
     }
     
     -- Register all keymappings with which-key

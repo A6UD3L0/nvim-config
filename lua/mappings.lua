@@ -1544,46 +1544,51 @@ map("n", "<leader>lS", "<cmd>LspStop<CR>", { desc = "LSP stop" })
 -- WHICH-KEY GROUP REGISTRATION (for MECE clarity)
 -- =============================================
 local function setup_which_key()
-  local wk_ok, wk = pcall(require, "which-key")
-  if not wk_ok then
-    -- Don't show errors if which-key is not installed
-    return false
+  -- Our consolidated which-key configuration is now in config/which-key.lua
+  -- This reduces duplication and follows MECE principles
+  local wk_config_ok, which_key_config = pcall(require, "config.which-key")
+  if wk_config_ok then
+    which_key_config.setup()
+    return true
+  else
+    -- Fallback in case the config module is not available
+    local wk_ok, wk = pcall(require, "which-key")
+    if not wk_ok then
+      -- Don't show errors if which-key is not installed
+      return false
+    end
+    
+    -- Only use this as a fallback if the consolidated config is unavailable
+    vim.notify("Using legacy which-key configuration. Consider updating your setup.", vim.log.levels.WARN)
+    
+    -- Use the proper format for which-key
+    wk.register {
+      ["<leader>b"] = { name = "+buffer" },
+      ["<leader>c"] = { name = "+code/lsp" },
+      ["<leader>d"] = { name = "+docs" },
+      ["<leader>dm"] = { name = "+ml-docs" },
+      ["<leader>e"] = { name = "+explorer" },
+      ["<leader>f"] = { name = "+find/file" },
+      ["<leader>g"] = { name = "+git" },
+      ["<leader>h"] = { name = "+harpoon" },
+      ["<leader>k"] = { name = "+keymaps" },
+      ["<leader>l"] = { name = "+lsp" },
+      ["<leader>p"] = { name = "+python/env/dependencies" },
+      ["<leader>r"] = { name = "+run/requirements" },
+      ["<leader>s"] = { name = "+search" },
+      ["<leader>t"] = { name = "+terminal" },
+      ["<leader>u"] = { name = "+utilities" },
+      ["<leader>w"] = { name = "+window/tab" },
+      ["<leader>x"] = { name = "+execute" },
+      ["<leader>z"] = { name = "+zen/focus" },
+      ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
+    }
+
+    return true
   end
-
-  -- Use the proper format for which-key
-  -- This addresses the warning about using an old format
-  wk.register {
-    ["<leader>b"] = { name = "+buffer" },
-    ["<leader>c"] = { name = "+code/lsp" },
-    ["<leader>d"] = { name = "+docs" },
-    ["<leader>dm"] = { name = "+ml-docs" },
-    ["<leader>e"] = { name = "+explorer" },
-    ["<leader>f"] = { name = "+find/file" },
-    ["<leader>g"] = { name = "+git" },
-    ["<leader>h"] = { name = "+harpoon" },
-    ["<leader>k"] = { name = "+keymaps" },
-    ["<leader>l"] = { name = "+lsp" },
-    ["<leader>p"] = { name = "+python/env/dependencies" },
-    ["<leader>r"] = { name = "+run/requirements" },
-    ["<leader>s"] = { name = "+search" },
-    ["<leader>t"] = { name = "+terminal" },
-    ["<leader>u"] = { name = "+utilities" },
-    ["<leader>w"] = { name = "+window/tab" },
-    ["<leader>x"] = { name = "+execute" },
-    ["<leader>z"] = { name = "+zen/focus" },
-    ["<leader>?"] = { "Show all keymaps (cheatsheet)" },
-  }
-
-  -- Register individual keymaps for non-prefixed leader keys
-  wk.register {
-    ["<leader>k"] = { name = "Show all keybindings" },
-    ["<leader>?"] = { name = "Show all keymaps (cheatsheet)" },
-  }
-
-  return true
 end
 
--- Try to set up which-key (will silently fail if not installed)
+-- Try to set up which-key (will use consolidated config if available)
 setup_which_key()
 
 -- =============================================

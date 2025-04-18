@@ -64,6 +64,8 @@ local function init_core_settings()
     vim.g.maplocalleader = " "
     vim.opt.termguicolors = true
     vim.opt.number = true
+    vim.opt.wildmenu = true
+    vim.opt.wildmode = "longest:full,full"
   end
 end
 

@@ -261,152 +261,156 @@ function M.setup()
   local has_gh_cli = executable_exists("gh")
   if not has_gh_cli then
     vim.notify("GitHub CLI (gh) not found. Octo.nvim will be disabled.", vim.log.levels.WARN)
-  else
-    local octo_ok, octo = pcall(require, "octo")
-    if octo_ok then
-      -- Safe setup with error handling
-      local octo_setup_ok, err = pcall(function()
-        octo.setup({
-          ssh_aliases = {}, -- SSH aliases. e.g. { ["github.com-work"] = "github.com" }
-          reaction_viewer_hint_icon = "",
-          user_icon = " ",
-          timeline_marker = "",
-          timeline_indent = "2",
-          right_bubble_delimiter = "",
-          left_bubble_delimiter = "",
-          github_hostname = "",
-          snippet_context_lines = 4,
-          file_panel = {
-            size = 10,
-            use_icons = true
+    vim.notify("To install GitHub CLI, run: 'brew install gh' (macOS) or visit https://cli.github.com/", vim.log.levels.INFO)
+    -- Skip loading Octo entirely when GitHub CLI is missing
+    return
+  end
+  
+  -- Only try to load Octo.nvim if GitHub CLI is available
+  local octo_ok, octo = pcall(require, "octo")
+  if octo_ok then
+    -- Safe setup with error handling
+    local octo_setup_ok, err = pcall(function()
+      octo.setup({
+        ssh_aliases = {}, -- SSH aliases. e.g. { ["github.com-work"] = "github.com" }
+        reaction_viewer_hint_icon = "",
+        user_icon = " ",
+        timeline_marker = "",
+        timeline_indent = "2",
+        right_bubble_delimiter = "",
+        left_bubble_delimiter = "",
+        github_hostname = "",
+        snippet_context_lines = 4,
+        file_panel = {
+          size = 10,
+          use_icons = true
+        },
+        mappings = {
+          issue = {
+            close_issue = { lhs = "<leader>ic", desc = "close issue" },
+            reopen_issue = { lhs = "<leader>io", desc = "reopen issue" },
+            list_issues = { lhs = "<leader>il", desc = "list open issues on same repo" },
+            reload = { lhs = "<leader>ir", desc = "reload issue" },
+            open_in_browser = { lhs = "<leader>ib", desc = "open issue in browser" },
+            copy_url = { lhs = "<leader>iy", desc = "copy url to system clipboard" },
+            add_assignee = { lhs = "<leader>ia", desc = "add assignee" },
+            remove_assignee = { lhs = "<leader>id", desc = "remove assignee" },
+            create_label = { lhs = "<leader>iL", desc = "create label" },
+            add_label = { lhs = "<leader>il", desc = "add label" },
+            remove_label = { lhs = "<leader>iR", desc = "remove label" },
+            goto_issue = { lhs = "<leader>ig", desc = "navigate to a local repo issue" },
+            add_comment = { lhs = "<leader>iC", desc = "add comment" },
+            delete_comment = { lhs = "<leader>iD", desc = "delete comment" },
+            next_comment = { lhs = "]c", desc = "go to next comment" },
+            prev_comment = { lhs = "[c", desc = "go to previous comment" },
+            react_hooray = { lhs = "<leader>i1", desc = "add/remove 🎉 reaction" },
+            react_heart = { lhs = "<leader>i2", desc = "add/remove ❤️ reaction" },
+            react_eyes = { lhs = "<leader>i3", desc = "add/remove 👀 reaction" },
+            react_thumbs_up = { lhs = "<leader>i4", desc = "add/remove 👍 reaction" },
+            react_thumbs_down = { lhs = "<leader>i5", desc = "add/remove 👎 reaction" },
+            react_rocket = { lhs = "<leader>i6", desc = "add/remove 🚀 reaction" },
+            react_laugh = { lhs = "<leader>i7", desc = "add/remove 😄 reaction" },
+            react_confused = { lhs = "<leader>i8", desc = "add/remove 😕 reaction" },
           },
-          mappings = {
-            issue = {
-              close_issue = { lhs = "<leader>ic", desc = "close issue" },
-              reopen_issue = { lhs = "<leader>io", desc = "reopen issue" },
-              list_issues = { lhs = "<leader>il", desc = "list open issues on same repo" },
-              reload = { lhs = "<leader>ir", desc = "reload issue" },
-              open_in_browser = { lhs = "<leader>ib", desc = "open issue in browser" },
-              copy_url = { lhs = "<leader>iy", desc = "copy url to system clipboard" },
-              add_assignee = { lhs = "<leader>ia", desc = "add assignee" },
-              remove_assignee = { lhs = "<leader>id", desc = "remove assignee" },
-              create_label = { lhs = "<leader>iL", desc = "create label" },
-              add_label = { lhs = "<leader>il", desc = "add label" },
-              remove_label = { lhs = "<leader>iR", desc = "remove label" },
-              goto_issue = { lhs = "<leader>ig", desc = "navigate to a local repo issue" },
-              add_comment = { lhs = "<leader>iC", desc = "add comment" },
-              delete_comment = { lhs = "<leader>iD", desc = "delete comment" },
-              next_comment = { lhs = "]c", desc = "go to next comment" },
-              prev_comment = { lhs = "[c", desc = "go to previous comment" },
-              react_hooray = { lhs = "<leader>i1", desc = "add/remove 🎉 reaction" },
-              react_heart = { lhs = "<leader>i2", desc = "add/remove ❤️ reaction" },
-              react_eyes = { lhs = "<leader>i3", desc = "add/remove 👀 reaction" },
-              react_thumbs_up = { lhs = "<leader>i4", desc = "add/remove 👍 reaction" },
-              react_thumbs_down = { lhs = "<leader>i5", desc = "add/remove 👎 reaction" },
-              react_rocket = { lhs = "<leader>i6", desc = "add/remove 🚀 reaction" },
-              react_laugh = { lhs = "<leader>i7", desc = "add/remove 😄 reaction" },
-              react_confused = { lhs = "<leader>i8", desc = "add/remove 😕 reaction" },
-            },
-            pull_request = {
-              checkout_pr = { lhs = "<leader>po", desc = "checkout PR" },
-              merge_pr = { lhs = "<leader>pm", desc = "merge commit PR" },
-              squash_and_merge_pr = { lhs = "<leader>psm", desc = "squash and merge PR" },
-              list_commits = { lhs = "<leader>pc", desc = "list PR commits" },
-              list_changed_files = { lhs = "<leader>pf", desc = "list PR changed files" },
-              show_pr_diff = { lhs = "<leader>pd", desc = "show PR diff" },
-              add_reviewer = { lhs = "<leader>pv", desc = "add reviewer" },
-              remove_reviewer = { lhs = "<leader>pvd", desc = "remove reviewer request" },
-              close_pr = { lhs = "<leader>px", desc = "close PR" },
-              reopen_pr = { lhs = "<leader>po", desc = "reopen PR" },
-              list_prs = { lhs = "<leader>pL", desc = "list open PRs on same repo" },
-              reload = { lhs = "<leader>pr", desc = "reload PR" },
-              open_in_browser = { lhs = "<leader>pb", desc = "open PR in browser" },
-              copy_url = { lhs = "<leader>py", desc = "copy url to system clipboard" },
-              goto_file = { lhs = "gf", desc = "go to file" },
-              add_assignee = { lhs = "<leader>pa", desc = "add assignee" },
-              remove_assignee = { lhs = "<leader>pad", desc = "remove assignee" },
-              create_label = { lhs = "<leader>pcl", desc = "create label" },
-              add_label = { lhs = "<leader>pl", desc = "add label" },
-              remove_label = { lhs = "<leader>pld", desc = "remove label" },
-              goto_pr = { lhs = "<leader>pg", desc = "navigate to a local repo PR" },
-              add_comment = { lhs = "<leader>pC", desc = "add comment" },
-              delete_comment = { lhs = "<leader>pD", desc = "delete comment" },
-              next_comment = { lhs = "]c", desc = "go to next comment" },
-              prev_comment = { lhs = "[c", desc = "go to previous comment" },
-              react_hooray = { lhs = "<leader>p1", desc = "add/remove 🎉 reaction" },
-              react_heart = { lhs = "<leader>p2", desc = "add/remove ❤️ reaction" },
-              react_eyes = { lhs = "<leader>p3", desc = "add/remove 👀 reaction" },
-              react_thumbs_up = { lhs = "<leader>p4", desc = "add/remove 👍 reaction" },
-              react_thumbs_down = { lhs = "<leader>p5", desc = "add/remove 👎 reaction" },
-              react_rocket = { lhs = "<leader>p6", desc = "add/remove 🚀 reaction" },
-              react_laugh = { lhs = "<leader>p7", desc = "add/remove 😄 reaction" },
-              react_confused = { lhs = "<leader>p8", desc = "add/remove 😕 reaction" },
-            },
-            review_thread = {
-              goto_issue = { lhs = "<leader>gi", desc = "navigate to a local repo issue" },
-              add_comment = { lhs = "<leader>ca", desc = "add comment" },
-              add_suggestion = { lhs = "<leader>sa", desc = "add suggestion" },
-              delete_comment = { lhs = "<leader>cd", desc = "delete comment" },
-              next_comment = { lhs = "]c", desc = "go to next comment" },
-              prev_comment = { lhs = "[c", desc = "go to previous comment" },
-              select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
-              select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
-              close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
-              react_hooray = { lhs = "<leader>r1", desc = "add/remove 🎉 reaction" },
-              react_heart = { lhs = "<leader>r2", desc = "add/remove ❤️ reaction" },
-              react_eyes = { lhs = "<leader>r3", desc = "add/remove 👀 reaction" },
-              react_thumbs_up = { lhs = "<leader>r4", desc = "add/remove 👍 reaction" },
-              react_thumbs_down = { lhs = "<leader>r5", desc = "add/remove 👎 reaction" },
-              react_rocket = { lhs = "<leader>r6", desc = "add/remove 🚀 reaction" },
-              react_laugh = { lhs = "<leader>r7", desc = "add/remove 😄 reaction" },
-              react_confused = { lhs = "<leader>r8", desc = "add/remove 😕 reaction" },
-            },
-            submit_win = {
-              approve_review = { lhs = "<C-a>", desc = "approve review" },
-              comment_review = { lhs = "<C-m>", desc = "comment review" },
-              request_changes = { lhs = "<C-r>", desc = "request changes review" },
-              close_review_tab = { lhs = "<C-c>", desc = "close review tab" },
-            },
-            review_diff = {
-              add_review_comment = { lhs = "<leader>ca", desc = "add a new review comment" },
-              add_review_suggestion = { lhs = "<leader>sa", desc = "add a new review suggestion" },
-              focus_files = { lhs = "<leader>e", desc = "move focus to changed files panel" },
-              toggle_files = { lhs = "<leader>b", desc = "hide/show changed files panel" },
-              next_thread = { lhs = "]t", desc = "move to next thread" },
-              prev_thread = { lhs = "[t", desc = "move to previous thread" },
-              select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
-              select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
-              close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
-              toggle_viewed = { lhs = "<leader>tv", desc = "toggle viewed state" },
-            },
-            file_panel = {
-              next_entry = { lhs = "j", desc = "move to next changed file" },
-              prev_entry = { lhs = "k", desc = "move to previous changed file" },
-              select_entry = { lhs = "<cr>", desc = "show selected changed file diffs" },
-              refresh_files = { lhs = "R", desc = "refresh changed files panel" },
-              focus_files = { lhs = "<leader>e", desc = "move focus to changed files panel" },
-              toggle_files = { lhs = "<leader>b", desc = "hide/show changed files panel" },
-              select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
-              select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
-              close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
-              toggle_viewed = { lhs = "<leader>tv", desc = "toggle viewed state" },
-            },
-          }
-        })
-      end)
-      
-      if not octo_setup_ok then
-        vim.notify("Octo.nvim setup failed: " .. tostring(err), vim.log.levels.ERROR)
-      end
-      
-      -- Keymaps for GitHub operations - using unique keys to avoid overlaps
-      local keymap = vim.keymap.set
-      keymap("n", "<leader>oi", "<cmd>Octo issue list<CR>", { desc = "List GitHub issues" })
-      keymap("n", "<leader>oP", "<cmd>Octo pr list<CR>", { desc = "List GitHub PRs" })
-      keymap("n", "<leader>or", "<cmd>Octo repo list<CR>", { desc = "List GitHub repos" })
-    else
-      vim.notify("Octo.nvim not found. GitHub integration unavailable.", vim.log.levels.DEBUG)
+          pull_request = {
+            checkout_pr = { lhs = "<leader>po", desc = "checkout PR" },
+            merge_pr = { lhs = "<leader>pm", desc = "merge commit PR" },
+            squash_and_merge_pr = { lhs = "<leader>psm", desc = "squash and merge PR" },
+            list_commits = { lhs = "<leader>pc", desc = "list PR commits" },
+            list_changed_files = { lhs = "<leader>pf", desc = "list PR changed files" },
+            show_pr_diff = { lhs = "<leader>pd", desc = "show PR diff" },
+            add_reviewer = { lhs = "<leader>pv", desc = "add reviewer" },
+            remove_reviewer = { lhs = "<leader>pvd", desc = "remove reviewer request" },
+            close_pr = { lhs = "<leader>px", desc = "close PR" },
+            reopen_pr = { lhs = "<leader>po", desc = "reopen PR" },
+            list_prs = { lhs = "<leader>pL", desc = "list open PRs on same repo" },
+            reload = { lhs = "<leader>pr", desc = "reload PR" },
+            open_in_browser = { lhs = "<leader>pb", desc = "open PR in browser" },
+            copy_url = { lhs = "<leader>py", desc = "copy url to system clipboard" },
+            goto_file = { lhs = "gf", desc = "go to file" },
+            add_assignee = { lhs = "<leader>pa", desc = "add assignee" },
+            remove_assignee = { lhs = "<leader>pad", desc = "remove assignee" },
+            create_label = { lhs = "<leader>pcl", desc = "create label" },
+            add_label = { lhs = "<leader>pl", desc = "add label" },
+            remove_label = { lhs = "<leader>pld", desc = "remove label" },
+            goto_pr = { lhs = "<leader>pg", desc = "navigate to a local repo PR" },
+            add_comment = { lhs = "<leader>pC", desc = "add comment" },
+            delete_comment = { lhs = "<leader>pD", desc = "delete comment" },
+            next_comment = { lhs = "]c", desc = "go to next comment" },
+            prev_comment = { lhs = "[c", desc = "go to previous comment" },
+            react_hooray = { lhs = "<leader>p1", desc = "add/remove 🎉 reaction" },
+            react_heart = { lhs = "<leader>p2", desc = "add/remove ❤️ reaction" },
+            react_eyes = { lhs = "<leader>p3", desc = "add/remove 👀 reaction" },
+            react_thumbs_up = { lhs = "<leader>p4", desc = "add/remove 👍 reaction" },
+            react_thumbs_down = { lhs = "<leader>p5", desc = "add/remove 👎 reaction" },
+            react_rocket = { lhs = "<leader>p6", desc = "add/remove 🚀 reaction" },
+            react_laugh = { lhs = "<leader>p7", desc = "add/remove 😄 reaction" },
+            react_confused = { lhs = "<leader>p8", desc = "add/remove 😕 reaction" },
+          },
+          review_thread = {
+            goto_issue = { lhs = "<leader>gi", desc = "navigate to a local repo issue" },
+            add_comment = { lhs = "<leader>ca", desc = "add comment" },
+            add_suggestion = { lhs = "<leader>sa", desc = "add suggestion" },
+            delete_comment = { lhs = "<leader>cd", desc = "delete comment" },
+            next_comment = { lhs = "]c", desc = "go to next comment" },
+            prev_comment = { lhs = "[c", desc = "go to previous comment" },
+            select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
+            select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
+            close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
+            react_hooray = { lhs = "<leader>r1", desc = "add/remove 🎉 reaction" },
+            react_heart = { lhs = "<leader>r2", desc = "add/remove ❤️ reaction" },
+            react_eyes = { lhs = "<leader>r3", desc = "add/remove 👀 reaction" },
+            react_thumbs_up = { lhs = "<leader>r4", desc = "add/remove 👍 reaction" },
+            react_thumbs_down = { lhs = "<leader>r5", desc = "add/remove 👎 reaction" },
+            react_rocket = { lhs = "<leader>r6", desc = "add/remove 🚀 reaction" },
+            react_laugh = { lhs = "<leader>r7", desc = "add/remove 😄 reaction" },
+            react_confused = { lhs = "<leader>r8", desc = "add/remove 😕 reaction" },
+          },
+          submit_win = {
+            approve_review = { lhs = "<C-a>", desc = "approve review" },
+            comment_review = { lhs = "<C-m>", desc = "comment review" },
+            request_changes = { lhs = "<C-r>", desc = "request changes review" },
+            close_review_tab = { lhs = "<C-c>", desc = "close review tab" },
+          },
+          review_diff = {
+            add_review_comment = { lhs = "<leader>ca", desc = "add a new review comment" },
+            add_review_suggestion = { lhs = "<leader>sa", desc = "add a new review suggestion" },
+            focus_files = { lhs = "<leader>e", desc = "move focus to changed files panel" },
+            toggle_files = { lhs = "<leader>b", desc = "hide/show changed files panel" },
+            next_thread = { lhs = "]t", desc = "move to next thread" },
+            prev_thread = { lhs = "[t", desc = "move to previous thread" },
+            select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
+            select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
+            close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
+            toggle_viewed = { lhs = "<leader>tv", desc = "toggle viewed state" },
+          },
+          file_panel = {
+            next_entry = { lhs = "j", desc = "move to next changed file" },
+            prev_entry = { lhs = "k", desc = "move to previous changed file" },
+            select_entry = { lhs = "<cr>", desc = "show selected changed file diffs" },
+            refresh_files = { lhs = "R", desc = "refresh changed files panel" },
+            focus_files = { lhs = "<leader>e", desc = "move focus to changed files panel" },
+            toggle_files = { lhs = "<leader>b", desc = "hide/show changed files panel" },
+            select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
+            select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
+            close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
+            toggle_viewed = { lhs = "<leader>tv", desc = "toggle viewed state" },
+          },
+        }
+      })
+    end)
+    
+    if not octo_setup_ok then
+      vim.notify("Octo.nvim setup failed: " .. tostring(err), vim.log.levels.ERROR)
     end
+    
+    -- Keymaps for GitHub operations - using unique keys to avoid overlaps
+    local keymap = vim.keymap.set
+    keymap("n", "<leader>oi", "<cmd>Octo issue list<CR>", { desc = "List GitHub issues" })
+    keymap("n", "<leader>oP", "<cmd>Octo pr list<CR>", { desc = "List GitHub PRs" })
+    keymap("n", "<leader>or", "<cmd>Octo repo list<CR>", { desc = "List GitHub repos" })
+  else
+    vim.notify("Octo.nvim not found. GitHub integration unavailable.", vim.log.levels.DEBUG)
   end
   
   -- Set up telescope git pickers if telescope is available

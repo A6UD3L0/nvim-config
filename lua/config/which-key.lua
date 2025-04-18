@@ -4,41 +4,48 @@
 
 local M = {}
 
--- Color definitions for different command groups
+-- Color definitions for different command groups - each has its own distinct highlight
 local group_colors = {
-  FileOps     = "#7DCFFF", -- File operations (light blue)
-  Navigation  = "#BB9AF7", -- Navigation commands (purple)
-  Search      = "#9ECE6A", -- Search commands (green)
-  Buffer      = "#E0AF68", -- Buffer management (orange)
+  Find        = "#9ECE6A", -- Find/Search operations (green)
   Git         = "#F7768E", -- Git operations (red)
   LSP         = "#2AC3DE", -- LSP interactions (cyan)
+  Buffer      = "#E0AF68", -- Buffer management (orange)
   Terminal    = "#B4F9F8", -- Terminal commands (turquoise)
   Window      = "#41A6B5", -- Window management (teal)
-  Debug       = "#FF9E64", -- Debugging operations (peach)
-  Misc        = "#A9B1D6", -- Miscellaneous (light purple)
+  Explorer    = "#7DCFFF", -- File explorer (light blue)
+  Diagnostic  = "#FF9E64", -- Diagnostics & debug (peach)
+  AI          = "#BB9AF7", -- AI assistance (purple)
+  Navigation  = "#C678DD", -- Navigation & marks (magenta)
+  Zen         = "#ABB2BF", -- Zen & focus (light gray)
+  Utility     = "#56B6C2", -- Utility & tools (blue-green)
+  Keymaps     = "#E06C75", -- Keybinding & help (red-pink)
+  Project     = "#98C379", -- Project management (bright green)
+  Run         = "#D19A66", -- Run & test (amber)
+  Code        = "#61AFEF", -- Code actions (bright blue)
+  Substitute  = "#E5C07B", -- Substitute & replace (yellow)
+  Quickfix    = "#E06C75", -- Quickfix & lists (red)
 }
 
 -- Descriptive icons for better visual clarity and categorization
 local key_icons = {
-  f = " ", -- Find/Search
-  g = " ", -- Git
-  l = " ", -- LSP/Code
-  b = " ", -- Buffer
-  t = " ", -- Terminal
-  w = " ", -- Window
-  r = " ", -- Run/Test
-  d = " ", -- Debug
-  p = " ", -- Project 
-  u = " ", -- Undo/Utility
-  e = " ", -- Explorer
-  x = " ", -- Diagnostics 
-  z = " ", -- Zen/Focus
-  a = " ", -- AI/Assist
-  h = " ", -- Harpoon/Marks
-  k = " ", -- Keymaps
-  s = " ", -- Substitute/Search
-  c = " ", -- Code Actions
-  q = " ", -- Quickfix/Lists
+  f = "", -- Find/Search
+  g = "", -- Git
+  l = "", -- LSP
+  b = "", -- Buffer
+  t = "", -- Terminal
+  w = "", -- Window
+  e = "", -- Explorer
+  x = "", -- Diagnostics 
+  a = "", -- AI/Assist
+  h = "", -- Marks
+  z = "", -- Zen/Focus
+  u = "", -- Undo/Utility
+  k = "", -- Keymaps
+  p = "", -- Project
+  r = "", -- Run/Test
+  c = "", -- Code Actions
+  s = "", -- Substitute
+  q = "", -- Quickfix
 }
 
 function M.setup()
@@ -78,8 +85,8 @@ function M.setup()
       },
     },
     icons = {
-      breadcrumb = "»", -- Symbol used for the hierarchy display
-      separator = "➜", -- Symbol used between key and command
+      breadcrumb = "", -- Symbol used for the hierarchy display
+      separator = "", -- Symbol used between key and command
       group = "+",     -- Symbol prepended to a group
     },
     popup_mappings = {
@@ -117,24 +124,24 @@ function M.setup()
   -- ==== MECE KEY GROUP ORGANIZATION ====
   -- Primary namespaces with consistent and intuitive naming
   which_key.register({
-    ["<leader>f"] = { name = key_icons.f .. "%{WhichKeyGroupSearch}Find & Search%*" },
+    ["<leader>f"] = { name = key_icons.f .. "%{WhichKeyGroupFind}Find Files%*" },
     ["<leader>g"] = { name = key_icons.g .. "%{WhichKeyGroupGit}Git Operations%*" },
-    ["<leader>l"] = { name = key_icons.l .. "%{WhichKeyGroupLSP}Code & LSP%*" },
-    ["<leader>b"] = { name = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers & Tabs%*" },
+    ["<leader>l"] = { name = key_icons.l .. "%{WhichKeyGroupLSP}LSP%*" },
+    ["<leader>b"] = { name = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers%*" },
     ["<leader>t"] = { name = key_icons.t .. "%{WhichKeyGroupTerminal}Terminal%*" },
     ["<leader>w"] = { name = key_icons.w .. "%{WhichKeyGroupWindow}Windows%*" },
-    ["<leader>e"] = { name = key_icons.e .. "%{WhichKeyGroupFileOps}Explorer%*" },
-    ["<leader>x"] = { name = key_icons.x .. "%{WhichKeyGroupDebug}Diagnostics%*" },
-    ["<leader>a"] = { name = key_icons.a .. "%{WhichKeyGroupMisc}AI & Assist%*" },
+    ["<leader>e"] = { name = key_icons.e .. "%{WhichKeyGroupExplorer}Explorer%*" },
+    ["<leader>x"] = { name = key_icons.x .. "%{WhichKeyGroupDiagnostic}Diagnostics%*" },
+    ["<leader>a"] = { name = key_icons.a .. "%{WhichKeyGroupAI}AI & Assist%*" },
     ["<leader>h"] = { name = key_icons.h .. "%{WhichKeyGroupNavigation}Marks%*" },
-    ["<leader>z"] = { name = key_icons.z .. "%{WhichKeyGroupMisc}Zen & Focus%*" },
-    ["<leader>u"] = { name = key_icons.u .. "%{WhichKeyGroupMisc}Undo & Utility%*" },
-    ["<leader>k"] = { name = key_icons.k .. "%{WhichKeyGroupMisc}Keymaps%*" },
-    ["<leader>p"] = { name = key_icons.p .. "%{WhichKeyGroupMisc}Project%*" },
-    ["<leader>r"] = { name = key_icons.r .. "%{WhichKeyGroupMisc}Run & Test%*" },
-    ["<leader>c"] = { name = key_icons.c .. "%{WhichKeyGroupLSP}Code Actions%*" },
-    ["<leader>s"] = { name = key_icons.s .. "%{WhichKeyGroupSearch}Substitute%*" },
-    ["<leader>q"] = { name = key_icons.q .. "%{WhichKeyGroupMisc}Quickfix%*" },
+    ["<leader>z"] = { name = key_icons.z .. "%{WhichKeyGroupZen}Zen & Focus%*" },
+    ["<leader>u"] = { name = key_icons.u .. "%{WhichKeyGroupUtility}Utilities%*" },
+    ["<leader>k"] = { name = key_icons.k .. "%{WhichKeyGroupKeymaps}Keymaps%*" },
+    ["<leader>p"] = { name = key_icons.p .. "%{WhichKeyGroupProject}Project%*" },
+    ["<leader>r"] = { name = key_icons.r .. "%{WhichKeyGroupRun}Run & Test%*" },
+    ["<leader>c"] = { name = key_icons.c .. "%{WhichKeyGroupCode}Code Actions%*" },
+    ["<leader>s"] = { name = key_icons.s .. "%{WhichKeyGroupSubstitute}Substitute%*" },
+    ["<leader>q"] = { name = key_icons.q .. "%{WhichKeyGroupQuickfix}Quickfix%*" },
     ["<leader>?"] = { name = "Show All Keymaps" },
   }, { mode = "n", prefix = "<leader>" })
 

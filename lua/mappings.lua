@@ -628,7 +628,19 @@ map("n", "<leader>do", function()
   M._toggle_documentation()
 end, { desc = "Toggle documentation" })
 
--- Add specialized documentation commands for machine learning
+map("n", "<leader>dm", function()
+  vim.ui.select(
+    { "sklearn", "numpy", "pandas", "tensorflow", "pytorch", "matplotlib" },
+    { prompt = "Select ML Documentation:" },
+    function(choice)
+      if choice then
+        M._open_ml_docs(choice)
+      end
+    end
+  )
+end, { desc = "Browse ML documentation" })
+
+-- Machine learning documentation keybindings
 M._open_ml_docs = function(doc_type)
   -- Check if DevDocs is available
   local devdocs_ok, _ = pcall(require, "nvim-devdocs")
@@ -671,20 +683,7 @@ M._open_ml_docs = function(doc_type)
   end
 end
 
--- Machine learning documentation keybindings
-map("n", "<leader>dm", function()
-  vim.ui.select(
-    { "sklearn", "numpy", "pandas", "tensorflow", "pytorch", "matplotlib" },
-    { prompt = "Select ML Documentation:" },
-    function(choice)
-      if choice then
-        M._open_ml_docs(choice)
-      end
-    end
-  )
-end, { desc = "Browse ML documentation" })
-
--- Enhanced Python test runner with better validation
+-- Execute Python helper with better error handling
 M._run_python_tests = function()
   -- Try telescope plugin first
   if M._has_telescope() then
@@ -1400,10 +1399,14 @@ M.setup_lsp_mappings = function(bufnr)
   local opts = { buffer = bufnr, noremap = true, silent = true }
 
   -- Go to definition/references commands
-  map("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-  map("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
-  map("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
-  map("n", "gt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
+  map("n", "gd", function() 
+    require("telescope.builtin").lsp_definitions({jump_type = "vsplit"})
+  end, { buffer = bufnr, desc = "Go to definition (split)" })
+  
+  map("n", "<leader>ld", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
+  map("n", "<leader>lr", vim.lsp.buf.references, { buffer = bufnr, desc = "Find references" })
+  map("n", "<leader>li", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
+  map("n", "<leader>lt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
 
   -- Documentation and signature help
   map("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Show documentation" })
@@ -1440,9 +1443,9 @@ M.setup_lsp_mappings = function(bufnr)
   end, { buffer = bufnr, desc = "Next warning" })
 
   -- Workspace management
-  map("n", "<leader>cw", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "Add workspace folder" })
-  map("n", "<leader>cW", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "Remove workspace folder" })
-  map("n", "<leader>cl", function()
+  map("n", "<leader>lw", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "Add workspace folder" })
+  map("n", "<leader>lW", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "Remove workspace folder" })
+  map("n", "<leader>lL", function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, { buffer = bufnr, desc = "List workspace folders" })
 
@@ -1450,28 +1453,28 @@ M.setup_lsp_mappings = function(bufnr)
   local ok_telescope, telescope = pcall(require, "telescope.builtin")
   if ok_telescope then
     -- Symbol navigation with Telescope
-    map("n", "<leader>cs", telescope.lsp_document_symbols, { buffer = bufnr, desc = "Document symbols" })
-    map("n", "<leader>cS", telescope.lsp_workspace_symbols, { buffer = bufnr, desc = "Workspace symbols" })
-    map("n", "<leader>ci", telescope.lsp_implementations, { buffer = bufnr, desc = "Find implementations" })
-    map("n", "<leader>cD", telescope.lsp_type_definitions, { buffer = bufnr, desc = "Find type definitions" })
-    map("n", "<leader>cu", telescope.lsp_references, { buffer = bufnr, desc = "Find usages/references" })
-    map("n", "<leader>cC", telescope.lsp_incoming_calls, { buffer = bufnr, desc = "Incoming calls" })
-    map("n", "<leader>cO", telescope.lsp_outgoing_calls, { buffer = bufnr, desc = "Outgoing calls" })
+    map("n", "<leader>ls", telescope.lsp_document_symbols, { buffer = bufnr, desc = "Document symbols" })
+    map("n", "<leader>lS", telescope.lsp_workspace_symbols, { buffer = bufnr, desc = "Workspace symbols" })
+    map("n", "<leader>lI", telescope.lsp_implementations, { buffer = bufnr, desc = "Find implementations" })
+    map("n", "<leader>lT", telescope.lsp_type_definitions, { buffer = bufnr, desc = "Find type definitions" })
+    map("n", "<leader>lR", telescope.lsp_references, { buffer = bufnr, desc = "Find references" })
+    map("n", "<leader>lC", telescope.lsp_incoming_calls, { buffer = bufnr, desc = "Incoming calls" })
+    map("n", "<leader>lO", telescope.lsp_outgoing_calls, { buffer = bufnr, desc = "Outgoing calls" })
   end
 
   -- Toggle Inline Diagnostics
-  map("n", "<leader>cT", function()
+  map("n", "<leader>lv", function()
     local current = vim.diagnostic.config().virtual_text
     vim.diagnostic.config { virtual_text = not current }
     vim.notify("Inline diagnostics " .. (not current and "enabled" or "disabled"))
   end, { buffer = bufnr, desc = "Toggle inline diagnostics" })
 
   -- LSP Info and Restart
-  map("n", "<leader>cI", "<cmd>LspInfo<CR>", { buffer = bufnr, desc = "LSP info" })
-  map("n", "<leader>cR", "<cmd>LspRestart<CR>", { buffer = bufnr, desc = "LSP restart" })
+  map("n", "<leader>lI", "<cmd>LspInfo<CR>", { buffer = bufnr, desc = "LSP info" })
+  map("n", "<leader>lE", "<cmd>LspRestart<CR>", { buffer = bufnr, desc = "LSP restart" })
 
   -- Peek Definition
-  map("n", "<leader>cp", function()
+  map("n", "<leader>lp", function()
     local params = vim.lsp.util.make_position_params()
     vim.lsp.buf_request(0, "textDocument/definition", params, function(_, result)
       if not result or vim.tbl_isempty(result) then
@@ -1489,160 +1492,51 @@ M.setup_lsp_mappings = function(bufnr)
       vim.lsp.util.preview_location(target, { border = "rounded" })
     end)
   end, { buffer = bufnr, desc = "Peek definition" })
+  
+  -- Toggle inlay hints if available in Neovim (0.10+)
+  if vim.lsp.inlay_hint then
+    map("n", "<leader>lh", function()
+      if type(vim.lsp.inlay_hint) == "function" then
+        vim.lsp.inlay_hint(bufnr, nil) -- Toggle
+      elseif type(vim.lsp.inlay_hint) == "table" and vim.lsp.inlay_hint.enable then
+        local enabled = not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+        vim.lsp.inlay_hint.enable(bufnr, enabled)
+      end
+      vim.notify("Inlay hints " .. (vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }) and "enabled" or "disabled"))
+    end, { buffer = bufnr, desc = "Toggle inlay hints" })
+  end
+  
+  -- Find all symbol references in the current file
+  map("n", "<leader>lc", function()
+    if vim.lsp.buf.document_highlight and vim.lsp.buf.clear_references then
+      vim.lsp.buf.document_highlight()
+      vim.cmd("autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()")
+      vim.notify("Document highlighting enabled (move cursor to clear)")
+    else
+      vim.notify("Document highlighting not supported by LSP", vim.log.levels.INFO)
+    end
+  end, { buffer = bufnr, desc = "Highlight current symbol" })
 end
 
 -- Function for diagnostic window keybindings with enhanced UX
 M.setup_diagnostic_window_mappings = function(buf)
   -- Add better keybindings for the diagnostic window with descriptive comments
   -- Aesthetically pleasing window navigation
-
-  -- Create a more user-friendly diagnostic window header
-  vim.api.nvim_buf_set_lines(buf, 0, 0, false, {
-    "  📌 LSP Diagnostics",
-    "  ══════════════════",
-    "",
-    "  Navigation:",
-    "    j/k  - Move up/down",
-    "    q/Esc - Close window",
-    "    <CR>  - Jump to location",
-    "    o     - Open in split",
-    "    <C-v> - Open in vertical split",
-    "    <C-t> - Open in new tab",
-    "    <C-f> - Page down",
-    "    <C-b> - Page up",
-    "    gg/G  - Go to top/bottom",
-    "",
-    "  Filter Severity:",
-    "    1     - Show errors only",
-    "    2     - Show warnings & errors",
-    "    3     - Show info & above",
-    "    4     - Show all diagnostics",
-    "",
-    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-    "",
-  })
-
-  -- Set readonly and modified flags to false
-  vim.api.nvim_buf_set_option(buf, "readonly", true)
-  vim.api.nvim_buf_set_option(buf, "modifiable", false)
-
-  -- Basic window navigation
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "q",
-    ":q<CR>",
-    { noremap = true, silent = true, desc = "Close diagnostic window" }
-  )
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "<Esc>",
-    ":q<CR>",
-    { noremap = true, silent = true, desc = "Close diagnostic window" }
-  )
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "<CR>",
-    "<CMD>lua vim.lsp.buf.definition()<CR>",
-    { noremap = true, silent = true, desc = "Go to definition" }
-  )
-
-  -- Advanced window navigation
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "o",
-    "<CMD>lua vim.lsp.buf.definition()<CMD>split<CR>",
-    { noremap = true, silent = true, desc = "Open in horizontal split" }
-  )
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "<C-v>",
-    "<CMD>lua vim.lsp.buf.definition()<CMD>vsplit<CR>",
-    { noremap = true, silent = true, desc = "Open in vertical split" }
-  )
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "<C-t>",
-    "<CMD>lua vim.lsp.buf.definition()<CMD>tabnew<CR>",
-    { noremap = true, silent = true, desc = "Open in new tab" }
-  )
-
-  -- Filtering diagnostics by severity
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "1",
-    "<CMD>lua vim.diagnostic.setqflist({severity = vim.diagnostic.severity.ERROR})<CR>",
-    { noremap = true, silent = true, desc = "Show errors only" }
-  )
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "2",
-    "<CMD>lua vim.diagnostic.setqflist({severity = {min = vim.diagnostic.severity.WARN}})<CR>",
-    { noremap = true, silent = true, desc = "Show warnings & errors" }
-  )
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "3",
-    "<CMD>lua vim.diagnostic.setqflist({severity = {min = vim.diagnostic.severity.INFO}})<CR>",
-    { noremap = true, silent = true, desc = "Show info & above" }
-  )
-  vim.api.nvim_buf_set_keymap(
-    buf,
-    "n",
-    "4",
-    "<CMD>lua vim.diagnostic.setqflist()<CR>",
-    { noremap = true, silent = true, desc = "Show all diagnostics" }
-  )
-
-  -- Visual enhancements for the diagnostic window
-  vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
-
-  -- Set colorful highlighting
-  vim.api.nvim_set_hl(0, "DiagnosticHeader", { fg = "#7DCFFF", bold = true })
-  vim.api.nvim_set_hl(0, "DiagnosticSubHeader", { fg = "#BB9AF7", italic = true })
-  vim.api.nvim_set_hl(0, "DiagnosticSeparator", { fg = "#FF9E64" })
-
-  -- Apply highlighting to the header lines
-  vim.api.nvim_buf_add_highlight(buf, -1, "DiagnosticHeader", 0, 0, -1)
-  vim.api.nvim_buf_add_highlight(buf, -1, "DiagnosticSubHeader", 1, 0, -1)
-  vim.api.nvim_buf_add_highlight(buf, -1, "DiagnosticSubHeader", 3, 0, -1)
-  vim.api.nvim_buf_add_highlight(buf, -1, "DiagnosticSubHeader", 15, 0, -1)
-  vim.api.nvim_buf_add_highlight(buf, -1, "DiagnosticSeparator", 21, 0, -1)
-
-  -- Set window layout options for the diagnostic buffer
-  vim.cmd [[
-    setlocal signcolumn=yes
-    setlocal cursorline
-    setlocal conceallevel=3
-    setlocal concealcursor=nvic
-  ]]
+  vim.api.nvim_buf_set_keymap(buf, "n", "q", ":q<CR>", { noremap = true, silent = true, desc = "Close window" })
+  vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", ":q<CR>", { noremap = true, silent = true, desc = "Close window" })
+  vim.api.nvim_buf_set_keymap(buf, "n", "j", "j", { noremap = true, silent = true, desc = "Next item" })
+  vim.api.nvim_buf_set_keymap(buf, "n", "k", "k", { noremap = true, silent = true, desc = "Previous item" })
+  vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "<CR>", { noremap = true, silent = true, desc = "Jump to location" })
+  
+  -- Additional common diagnostic actions
+  vim.api.nvim_buf_set_keymap(buf, "n", "o", "<CR>", { noremap = true, silent = true, desc = "Open location" })
+  vim.api.nvim_buf_set_keymap(buf, "n", "f", "<CR>", { noremap = true, silent = true, desc = "Jump to location" })
+  vim.api.nvim_buf_set_keymap(buf, "n", "F", "<CR><cmd>cclose<CR>", { noremap = true, silent = true, desc = "Jump and close" })
 end
 
--- Helper function to toggle LSP inlay hints if server supports it
-M.toggle_inlay_hints = function(bufnr)
-  local inlay_hint_enabled = vim.lsp.inlay_hint and vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }
-  if inlay_hint_enabled ~= nil then
-    vim.lsp.inlay_hint.enable(not inlay_hint_enabled, { bufnr = bufnr })
-    vim.notify("Inlay hints " .. (not inlay_hint_enabled and "enabled" or "disabled"), vim.log.levels.INFO)
-  else
-    vim.notify("Inlay hints not supported by current Neovim version", vim.log.levels.WARN)
-  end
-end
-
--- Global LSP keymaps (not buffer-specific)
-map("n", "<leader>lh", function()
-  M.toggle_inlay_hints(0)
-end, { desc = "Toggle inlay hints" })
-map("n", "<leader>li", "<cmd>LspInfo<CR>", { desc = "LSP info" })
-map("n", "<leader>lr", "<cmd>LspRestart<CR>", { desc = "LSP restart" })
+-- Global LSP keybindings that apply everywhere
+map("n", "<leader>ll", "<cmd>LspInfo<CR>", { desc = "LSP info" })
+map("n", "<leader>lx", "<cmd>LspRestart<CR>", { desc = "LSP restart" })
 map("n", "<leader>ls", "<cmd>LspStart<CR>", { desc = "LSP start" })
 map("n", "<leader>lS", "<cmd>LspStop<CR>", { desc = "LSP stop" })
 
@@ -1736,7 +1630,7 @@ setup_theme()
 -- ===========================================
 
 -- Map Q to q in normal and visual mode (disable Ex mode)
-vim.keymap.set("n", "Q", "<nop>")
+vim.keymap.set("n", "Q", "q", { desc = "Start recording macro (same as q)" })
 
 -- Map <Esc> to <A-Esc> (Option+Esc) in normal, insert, and visual mode
 map({ "n", "i", "v" }, "<Esc>", "<A-Esc>", { noremap = true, silent = true, desc = "Esc is Option+Esc" })
@@ -1746,8 +1640,8 @@ map("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
 
 -- Quick movement between windows
 map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
-map("n", "<C-j>", "<C-w>j", { desc = "Move to lower window" })
-map("n", "<C-k>", "<C-w>k", { desc = "Move to upper window" })
+map("n", "<C-j>", "<C-w>j", { desc = "Move to window below" })
+map("n", "<C-k>", "<C-w>k", { desc = "Move to window above" })
 map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
 -- Move visual blocks up and down with J and K
@@ -1966,204 +1860,52 @@ wk.register({
   },
 }, { prefix = "<leader>" })
 
--- Visual mode mappings for hunks
-vim.keymap.set("v", "<leader>gs", function()
-  require("gitsigns").stage_hunk { vim.fn.line ".", vim.fn.line "v" }
-end, { desc = "Stage hunk (visual)" })
+-- Map Q to q for intuitive macro recording
+-- This makes uppercase Q work the same way as lowercase q for recording macros
+map("n", "Q", "q", { desc = "Start recording macro (same as q)" })
 
-vim.keymap.set("v", "<leader>gr", function()
-  require("gitsigns").reset_hunk { vim.fn.line ".", vim.fn.line "v" }
-end, { desc = "Reset hunk (visual)" })
-
--- =============================================
--- GIT MAPPINGS
--- =============================================
--- Git integration with superior UX
-M.setup_git_mappings = function()
-  -- Check if gitsigns is available
-  local gitsigns_ok, gitsigns = pcall(require, "gitsigns")
-  if not gitsigns_ok then
-    vim.notify("Gitsigns not available for Git keybindings", vim.log.levels.WARN)
-    return
-  end
-
-  -- Navigation between hunks
-  map("n", "]c", function()
-    if vim.wo.diff then
-      return "]c"
-    end
-    vim.schedule(function()
-      gitsigns.next_hunk()
-    end)
-    return "<Ignore>"
-  end, { expr = true, desc = "Next hunk" })
-
-  map("n", "[c", function()
-    if vim.wo.diff then
-      return "[c"
-    end
-    vim.schedule(function()
-      gitsigns.prev_hunk()
-    end)
-    return "<Ignore>"
-  end, { expr = true, desc = "Previous hunk" })
-
-  -- Actions
-  map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "Stage hunk" })
-  map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
-  map("v", "<leader>gs", function()
-    gitsigns.stage_hunk { vim.fn.line ".", vim.fn.line "v" }
-  end, { desc = "Stage hunk" })
-  map("v", "<leader>gr", function()
-    gitsigns.reset_hunk { vim.fn.line ".", vim.fn.line "v" }
-  end, { desc = "Reset hunk" })
-  map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "Stage buffer" })
-  map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "Undo stage hunk" })
-  map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
-  map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
-  map("n", "<leader>gB", function()
-    gitsigns.blame_line { full = true }
-  end, { desc = "Blame line" })
-  map("n", "<leader>gL", gitsigns.toggle_current_line_blame, { desc = "Toggle line blame" })
-  map("n", "<leader>gd", gitsigns.diffthis, { desc = "Diff this" })
-  map("n", "<leader>gx", function()
-    gitsigns.toggle_deleted()
-  end, { desc = "Toggle deleted" })
-end
-
--- Set up git mappings if available
-pcall(M.setup_git_mappings)
-
--- Enhanced LSP mappings with better UX from ThePrimeagen's config
--- Update our existing LSP mappings function
-M.setup_lsp_mappings = function(bufnr)
-  -- Enable completion triggered by <c-x><c-o>
-  vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
-
-  -- Buffer local mappings.
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  local opts = { buffer = bufnr, noremap = true, silent = true }
-
-  -- Go to definition/references commands
-  map("n", "gd", vim.lsp.buf.definition, { buffer = bufnr, desc = "Go to definition" })
-  map("n", "gr", vim.lsp.buf.references, { buffer = bufnr, desc = "Go to references" })
-  map("n", "gi", vim.lsp.buf.implementation, { buffer = bufnr, desc = "Go to implementation" })
-  map("n", "gt", vim.lsp.buf.type_definition, { buffer = bufnr, desc = "Go to type definition" })
-
-  -- Documentation and signature help
-  map("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Show documentation" })
-  map("n", "<C-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Show signature help" })
-
-  -- Code actions and workspace management
-  map("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
-  map("n", "<leader>cr", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename symbol" })
-  map("n", "<leader>cf", function()
-    vim.lsp.buf.format { async = true }
-  end, { buffer = bufnr, desc = "Format code" })
-
-  -- Advanced Diagnostics
-  map("n", "<leader>cd", vim.diagnostic.open_float, { buffer = bufnr, desc = "Line diagnostics" })
-  map("n", "[d", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Previous diagnostic" })
-  map("n", "]d", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
-  map("n", "<leader>cq", vim.diagnostic.setloclist, { buffer = bufnr, desc = "List all diagnostics" })
-
-  -- Diagnostic severity navigation (only go to errors/warnings)
-  map("n", "[e", function()
-    vim.diagnostic.goto_prev { severity = vim.diagnostic.severity.ERROR }
-  end, { buffer = bufnr, desc = "Previous error" })
-
-  map("n", "]e", function()
-    vim.diagnostic.goto_next { severity = vim.diagnostic.severity.ERROR }
-  end, { buffer = bufnr, desc = "Next error" })
-
-  map("n", "[w", function()
-    vim.diagnostic.goto_prev { severity = vim.diagnostic.severity.WARN }
-  end, { buffer = bufnr, desc = "Previous warning" })
-
-  map("n", "]w", function()
-    vim.diagnostic.goto_next { severity = vim.diagnostic.severity.WARN }
-  end, { buffer = bufnr, desc = "Next warning" })
-
-  -- Workspace management
-  map("n", "<leader>cw", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "Add workspace folder" })
-  map("n", "<leader>cW", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "Remove workspace folder" })
-  map("n", "<leader>cl", function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, { buffer = bufnr, desc = "List workspace folders" })
-
-  -- Advanced Symbol Navigation
-  local ok_telescope, telescope = pcall(require, "telescope.builtin")
-  if ok_telescope then
-    -- Symbol navigation with Telescope
-    map("n", "<leader>cs", telescope.lsp_document_symbols, { buffer = bufnr, desc = "Document symbols" })
-    map("n", "<leader>cS", telescope.lsp_workspace_symbols, { buffer = bufnr, desc = "Workspace symbols" })
-    map("n", "<leader>ci", telescope.lsp_implementations, { buffer = bufnr, desc = "Find implementations" })
-    map("n", "<leader>cD", telescope.lsp_type_definitions, { buffer = bufnr, desc = "Find type definitions" })
-    map("n", "<leader>cu", telescope.lsp_references, { buffer = bufnr, desc = "Find usages/references" })
-    map("n", "<leader>cC", telescope.lsp_incoming_calls, { buffer = bufnr, desc = "Incoming calls" })
-    map("n", "<leader>cO", telescope.lsp_outgoing_calls, { buffer = bufnr, desc = "Outgoing calls" })
-  end
-
-  -- Toggle Inline Diagnostics
-  map("n", "<leader>cT", function()
-    local current = vim.diagnostic.config().virtual_text
-    vim.diagnostic.config { virtual_text = not current }
-    vim.notify("Inline diagnostics " .. (not current and "enabled" or "disabled"))
-  end, { buffer = bufnr, desc = "Toggle inline diagnostics" })
-
-  -- LSP Info and Restart
-  map("n", "<leader>cI", "<cmd>LspInfo<CR>", { buffer = bufnr, desc = "LSP info" })
-  map("n", "<leader>cR", "<cmd>LspRestart<CR>", { buffer = bufnr, desc = "LSP restart" })
-
-  -- Peek Definition
-  map("n", "<leader>cp", function()
-    local params = vim.lsp.util.make_position_params()
-    vim.lsp.buf_request(0, "textDocument/definition", params, function(_, result)
-      if not result or vim.tbl_isempty(result) then
-        vim.notify("No definition found", vim.log.levels.INFO)
-        return
-      end
-
-      local target = result[1]
-      if target.targetUri then
-        target.uri = target.targetUri
-        target.range = target.targetSelectionRange
-      end
-
-      -- Create a small floating window to preview definition
-      vim.lsp.util.preview_location(target, { border = "rounded" })
-    end)
-  end, { buffer = bufnr, desc = "Peek definition" })
-end
-
--- Function for diagnostic window keybindings
-M.setup_diagnostic_window_mappings = function(buf)
-  -- Add keybindings for the diagnostic window
-  vim.api.nvim_buf_set_keymap(buf, "n", "q", ":q<CR>", { noremap = true, silent = true })
-  vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", ":q<CR>", { noremap = true, silent = true })
-end
-
--- Helper function to toggle LSP inlay hints if server supports it
-M.toggle_inlay_hints = function(bufnr)
-  local inlay_hint_enabled = vim.lsp.inlay_hint and vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }
-  if inlay_hint_enabled ~= nil then
-    vim.lsp.inlay_hint.enable(not inlay_hint_enabled, { bufnr = bufnr })
-    vim.notify("Inlay hints " .. (not inlay_hint_enabled and "enabled" or "disabled"), vim.log.levels.INFO)
+-- Update mode keybindings for easier recall
+map("n", "<leader>km", ":Keymap<CR>", { desc = "Show keymaps in floating window" })
+map("n", "<leader>kq", ":KeymapQuickref<CR>", { desc = "Quick reference for keymaps" })
+map("n", "<leader>k?", function()
+  if M._has_plugin "which-key.nvim" then
+    vim.cmd("WhichKey")
   else
-    vim.notify("Inlay hints not supported by current Neovim version", vim.log.levels.WARN)
+    vim.notify("which-key plugin not installed", vim.log.levels.ERROR)
+  end
+end, { desc = "Show all keybindings (which-key)" })
+
+-- Add a keymap training command to help learn keybindings
+map("n", "<leader>kt", function()
+  if M._has_plugin "keytrainer.nvim" then
+    vim.cmd("KeyTrainer")
+  else
+    vim.notify("KeyTrainer plugin not installed", vim.log.levels.ERROR)
+  end
+end, { desc = "Start keymap training" })
+
+-- Toggle keybinding help display
+map("n", "<leader>kh", function()
+  if vim.g.keybinding_help_enabled then
+    vim.g.keybinding_help_enabled = false
+    vim.notify("Keybinding help disabled", vim.log.levels.INFO)
+  else
+    vim.g.keybinding_help_enabled = true
+    vim.notify("Keybinding help enabled", vim.log.levels.INFO)
+  end
+end, { desc = "Toggle keybinding help display" })
+
+-- Complete module initialization
+M.setup = function()
+  -- Load the which-key configuration if available
+  local which_key_ok = pcall(function()
+    local which_key_config = require("config.which-key")
+    return which_key_config.setup()
+  end)
+  
+  if not which_key_ok then
+    vim.notify("Failed to initialize which-key configuration", vim.log.levels.WARN)
   end
 end
-
--- Global LSP keymaps (not buffer-specific)
-map("n", "<leader>lh", function()
-  M.toggle_inlay_hints(0)
-end, { desc = "Toggle inlay hints" })
-map("n", "<leader>li", "<cmd>LspInfo<CR>", { desc = "LSP info" })
-map("n", "<leader>lr", "<cmd>LspRestart<CR>", { desc = "LSP restart" })
-map("n", "<leader>ls", "<cmd>LspStart<CR>", { desc = "LSP start" })
-map("n", "<leader>lS", "<cmd>LspStop<CR>", { desc = "LSP stop" })
-
--- Make Q behave the same as q (for macro recording)
-map("n", "Q", "q", { desc = "Use Q for macro recording (same as q)" })
 
 return M

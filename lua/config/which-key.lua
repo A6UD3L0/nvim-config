@@ -1,4 +1,5 @@
 -- Enhanced which-key configuration for improved keybinding discoverability
+-- Follows MECE principles (Mutually Exclusive, Collectively Exhaustive)
 -- Features colored key groups, custom icons, and integrated help text
 
 local M = {}
@@ -17,26 +18,34 @@ local group_colors = {
   Misc        = "#A9B1D6", -- Miscellaneous (light purple)
 }
 
--- Icons for different command types to improve visual clarity
+-- Descriptive icons for better visual clarity and categorization
 local key_icons = {
-  f = " ", -- Files
+  f = " ", -- Find/Search
   g = " ", -- Git
   l = " ", -- LSP/Code
-  s = " ", -- Search
+  b = " ", -- Buffer
   t = " ", -- Terminal
-  b = "󰓩 ", -- Buffer
   w = " ", -- Window
-  r = " ", -- Run
+  r = " ", -- Run/Test
   d = " ", -- Debug
-  p = "󱧮 ", -- Project 
-  u = " ", -- UI/Undo
+  p = " ", -- Project 
+  u = " ", -- Undo/Utility
   e = " ", -- Explorer
-  x = " ", -- Diagnostics
-  z = "󰔱 ", -- System
-  a = "󰚩 ", -- AI
+  x = " ", -- Diagnostics 
+  z = " ", -- Zen/Focus
+  a = " ", -- AI/Assist
+  h = " ", -- Harpoon/Marks
+  k = " ", -- Keymaps
+  s = " ", -- Substitute/Search
+  c = " ", -- Code Actions
+  q = " ", -- Quickfix/Lists
 }
 
 function M.setup()
+  -- Set timeoutlen for responsive which-key appearance
+  vim.opt.timeout = true
+  vim.opt.timeoutlen = 250  -- Faster which-key response (250ms)
+  
   local status_ok, which_key = pcall(require, "which-key")
   if not status_ok then
     vim.notify("which-key not found. Key guide will not be available.", vim.log.levels.WARN)
@@ -82,7 +91,7 @@ function M.setup()
       position = "bottom",       -- Window position
       margin = { 1, 0, 1, 0 },   -- Extra window margin
       padding = { 1, 2, 1, 2 },  -- Extra window padding
-      winblend = 0,              -- Transparency
+      winblend = 0,              -- No transparency for better readability
     },
     layout = {
       height = { min = 4, max = 25 },  -- Min and max height of the columns
@@ -90,7 +99,7 @@ function M.setup()
       spacing = 3,                     -- Spacing between columns
       align = "center",                -- Alignment of columns
     },
-    ignore_missing = true,           -- Hide mappings without labels
+    ignore_missing = false,          -- Show mappings even without labels
     hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " }, -- Hide from the popup
     show_help = true,                -- Show help message on the command line when the popup is visible
     show_keys = true,                -- Show keys in the help line
@@ -105,67 +114,103 @@ function M.setup()
     },
   })
 
-  -- Define key group highlights and symbols using the new format
-  local keymap_groups = {
-    -- Group definitions with consistent formatting
-    { "<leader>f", group = key_icons.f .. "%{WhichKeyGroupFileOps}Files%*", nowait = true, silent = true },
-    { "<leader>g", group = key_icons.g .. "%{WhichKeyGroupGit}Git%*", nowait = true, silent = true },
-    { "<leader>gh", group = key_icons.g .. "Hunks", nowait = true, silent = true },
-    { "<leader>gc", group = key_icons.g .. "Conflicts", nowait = true, silent = true },
-    { "<leader>l", group = key_icons.l .. "%{WhichKeyGroupLSP}LSP%*", nowait = true, silent = true },
-    { "<leader>lw", group = key_icons.l .. "Workspace", nowait = true, silent = true },
-    { "<leader>b", group = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers%*", nowait = true, silent = true },
-    { "<leader>t", group = key_icons.t .. "%{WhichKeyGroupTerminal}Terminal%*", nowait = true, silent = true },
-    { "<leader>w", group = key_icons.w .. "%{WhichKeyGroupWindow}Windows%*", nowait = true, silent = true },
-    { "<leader>e", group = key_icons.e .. "%{WhichKeyGroupFileOps}Explorer%*", nowait = true, silent = true },
-    { "<leader>x", group = key_icons.x .. "%{WhichKeyGroupDebug}Diagnostics%*", nowait = true, silent = true },
-    { "<leader>a", group = key_icons.a .. "%{WhichKeyGroupMisc}AI%*", nowait = true, silent = true },
-  }
+  -- ==== MECE KEY GROUP ORGANIZATION ====
+  -- Primary namespaces with consistent and intuitive naming
+  which_key.register({
+    ["<leader>f"] = { name = key_icons.f .. "%{WhichKeyGroupSearch}Find & Search%*" },
+    ["<leader>g"] = { name = key_icons.g .. "%{WhichKeyGroupGit}Git Operations%*" },
+    ["<leader>l"] = { name = key_icons.l .. "%{WhichKeyGroupLSP}Code & LSP%*" },
+    ["<leader>b"] = { name = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers & Tabs%*" },
+    ["<leader>t"] = { name = key_icons.t .. "%{WhichKeyGroupTerminal}Terminal%*" },
+    ["<leader>w"] = { name = key_icons.w .. "%{WhichKeyGroupWindow}Windows%*" },
+    ["<leader>e"] = { name = key_icons.e .. "%{WhichKeyGroupFileOps}Explorer%*" },
+    ["<leader>x"] = { name = key_icons.x .. "%{WhichKeyGroupDebug}Diagnostics%*" },
+    ["<leader>a"] = { name = key_icons.a .. "%{WhichKeyGroupMisc}AI & Assist%*" },
+    ["<leader>h"] = { name = key_icons.h .. "%{WhichKeyGroupNavigation}Marks%*" },
+    ["<leader>z"] = { name = key_icons.z .. "%{WhichKeyGroupMisc}Zen & Focus%*" },
+    ["<leader>u"] = { name = key_icons.u .. "%{WhichKeyGroupMisc}Undo & Utility%*" },
+    ["<leader>k"] = { name = key_icons.k .. "%{WhichKeyGroupMisc}Keymaps%*" },
+    ["<leader>p"] = { name = key_icons.p .. "%{WhichKeyGroupMisc}Project%*" },
+    ["<leader>r"] = { name = key_icons.r .. "%{WhichKeyGroupMisc}Run & Test%*" },
+    ["<leader>c"] = { name = key_icons.c .. "%{WhichKeyGroupLSP}Code Actions%*" },
+    ["<leader>s"] = { name = key_icons.s .. "%{WhichKeyGroupSearch}Substitute%*" },
+    ["<leader>q"] = { name = key_icons.q .. "%{WhichKeyGroupMisc}Quickfix%*" },
+    ["<leader>?"] = { name = "Show All Keymaps" },
+  }, { mode = "n", prefix = "<leader>" })
 
-  -- Register groups first to ensure proper categorization
-  which_key.register(keymap_groups)
-  
-  -- Manually register some essential commands that might have conflicts
+  -- Sub-group definitions for better organization
+  which_key.register({
+    ["<leader>gh"] = { name = key_icons.g .. "Git Hunks" },
+    ["<leader>gc"] = { name = key_icons.g .. "Git Conflicts" },
+    ["<leader>lw"] = { name = key_icons.l .. "Workspace" },
+  }, { mode = "n" })
+
+  -- Manually register essential commands that might have conflicts
   local special_mappings = {
     -- Git commands (avoiding duplicate gs/gr)
     { "<leader>gs", desc = "Stage hunk", nowait = true, silent = true },
     { "<leader>gr", desc = "Reset hunk", nowait = true, silent = true },
     { "<leader>gl", desc = "Git log/blame", nowait = true, silent = true },
     { "<leader>gd", desc = "Git diff", nowait = true, silent = true },
-    
+
     -- Explorer (avoiding e vs er/ef confusion)
     { "<leader>ef", desc = "Find in file explorer", nowait = true, silent = true },
     { "<leader>er", desc = "Refresh file explorer", nowait = true, silent = true },
     { "<leader>e", desc = "Toggle file explorer", nowait = true, silent = true },
-    
+
     -- Diagnostic commands
     { "<leader>xx", desc = "Toggle diagnostics", nowait = true, silent = true },
     { "<leader>xd", desc = "Document diagnostics", nowait = true, silent = true },
     { "<leader>xw", desc = "Workspace diagnostics", nowait = true, silent = true },
-    
+
     -- File commands
     { "<leader>ff", desc = "Find files", nowait = true, silent = true },
     { "<leader>fg", desc = "Live grep", nowait = true, silent = true },
     { "<leader>fr", desc = "Recent files", nowait = true, silent = true },
-    
+
     -- AI commands
     { "<leader>ac", desc = "Copilot panel", nowait = true, silent = true },
     { "<leader>ae", desc = "Enable AI", nowait = true, silent = true },
     { "<leader>ai", desc = "AI chat", nowait = true, silent = true },
+
+    -- Show all keymaps with leader ?
+    { "<leader>?", desc = "Show all keymaps (cheatsheet)", nowait = true, silent = true },
   }
-  
+
   -- Register individual mappings
   which_key.register(special_mappings)
+
+  -- Show all keymaps with <leader>?
+  vim.keymap.set("n", "<leader>?", function()
+    which_key.show("", {mode = "n", auto = true})
+  end, { desc = "Show all keymaps (cheatsheet)" })
+
+  -- Visual mode keymaps
+  which_key.register({
+    ["<leader>y"] = { '"+y', "Yank to system clipboard" },
+    ["<leader>d"] = { '"_d', "Delete to void register" },
+    ["<leader>p"] = { '"_dP', "Paste without overwriting register" },
+    ["J"] = { ":m '>+1<CR>gv=gv", "Move selected lines down" },
+    ["K"] = { ":m '<-2<CR>gv=gv", "Move selected lines up" },
+  }, { mode = "v" })
+
+  -- Insert mode: escape with jk
+  which_key.register({
+    ["jk"] = { "<ESC>", "Exit insert mode" },
+  }, { mode = "i" })
+
+  -- Ensure leader key is always mapped (no accidental spacebar insert)
+  vim.keymap.set("n", "<Space>", "<Nop>", { silent = true })
 end
 
 -- Helper function to apply which-key to buffer-specific LSP bindings
 function M.apply_lsp_buffer_mappings(client, bufnr)
   local status_ok, which_key = pcall(require, "which-key")
   if not status_ok then return end
-  
+
   -- Get capabilities to determine available features
   local caps = client.server_capabilities
-  
+
   -- LSP-specific keybindings for this buffer
   local mappings = {
     { "<leader>lf", desc = "Format document", buffer = bufnr, nowait = true, silent = true },
@@ -176,10 +221,10 @@ function M.apply_lsp_buffer_mappings(client, bufnr)
     { "<leader>ls", desc = "Signature help", buffer = bufnr, nowait = true, silent = true },
     { "<leader>li", desc = "Go to implementation", buffer = bufnr, nowait = true, silent = true },
   }
-  
+
   -- Only register what the server supports
   local filtered_mappings = {}
-  
+
   for _, mapping in ipairs(mappings) do
     -- Skip registration based on missing capabilities
     if mapping[1] == "<leader>lf" and not caps.documentFormattingProvider then
@@ -197,7 +242,7 @@ function M.apply_lsp_buffer_mappings(client, bufnr)
       table.insert(filtered_mappings, mapping)
     end
   end
-  
+
   -- Register key mappings for this buffer
   which_key.register(filtered_mappings)
 end

@@ -3,6 +3,11 @@
 
 local M = {}
 
+-- Helper function to check if an executable exists
+local function executable_exists(exe)
+  return vim.fn.executable(exe) == 1
+end
+
 function M.setup()
   -- Setup enhanced Gitsigns with better visual indicators and navigation
   local gitsigns_ok, gitsigns = pcall(require, "gitsigns")
@@ -11,19 +16,46 @@ function M.setup()
     return
   end
 
-  -- Define customized signs for better visibility
-  local signs = {
-    add          = { hl = "GitSignsAdd",    text = "▎", numhl = "GitSignsAddNr",    linehl = "GitSignsAddLn" },
-    change       = { hl = "GitSignsChange", text = "▎", numhl = "GitSignsChangeNr", linehl = "GitSignsChangeLn" },
-    delete       = { hl = "GitSignsDelete", text = "▁", numhl = "GitSignsDeleteNr", linehl = "GitSignsDeleteLn" },
-    topdelete    = { hl = "GitSignsDelete", text = "▔", numhl = "GitSignsDeleteNr", linehl = "GitSignsDeleteLn" },
-    changedelete = { hl = "GitSignsChange", text = "▎", numhl = "GitSignsChangeNr", linehl = "GitSignsChangeLn" },
-    untracked    = { hl = "GitSignsAdd",    text = "┆", numhl = "GitSignsAddNr",    linehl = "GitSignsAddLn" },
-  }
+  -- Define git sign highlight groups using the modern API
+  local function setup_git_highlights()
+    vim.api.nvim_set_hl(0, "GitSignsAdd", { link = "DiffAdd" })
+    vim.api.nvim_set_hl(0, "GitSignsChange", { link = "DiffChange" })
+    vim.api.nvim_set_hl(0, "GitSignsDelete", { link = "DiffDelete" })
+    
+    vim.api.nvim_set_hl(0, "GitSignsAddNr", { link = "GitSignsAdd" })
+    vim.api.nvim_set_hl(0, "GitSignsChangeNr", { link = "GitSignsChange" })
+    vim.api.nvim_set_hl(0, "GitSignsDeleteNr", { link = "GitSignsDelete" })
+    
+    vim.api.nvim_set_hl(0, "GitSignsAddLn", { link = "GitSignsAdd" })
+    vim.api.nvim_set_hl(0, "GitSignsChangeLn", { link = "GitSignsChange" })
+    vim.api.nvim_set_hl(0, "GitSignsDeleteLn", { link = "GitSignsDelete" })
+    
+    vim.api.nvim_set_hl(0, "GitSignsTopdelete", { link = "GitSignsDelete" })
+    vim.api.nvim_set_hl(0, "GitSignsChangedelete", { link = "GitSignsChange" })
+    vim.api.nvim_set_hl(0, "GitSignsUntracked", { link = "GitSignsAdd" })
+    
+    vim.api.nvim_set_hl(0, "GitSignsTopdeleteNr", { link = "GitSignsDeleteNr" })
+    vim.api.nvim_set_hl(0, "GitSignsChangedeleteNr", { link = "GitSignsChangeNr" })
+    vim.api.nvim_set_hl(0, "GitSignsUntrackedNr", { link = "GitSignsAddNr" })
+    
+    vim.api.nvim_set_hl(0, "GitSignsTopdeleteLn", { link = "GitSignsDeleteLn" })
+    vim.api.nvim_set_hl(0, "GitSignsChangedeleteLn", { link = "GitSignsChangeLn" })
+    vim.api.nvim_set_hl(0, "GitSignsUntrackedLn", { link = "GitSignsAddLn" })
+  end
+  
+  -- Create highlight groups before configuring gitsigns
+  setup_git_highlights()
 
-  -- Configure Gitsigns with comprehensive features
+  -- Configure Gitsigns with the modern approach
   gitsigns.setup({
-    signs = signs,
+    signs = {
+      add          = { text = "▎" },
+      change       = { text = "▎" },
+      delete       = { text = "▁" },
+      topdelete    = { text = "▔" },
+      changedelete = { text = "▎" },
+      untracked    = { text = "┆" },
+    },
     count_chars = {
       [1]   = "₁", [2]   = "₂", [3]   = "₃", [4]   = "₄", [5]   = "₅",
       [6]   = "₆", [7]   = "₇", [8]   = "₈", [9]   = "₉", ["+"] = "₊",
@@ -56,98 +88,86 @@ function M.setup()
       row = 0,
       col = 1,
     },
-    yadm = {
-      enable = false,
-    },
-    -- Enhanced on_attach with ThePrimeagen style navigation
     on_attach = function(bufnr)
+      local gs = package.loaded.gitsigns
+      
+      -- Define keymappings
       local function map(mode, l, r, opts)
         opts = opts or {}
         opts.buffer = bufnr
         vim.keymap.set(mode, l, r, opts)
       end
-
-      -- Navigation between hunks
-      map("n", "]h", function()
-        if vim.wo.diff then
-          return "]c"
-        end
-        vim.schedule(function()
-          gitsigns.next_hunk()
-        end)
+      
+      -- Navigation
+      map("n", "]c", function()
+        if vim.wo.diff then return "]c" end
+        vim.schedule(function() gs.next_hunk() end)
         return "<Ignore>"
       end, { expr = true, desc = "Next git hunk" })
-
-      map("n", "[h", function()
-        if vim.wo.diff then
-          return "[c"
-        end
-        vim.schedule(function()
-          gitsigns.prev_hunk()
-        end)
+      
+      map("n", "[c", function()
+        if vim.wo.diff then return "[c" end
+        vim.schedule(function() gs.prev_hunk() end)
         return "<Ignore>"
       end, { expr = true, desc = "Previous git hunk" })
-
-      -- Actions for hunks
-      map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "Stage hunk" })
-      map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
-      map("v", "<leader>gs", function() gitsigns.stage_hunk {vim.fn.line("."), vim.fn.line("v")} end, { desc = "Stage selected hunk" })
-      map("v", "<leader>gr", function() gitsigns.reset_hunk {vim.fn.line("."), vim.fn.line("v")} end, { desc = "Reset selected hunk" })
-      map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "Stage buffer" })
-      map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "Undo stage hunk" })
-      map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
-      map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
       
-      -- Blame operations
-      map("n", "<leader>gb", gitsigns.toggle_current_line_blame, { desc = "Toggle git blame" })
-      map("n", "<leader>gB", function() gitsigns.blame_line({ full = true }) end, { desc = "Git blame with details" })
-      
-      -- Diff operations
-      map("n", "<leader>gd", gitsigns.diffthis, { desc = "Diff this" })
-      map("n", "<leader>gD", function() gitsigns.diffthis("~") end, { desc = "Diff with HEAD" })
-      
-      -- Toggle features
-      map("n", "<leader>gx", gitsigns.toggle_deleted, { desc = "Toggle show deleted" })
-      map("n", "<leader>gw", gitsigns.toggle_word_diff, { desc = "Toggle word diff" })
-      
-      -- Text object for hunks
-      map({"o", "x"}, "ih", ":<C-U>Gitsigns select_hunk<CR>", { desc = "Select git hunk" })
+      -- Actions
+      map("n", "<leader>ghs", gs.stage_hunk, { desc = "Stage hunk" })
+      map("n", "<leader>ghr", gs.reset_hunk, { desc = "Reset hunk" })
+      map("v", "<leader>ghs", function() gs.stage_hunk { vim.fn.line("."), vim.fn.line("v") } end, { desc = "Stage selected hunk" })
+      map("v", "<leader>ghr", function() gs.reset_hunk { vim.fn.line("."), vim.fn.line("v") } end, { desc = "Reset selected hunk" })
+      map("n", "<leader>ghS", gs.stage_buffer, { desc = "Stage buffer" })
+      map("n", "<leader>ghu", gs.undo_stage_hunk, { desc = "Undo stage hunk" })
+      map("n", "<leader>ghR", gs.reset_buffer, { desc = "Reset buffer" })
+      map("n", "<leader>ghp", gs.preview_hunk, { desc = "Preview hunk" })
+      map("n", "<leader>ghb", gs.blame_line, { desc = "Blame line" })
+      map("n", "<leader>ghB", function() gs.blame_line({ full = true }) end, { desc = "Full blame line" })
+      map("n", "<leader>ghtb", gs.toggle_current_line_blame, { desc = "Toggle line blame" })
+      map("n", "<leader>ghd", gs.diffthis, { desc = "Diff this" })
+      map("n", "<leader>ghD", function() gs.diffthis("~") end, { desc = "Diff this (~)" })
+      map("n", "<leader>ghtd", gs.toggle_deleted, { desc = "Toggle deleted" })
     end,
   })
-
-  -- Setup LazyGit with enhanced integration
-  vim.g.lazygit_floating_window_winblend = 0
-  vim.g.lazygit_floating_window_scaling_factor = 0.95
-  vim.g.lazygit_floating_window_border_chars = {'╭','─','╮','│','╯','─','╰','│'}
-  vim.g.lazygit_floating_window_use_plenary = 0
-  vim.g.lazygit_use_neovim_remote = 0
-  vim.g.lazygit_use_custom_config_file_path = 0
-
-  -- Enhance with git-conflict for merge conflict resolution
+  
+  -- Git conflict management (if available)
   local conflict_ok, git_conflict = pcall(require, "git-conflict")
   if conflict_ok then
-    git_conflict.setup({
-      default_mappings = false,
-      default_commands = true,
-      disable_diagnostics = false,
-      highlights = {
-        incoming = "DiffAdd",
-        current = "DiffText",
-      },
-    })
-
-    -- Set up keymaps for conflict resolution
+    -- Fix deprecated vim.highlight usage by using the proper vim.api.nvim_set_hl function
+    local conflict_setup_ok, _ = pcall(function()
+      git_conflict.setup({
+        default_mappings = false,
+        default_commands = true,
+        disable_diagnostics = false,
+        -- Use highlight groups directly instead of dynamic highlighting
+        highlights = {
+          incoming = "DiffAdd",
+          current = "DiffText",
+        },
+      })
+    end)
+    
+    if not conflict_setup_ok then
+      vim.notify("git-conflict.nvim setup failed, falling back to minimal configuration", vim.log.levels.WARN)
+      -- Create the highlight groups manually using the non-deprecated API
+      vim.api.nvim_set_hl(0, "GitConflictCurrent", { link = "DiffText" })
+      vim.api.nvim_set_hl(0, "GitConflictIncoming", { link = "DiffAdd" })
+      vim.api.nvim_set_hl(0, "GitConflictAncestor", { link = "DiffChange" })
+    end
+    
+    -- Custom keymaps for Git conflict resolution
     local keymap = vim.keymap.set
-    keymap("n", "<leader>gco", "<cmd>GitConflictChooseOurs<CR>", { desc = "Choose our changes" })
-    keymap("n", "<leader>gct", "<cmd>GitConflictChooseTheirs<CR>", { desc = "Choose their changes" })
-    keymap("n", "<leader>gcb", "<cmd>GitConflictChooseBoth<CR>", { desc = "Choose both changes" })
-    keymap("n", "<leader>gc0", "<cmd>GitConflictChooseNone<CR>", { desc = "Choose no changes" })
-    keymap("n", "<leader>gcn", "<cmd>GitConflictNextConflict<CR>", { desc = "Next conflict" })
-    keymap("n", "<leader>gcp", "<cmd>GitConflictPrevConflict<CR>", { desc = "Previous conflict" })
+    keymap("n", "<leader>gco", "<cmd>GitConflictChooseOurs<CR>", { desc = "Choose ours" })
+    keymap("n", "<leader>gct", "<cmd>GitConflictChooseTheirs<CR>", { desc = "Choose theirs" })
+    keymap("n", "<leader>gcb", "<cmd>GitConflictChooseBoth<CR>", { desc = "Choose both" })
+    keymap("n", "<leader>gc0", "<cmd>GitConflictChooseNone<CR>", { desc = "Choose none" })
     keymap("n", "<leader>gcl", "<cmd>GitConflictListQf<CR>", { desc = "List conflicts" })
+    keymap("n", "]x", "<cmd>GitConflictNextConflict<CR>", { desc = "Next conflict" })
+    keymap("n", "[x", "<cmd>GitConflictPrevConflict<CR>", { desc = "Previous conflict" })
+  else
+    vim.notify("git-conflict not found. Conflict resolution features unavailable.", vim.log.levels.DEBUG)
   end
-
-  -- Setup diffview.nvim for better diff viewing and history navigation
+  
+  -- DiffView setup (if available)
   local diffview_ok, diffview = pcall(require, "diffview")
   if diffview_ok then
     diffview.setup({
@@ -162,7 +182,6 @@ function M.setup()
       signs = {
         fold_closed = "",
         fold_open = "",
-        done = "✓",
       },
       view = {
         merge_tool = {
@@ -177,226 +196,228 @@ function M.setup()
           folder_statuses = "only_folded",
         },
         win_config = {
+          position = "left",
           width = 35,
         },
       },
       file_history_panel = {
         log_options = {
-          max_count = 256,
-          follow = false,
-          all = false,
-          merges = false,
-          no_merges = false,
-          reverse = false,
+          git = {
+            single_file = {
+              max_count = 512,
+              follow = true,
+            },
+          },
         },
         win_config = {
-          width = 35,
+          position = "bottom",
+          height = 16,
         },
-      },
-      commit_log_panel = {
-        win_config = {},
       },
       default_args = {
         DiffviewOpen = {},
         DiffviewFileHistory = {},
       },
-      hooks = {},
       keymaps = {
+        disable_defaults = false,
         view = {
-          ["q"] = "<cmd>DiffviewClose<CR>",
+          ["<tab>"]      = "select_next_entry",
+          ["<s-tab>"]    = "select_prev_entry",
+          ["<leader>e"]  = "focus_files",
+          ["<leader>b"]  = "toggle_files",
         },
         file_panel = {
-          ["q"] = "<cmd>DiffviewClose<CR>",
+          ["j"]             = "next_entry",
+          ["<down>"]        = "next_entry",
+          ["k"]             = "prev_entry",
+          ["<up>"]          = "prev_entry",
+          ["h"]             = "toggle_collapse",
+          ["l"]             = "open_selected_entry",
+          ["<cr>"]          = "open_selected_entry",
+          ["<2-LeftMouse>"] = "open_selected_entry",
+          ["<c-b>"]         = "scroll_view(-0.25)",
+          ["<c-f>"]         = "scroll_view(0.25)",
+          ["<tab>"]         = "select_next_entry",
+          ["<s-tab>"]       = "select_prev_entry",
+          ["q"]             = "close",
+          ["R"]             = "refresh_files",
         },
         file_history_panel = {
-          ["q"] = "<cmd>DiffviewClose<CR>",
+          ["g!"]            = "options",
         },
       },
     })
-
-    -- Set up keymaps for Diffview
+    
+    -- Keymaps for diffview - avoid duplicate bindings
     local keymap = vim.keymap.set
-    keymap("n", "<leader>gv", "<cmd>DiffviewOpen<CR>", { desc = "Open diffview" })
-    keymap("n", "<leader>gV", "<cmd>DiffviewClose<CR>", { desc = "Close diffview" })
-    keymap("n", "<leader>gh", "<cmd>DiffviewFileHistory %<CR>", { desc = "File history (current)" })
-    keymap("n", "<leader>gH", "<cmd>DiffviewFileHistory<CR>", { desc = "File history (project)" })
+    keymap("n", "<leader>gv", "<cmd>DiffviewOpen<CR>", { desc = "Open Diffview" })
+    keymap("n", "<leader>gh", "<cmd>DiffviewFileHistory %<CR>", { desc = "File history" })
+    keymap("n", "<leader>gq", "<cmd>DiffviewClose<CR>", { desc = "Close Diffview" })
+  else
+    vim.notify("diffview.nvim not found. Enhanced diff view unavailable.", vim.log.levels.DEBUG)
   end
-
-  -- Setup Octo.nvim for GitHub PR integration if available
-  local octo_ok, octo = pcall(require, "octo")
-  if octo_ok then
-    octo.setup({
-      ssh_aliases = {}, -- SSH aliases. e.g. { ["github.com-work"] = "github.com" }
-      reaction_viewer_hint_icon = "",
-      user_icon = " ",
-      timeline_marker = "",
-      timeline_indent = "2",
-      right_bubble_delimiter = "",
-      left_bubble_delimiter = "",
-      snippet_context_lines = 4,
-      file_panel = {
-        size = 10,
-        use_icons = true,
-      },
-      mappings = {
-        issue = {
-          close_issue = "<space>ic",
-          reopen_issue = "<space>io",
-          list_issues = "<space>il",
-          reload = "<C-r>",
-          open_in_browser = "<C-b>",
-          copy_url = "<C-y>",
-          add_assignee = "<space>aa",
-          remove_assignee = "<space>ad",
-          add_label = "<space>la",
-          remove_label = "<space>ld",
-          goto_issue = "<space>gi",
-          add_comment = "<space>ca",
-          delete_comment = "<space>cd",
-          next_comment = "]c",
-          prev_comment = "[c",
-          react_hooray = "<space>rp",
-          react_heart = "<space>rh",
-          react_eyes = "<space>re",
-          react_thumbs_up = "<space>r+",
-          react_thumbs_down = "<space>r-",
-          react_rocket = "<space>rr",
-          react_laugh = "<space>rl",
-          react_confused = "<space>rc",
-        },
-        pull_request = {
-          checkout_pr = "<space>po",
-          merge_pr = "<space>pm",
-          squash_and_merge_pr = "<space>psm",
-          list_commits = "<space>pc",
-          list_changed_files = "<space>pf",
-          show_pr_diff = "<space>pd",
-          add_reviewer = "<space>va",
-          remove_reviewer = "<space>vd",
-          close_pr = "<space>pc",
-          reopen_pr = "<space>po",
-          list_prs = "<space>pl",
-        },
-        review_thread = {
-          goto_issue = "<space>gi",
-          add_comment = "<space>ca",
-          add_suggestion = "<space>sa",
-          delete_comment = "<space>cd",
-          next_comment = "]c",
-          prev_comment = "[c",
-          select_next_entry = "]q",
-          select_prev_entry = "[q",
-          close_review_tab = "<C-c>",
-          react_hooray = "<space>rp",
-          react_heart = "<space>rh",
-          react_eyes = "<space>re",
-          react_thumbs_up = "<space>r+",
-          react_thumbs_down = "<space>r-",
-          react_rocket = "<space>rr",
-          react_laugh = "<space>rl",
-          react_confused = "<space>rc",
-        },
-        submit_win = {
-          approve_review = "<C-a>",
-          comment_review = "<C-m>",
-          request_changes = "<C-r>",
-          close_review_tab = "<C-c>",
-        },
-        review_diff = {
-          add_review_comment = "<space>ca",
-          add_review_suggestion = "<space>sa",
-          focus_files = "<leader>e",
-          toggle_files = "<leader>b",
-          next_comment = "]c",
-          prev_comment = "[c",
-          select_next_entry = "]q",
-          select_prev_entry = "[q",
-          close_review_tab = "<C-c>",
-          toggle_viewed = "<leader><space>",
-        },
-      },
-    })
-
-    -- Set up keymaps for Octo
-    local keymap = vim.keymap.set
-    keymap("n", "<leader>go", "<cmd>Octo<CR>", { desc = "Open GitHub menu" })
-    keymap("n", "<leader>gP", "<cmd>Octo pr list<CR>", { desc = "List PRs" })
-    keymap("n", "<leader>gi", "<cmd>Octo issue list<CR>", { desc = "List issues" })
+  
+  -- GitHub integration with Octo (if available and GitHub CLI is installed)
+  local has_gh_cli = executable_exists("gh")
+  if not has_gh_cli then
+    vim.notify("GitHub CLI (gh) not found. Octo.nvim will be disabled.", vim.log.levels.WARN)
+  else
+    local octo_ok, octo = pcall(require, "octo")
+    if octo_ok then
+      -- Safe setup with error handling
+      local octo_setup_ok, err = pcall(function()
+        octo.setup({
+          ssh_aliases = {}, -- SSH aliases. e.g. { ["github.com-work"] = "github.com" }
+          reaction_viewer_hint_icon = "",
+          user_icon = " ",
+          timeline_marker = "",
+          timeline_indent = "2",
+          right_bubble_delimiter = "",
+          left_bubble_delimiter = "",
+          github_hostname = "",
+          snippet_context_lines = 4,
+          file_panel = {
+            size = 10,
+            use_icons = true
+          },
+          mappings = {
+            issue = {
+              close_issue = { lhs = "<leader>ic", desc = "close issue" },
+              reopen_issue = { lhs = "<leader>io", desc = "reopen issue" },
+              list_issues = { lhs = "<leader>il", desc = "list open issues on same repo" },
+              reload = { lhs = "<leader>ir", desc = "reload issue" },
+              open_in_browser = { lhs = "<leader>ib", desc = "open issue in browser" },
+              copy_url = { lhs = "<leader>iy", desc = "copy url to system clipboard" },
+              add_assignee = { lhs = "<leader>ia", desc = "add assignee" },
+              remove_assignee = { lhs = "<leader>id", desc = "remove assignee" },
+              create_label = { lhs = "<leader>iL", desc = "create label" },
+              add_label = { lhs = "<leader>il", desc = "add label" },
+              remove_label = { lhs = "<leader>iR", desc = "remove label" },
+              goto_issue = { lhs = "<leader>ig", desc = "navigate to a local repo issue" },
+              add_comment = { lhs = "<leader>iC", desc = "add comment" },
+              delete_comment = { lhs = "<leader>iD", desc = "delete comment" },
+              next_comment = { lhs = "]c", desc = "go to next comment" },
+              prev_comment = { lhs = "[c", desc = "go to previous comment" },
+              react_hooray = { lhs = "<leader>i1", desc = "add/remove 🎉 reaction" },
+              react_heart = { lhs = "<leader>i2", desc = "add/remove ❤️ reaction" },
+              react_eyes = { lhs = "<leader>i3", desc = "add/remove 👀 reaction" },
+              react_thumbs_up = { lhs = "<leader>i4", desc = "add/remove 👍 reaction" },
+              react_thumbs_down = { lhs = "<leader>i5", desc = "add/remove 👎 reaction" },
+              react_rocket = { lhs = "<leader>i6", desc = "add/remove 🚀 reaction" },
+              react_laugh = { lhs = "<leader>i7", desc = "add/remove 😄 reaction" },
+              react_confused = { lhs = "<leader>i8", desc = "add/remove 😕 reaction" },
+            },
+            pull_request = {
+              checkout_pr = { lhs = "<leader>po", desc = "checkout PR" },
+              merge_pr = { lhs = "<leader>pm", desc = "merge commit PR" },
+              squash_and_merge_pr = { lhs = "<leader>psm", desc = "squash and merge PR" },
+              list_commits = { lhs = "<leader>pc", desc = "list PR commits" },
+              list_changed_files = { lhs = "<leader>pf", desc = "list PR changed files" },
+              show_pr_diff = { lhs = "<leader>pd", desc = "show PR diff" },
+              add_reviewer = { lhs = "<leader>pv", desc = "add reviewer" },
+              remove_reviewer = { lhs = "<leader>pvd", desc = "remove reviewer request" },
+              close_pr = { lhs = "<leader>px", desc = "close PR" },
+              reopen_pr = { lhs = "<leader>po", desc = "reopen PR" },
+              list_prs = { lhs = "<leader>pL", desc = "list open PRs on same repo" },
+              reload = { lhs = "<leader>pr", desc = "reload PR" },
+              open_in_browser = { lhs = "<leader>pb", desc = "open PR in browser" },
+              copy_url = { lhs = "<leader>py", desc = "copy url to system clipboard" },
+              goto_file = { lhs = "gf", desc = "go to file" },
+              add_assignee = { lhs = "<leader>pa", desc = "add assignee" },
+              remove_assignee = { lhs = "<leader>pad", desc = "remove assignee" },
+              create_label = { lhs = "<leader>pcl", desc = "create label" },
+              add_label = { lhs = "<leader>pl", desc = "add label" },
+              remove_label = { lhs = "<leader>pld", desc = "remove label" },
+              goto_pr = { lhs = "<leader>pg", desc = "navigate to a local repo PR" },
+              add_comment = { lhs = "<leader>pC", desc = "add comment" },
+              delete_comment = { lhs = "<leader>pD", desc = "delete comment" },
+              next_comment = { lhs = "]c", desc = "go to next comment" },
+              prev_comment = { lhs = "[c", desc = "go to previous comment" },
+              react_hooray = { lhs = "<leader>p1", desc = "add/remove 🎉 reaction" },
+              react_heart = { lhs = "<leader>p2", desc = "add/remove ❤️ reaction" },
+              react_eyes = { lhs = "<leader>p3", desc = "add/remove 👀 reaction" },
+              react_thumbs_up = { lhs = "<leader>p4", desc = "add/remove 👍 reaction" },
+              react_thumbs_down = { lhs = "<leader>p5", desc = "add/remove 👎 reaction" },
+              react_rocket = { lhs = "<leader>p6", desc = "add/remove 🚀 reaction" },
+              react_laugh = { lhs = "<leader>p7", desc = "add/remove 😄 reaction" },
+              react_confused = { lhs = "<leader>p8", desc = "add/remove 😕 reaction" },
+            },
+            review_thread = {
+              goto_issue = { lhs = "<leader>gi", desc = "navigate to a local repo issue" },
+              add_comment = { lhs = "<leader>ca", desc = "add comment" },
+              add_suggestion = { lhs = "<leader>sa", desc = "add suggestion" },
+              delete_comment = { lhs = "<leader>cd", desc = "delete comment" },
+              next_comment = { lhs = "]c", desc = "go to next comment" },
+              prev_comment = { lhs = "[c", desc = "go to previous comment" },
+              select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
+              select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
+              close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
+              react_hooray = { lhs = "<leader>r1", desc = "add/remove 🎉 reaction" },
+              react_heart = { lhs = "<leader>r2", desc = "add/remove ❤️ reaction" },
+              react_eyes = { lhs = "<leader>r3", desc = "add/remove 👀 reaction" },
+              react_thumbs_up = { lhs = "<leader>r4", desc = "add/remove 👍 reaction" },
+              react_thumbs_down = { lhs = "<leader>r5", desc = "add/remove 👎 reaction" },
+              react_rocket = { lhs = "<leader>r6", desc = "add/remove 🚀 reaction" },
+              react_laugh = { lhs = "<leader>r7", desc = "add/remove 😄 reaction" },
+              react_confused = { lhs = "<leader>r8", desc = "add/remove 😕 reaction" },
+            },
+            submit_win = {
+              approve_review = { lhs = "<C-a>", desc = "approve review" },
+              comment_review = { lhs = "<C-m>", desc = "comment review" },
+              request_changes = { lhs = "<C-r>", desc = "request changes review" },
+              close_review_tab = { lhs = "<C-c>", desc = "close review tab" },
+            },
+            review_diff = {
+              add_review_comment = { lhs = "<leader>ca", desc = "add a new review comment" },
+              add_review_suggestion = { lhs = "<leader>sa", desc = "add a new review suggestion" },
+              focus_files = { lhs = "<leader>e", desc = "move focus to changed files panel" },
+              toggle_files = { lhs = "<leader>b", desc = "hide/show changed files panel" },
+              next_thread = { lhs = "]t", desc = "move to next thread" },
+              prev_thread = { lhs = "[t", desc = "move to previous thread" },
+              select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
+              select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
+              close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
+              toggle_viewed = { lhs = "<leader>tv", desc = "toggle viewed state" },
+            },
+            file_panel = {
+              next_entry = { lhs = "j", desc = "move to next changed file" },
+              prev_entry = { lhs = "k", desc = "move to previous changed file" },
+              select_entry = { lhs = "<cr>", desc = "show selected changed file diffs" },
+              refresh_files = { lhs = "R", desc = "refresh changed files panel" },
+              focus_files = { lhs = "<leader>e", desc = "move focus to changed files panel" },
+              toggle_files = { lhs = "<leader>b", desc = "hide/show changed files panel" },
+              select_next_entry = { lhs = "]q", desc = "move to previous changed file" },
+              select_prev_entry = { lhs = "[q", desc = "move to next changed file" },
+              close_review_tab = { lhs = "<leader>rc", desc = "close review tab" },
+              toggle_viewed = { lhs = "<leader>tv", desc = "toggle viewed state" },
+            },
+          }
+        })
+      end)
+      
+      if not octo_setup_ok then
+        vim.notify("Octo.nvim setup failed: " .. tostring(err), vim.log.levels.ERROR)
+      end
+      
+      -- Keymaps for GitHub operations - using unique keys to avoid overlaps
+      local keymap = vim.keymap.set
+      keymap("n", "<leader>oi", "<cmd>Octo issue list<CR>", { desc = "List GitHub issues" })
+      keymap("n", "<leader>oP", "<cmd>Octo pr list<CR>", { desc = "List GitHub PRs" })
+      keymap("n", "<leader>or", "<cmd>Octo repo list<CR>", { desc = "List GitHub repos" })
+    else
+      vim.notify("Octo.nvim not found. GitHub integration unavailable.", vim.log.levels.DEBUG)
+    end
   end
-
-  -- Setup Neogit for magit-like experience
-  local neogit_ok, neogit = pcall(require, "neogit")
-  if neogit_ok then
-    neogit.setup({
-      disable_signs = false,
-      disable_hint = false,
-      disable_context_highlighting = false,
-      disable_commit_confirmation = false,
-      auto_refresh = true,
-      disable_builtin_notifications = false,
-      use_magit_keybindings = false,
-      kind = "tab",
-      commit_popup = {
-        kind = "split",
-      },
-      popup = {
-        kind = "split",
-      },
-      signs = {
-        section = { "", "" },
-        item = { "", "" },
-        hunk = { "", "" },
-      },
-      integrations = {
-        diffview = true,
-      },
-      sections = {
-        untracked = {
-          folded = false,
-        },
-        unstaged = {
-          folded = false,
-        },
-        staged = {
-          folded = false,
-        },
-        stashes = {
-          folded = true,
-        },
-        unpulled = {
-          folded = true,
-        },
-        unmerged = {
-          folded = false,
-        },
-        recent = {
-          folded = true,
-        },
-      },
-    })
-
-    -- Set up keymaps for Neogit
-    local keymap = vim.keymap.set
-    keymap("n", "<leader>gm", "<cmd>Neogit<CR>", { desc = "Open Neogit (Magit)" })
-  end
-
-  -- Set up Telescope git integration keymaps
+  
+  -- Set up telescope git pickers if telescope is available
   if pcall(require, "telescope") then
     local keymap = vim.keymap.set
+    -- Use consistent keymap patterns to avoid duplicate mappings
     keymap("n", "<leader>gc", "<cmd>Telescope git_commits<CR>", { desc = "Git commits" })
     keymap("n", "<leader>gC", "<cmd>Telescope git_bcommits<CR>", { desc = "Git buffer commits" })
     keymap("n", "<leader>gB", "<cmd>Telescope git_branches<CR>", { desc = "Git branches" })
-    keymap("n", "<leader>gs", "<cmd>Telescope git_status<CR>", { desc = "Git status" })
-    keymap("n", "<leader>gS", "<cmd>Telescope git_stash<CR>", { desc = "Git stash" })
-  end
-
-  -- Register Git group with Which-key if available
-  local wk_ok, wk = pcall(require, "which-key")
-  if wk_ok then
-    wk.register({
-      ["<leader>g"] = { name = "+git" },
-      ["<leader>gc"] = { name = "+conflicts" },
-    })
+    keymap("n", "<leader>gS", "<cmd>Telescope git_status<CR>", { desc = "Git status" })
+    keymap("n", "<leader>gT", "<cmd>Telescope git_stash<CR>", { desc = "Git stash" })
   end
 end
 

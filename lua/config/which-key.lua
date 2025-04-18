@@ -33,6 +33,7 @@ local key_icons = {
   e = " ", -- Explorer
   x = " ", -- Diagnostics
   z = "󰔱 ", -- System
+  a = "󰚩 ", -- AI
 }
 
 function M.setup()
@@ -104,180 +105,101 @@ function M.setup()
     },
   })
 
-  -- Structured keybinding documentation
-  -- Note: the actual keybindings are defined in keybindings.lua
-  -- This only provides documentation groups
-  local opts = {
-    mode = "n",        -- NORMAL mode
-    prefix = "<leader>",
-    buffer = nil,      -- Global mappings
-    silent = true,     -- Do not show command in command line
-    noremap = true,    -- Non-recursive mappings
-    nowait = true,     -- Do not wait for additional keys
+  -- Define key group highlights and symbols using the new format
+  local keymap_groups = {
+    -- Group definitions with consistent formatting
+    { "<leader>f", group = key_icons.f .. "%{WhichKeyGroupFileOps}Files%*", nowait = true, silent = true },
+    { "<leader>g", group = key_icons.g .. "%{WhichKeyGroupGit}Git%*", nowait = true, silent = true },
+    { "<leader>gh", group = key_icons.g .. "Hunks", nowait = true, silent = true },
+    { "<leader>gc", group = key_icons.g .. "Conflicts", nowait = true, silent = true },
+    { "<leader>l", group = key_icons.l .. "%{WhichKeyGroupLSP}LSP%*", nowait = true, silent = true },
+    { "<leader>lw", group = key_icons.l .. "Workspace", nowait = true, silent = true },
+    { "<leader>b", group = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers%*", nowait = true, silent = true },
+    { "<leader>t", group = key_icons.t .. "%{WhichKeyGroupTerminal}Terminal%*", nowait = true, silent = true },
+    { "<leader>w", group = key_icons.w .. "%{WhichKeyGroupWindow}Windows%*", nowait = true, silent = true },
+    { "<leader>e", group = key_icons.e .. "%{WhichKeyGroupFileOps}Explorer%*", nowait = true, silent = true },
+    { "<leader>x", group = key_icons.x .. "%{WhichKeyGroupDebug}Diagnostics%*", nowait = true, silent = true },
+    { "<leader>a", group = key_icons.a .. "%{WhichKeyGroupMisc}AI%*", nowait = true, silent = true },
   }
 
-  -- Define top-level groups with colors and icons
-  local groups = {
-    -- File operations
-    f = {
-      name = key_icons.f .. "%{WhichKeyGroupFileOps}Files%*",
-      f = { "Find file" },
-      r = { "Recent files" },
-      g = { "Live grep" },
-      n = { "Neovim config" },
-      e = { "File explorer" },
-    },
-
-    -- Git operations
-    g = {
-      name = key_icons.g .. "%{WhichKeyGroupGit}Git%*",
-      g = { "Status" },
-      b = { "Branches" },
-      c = { "Commits" },
-      s = { "Stage hunk" },
-      u = { "Unstage hunk" },
-      d = { "Diff" },
-      j = { "Next hunk" },
-      k = { "Prev hunk" },
-      p = { "Preview hunk" },
-      r = { "Reset hunk" },
-      R = { "Reset buffer" },
-      l = { "Blame line" },
-      f = { "Git files" },
-      t = { "Conflicts" },
-    },
-
-    -- LSP operations
-    l = {
-      name = key_icons.l .. "%{WhichKeyGroupLSP}LSP%*",
-      a = { "Code action" },
-      r = { "Rename symbol" },
-      s = { "Document symbols" },
-      d = { "Line diagnostics" },
-      w = { "Workspace symbols" },
-      f = { "Format document" },
-      i = { "Incoming calls" },
-      o = { "Outgoing calls" },
-      R = { "References" },
-      q = { "Diagnostics list" },
-    },
-
-    -- Search operations
-    s = {
-      name = key_icons.s .. "%{WhichKeyGroupSearch}Search%*",
-      s = { "In buffer" },
-      w = { "Word under cursor" },
-      c = { "Command history" },
-      k = { "Keymaps" },
-      d = { "Diagnostics" },
-    },
-
-    -- Terminal operations
-    t = {
-      name = key_icons.t .. "%{WhichKeyGroupTerminal}Terminal%*",
-      h = { "Horizontal terminal" },
-      v = { "Vertical terminal" },
-      f = { "Floating terminal" },
-    },
-
-    -- Buffer operations
-    b = {
-      name = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers%*",
-      n = { "Next buffer" },
-      p = { "Previous buffer" },
-      d = { "Delete buffer" },
-      b = { "Switch buffer" },
-    },
-
-    -- Window operations
-    w = {
-      name = key_icons.w .. "%{WhichKeyGroupWindow}Windows%*",
-      h = { "Go left" },
-      j = { "Go down" },
-      k = { "Go up" },
-      l = { "Go right" },
-      v = { "Split vertical" },
-      s = { "Split horizontal" },
-      q = { "Close window" },
-      o = { "Close others" },
-      ["="] = { "Equal size" },
-      t = { "To new tab" },
-    },
-
-    -- Project operations
-    p = {
-      name = key_icons.p .. "%{WhichKeyGroupMisc}Project%*",
-      p = { "Project list" },
-      r = { "Run file" },
-    },
-
-    -- Tab operations
-    ["t"] = {
-      name = key_icons.w .. "%{WhichKeyGroupWindow}Tabs%*",
-      n = { "Next tab" },
-      p = { "Previous tab" },
-      c = { "Close tab" },
-      t = { "New tab" },
-    },
-
-    -- UI operations
-    u = { key_icons.u .. "%{WhichKeyGroupMisc}Toggle undotree%*" },
-    e = { key_icons.e .. "%{WhichKeyGroupFileOps}Toggle explorer%*" },
-    o = { key_icons.e .. "%{WhichKeyGroupLSP}Toggle outline%*" },
-
-    -- Diagnostics
-    x = {
-      name = key_icons.x .. "%{WhichKeyGroupMisc}Diagnostics%*",
-      x = { "Toggle diagnostics" },
-    },
-
-    -- Database
-    d = {
-      name = key_icons.d .. "%{WhichKeyGroupMisc}Dev Tools%*",
-      b = { "Database client" },
-      c = { "Docker containers" },
-    },
-
-    -- HTTP client
-    h = {
-      name = key_icons.z .. "%{WhichKeyGroupMisc}HTTP%*",
-      r = { "Run request" },
-    },
-
-    -- Quick commands
-    q = { key_icons.z .. "%{WhichKeyGroupMisc}Quit all%*" },
-    w = { key_icons.z .. "%{WhichKeyGroupFileOps}Save file%*" },
-    h = { key_icons.z .. "%{WhichKeyGroupMisc}Clear highlights%*" },
-  }
-
-  -- Register the keymap documentation
-  which_key.register(groups, opts)
-
-  -- Also register the <C-h/j/k/l> mappings with which-key
-  local window_nav = {
-    ["<C-h>"] = { "Move to left window" },
-    ["<C-j>"] = { "Move to bottom window" },
-    ["<C-k>"] = { "Move to top window" },
-    ["<C-l>"] = { "Move to right window" },
-  }
-  which_key.register(window_nav, { mode = "n" })
+  -- Register groups first to ensure proper categorization
+  which_key.register(keymap_groups)
   
-  -- Diagnostic navigation
-  local diag_nav = {
-    ["[d"] = "Previous diagnostic",
-    ["]d"] = "Next diagnostic",
+  -- Manually register some essential commands that might have conflicts
+  local special_mappings = {
+    -- Git commands (avoiding duplicate gs/gr)
+    { "<leader>gs", desc = "Stage hunk", nowait = true, silent = true },
+    { "<leader>gr", desc = "Reset hunk", nowait = true, silent = true },
+    { "<leader>gl", desc = "Git log/blame", nowait = true, silent = true },
+    { "<leader>gd", desc = "Git diff", nowait = true, silent = true },
+    
+    -- Explorer (avoiding e vs er/ef confusion)
+    { "<leader>ef", desc = "Find in file explorer", nowait = true, silent = true },
+    { "<leader>er", desc = "Refresh file explorer", nowait = true, silent = true },
+    { "<leader>e", desc = "Toggle file explorer", nowait = true, silent = true },
+    
+    -- Diagnostic commands
+    { "<leader>xx", desc = "Toggle diagnostics", nowait = true, silent = true },
+    { "<leader>xd", desc = "Document diagnostics", nowait = true, silent = true },
+    { "<leader>xw", desc = "Workspace diagnostics", nowait = true, silent = true },
+    
+    -- File commands
+    { "<leader>ff", desc = "Find files", nowait = true, silent = true },
+    { "<leader>fg", desc = "Live grep", nowait = true, silent = true },
+    { "<leader>fr", desc = "Recent files", nowait = true, silent = true },
+    
+    -- AI commands
+    { "<leader>ac", desc = "Copilot panel", nowait = true, silent = true },
+    { "<leader>ae", desc = "Enable AI", nowait = true, silent = true },
+    { "<leader>ai", desc = "AI chat", nowait = true, silent = true },
   }
-  which_key.register(diag_nav, { mode = "n" })
   
-  -- LSP navigation
-  local lsp_nav = {
-    ["gd"] = "Go to definition",
-    ["gD"] = "Go to declaration",
-    ["gr"] = "Find references",
-    ["gi"] = "Go to implementation",
-    ["K"] = "Show hover info",
+  -- Register individual mappings
+  which_key.register(special_mappings)
+end
+
+-- Helper function to apply which-key to buffer-specific LSP bindings
+function M.apply_lsp_buffer_mappings(client, bufnr)
+  local status_ok, which_key = pcall(require, "which-key")
+  if not status_ok then return end
+  
+  -- Get capabilities to determine available features
+  local caps = client.server_capabilities
+  
+  -- LSP-specific keybindings for this buffer
+  local mappings = {
+    { "<leader>lf", desc = "Format document", buffer = bufnr, nowait = true, silent = true },
+    { "<leader>lr", desc = "Rename symbol", buffer = bufnr, nowait = true, silent = true },
+    { "<leader>la", desc = "Code action", buffer = bufnr, nowait = true, silent = true },
+    { "<leader>ld", desc = "Go to definition", buffer = bufnr, nowait = true, silent = true },
+    { "<leader>lh", desc = "Hover documentation", buffer = bufnr, nowait = true, silent = true },
+    { "<leader>ls", desc = "Signature help", buffer = bufnr, nowait = true, silent = true },
+    { "<leader>li", desc = "Go to implementation", buffer = bufnr, nowait = true, silent = true },
   }
-  which_key.register(lsp_nav, { mode = "n" })
+  
+  -- Only register what the server supports
+  local filtered_mappings = {}
+  
+  for _, mapping in ipairs(mappings) do
+    -- Skip registration based on missing capabilities
+    if mapping[1] == "<leader>lf" and not caps.documentFormattingProvider then
+      -- Skip format mapping
+    elseif mapping[1] == "<leader>lr" and not caps.renameProvider then
+      -- Skip rename mapping
+    elseif mapping[1] == "<leader>la" and not caps.codeActionProvider then
+      -- Skip code action mapping
+    elseif mapping[1] == "<leader>ld" and not caps.definitionProvider then
+      -- Skip definition mapping
+    elseif mapping[1] == "<leader>li" and not caps.implementationProvider then
+      -- Skip implementation mapping
+    else
+      -- This capability is supported, register the mapping
+      table.insert(filtered_mappings, mapping)
+    end
+  end
+  
+  -- Register key mappings for this buffer
+  which_key.register(filtered_mappings)
 end
 
 return M

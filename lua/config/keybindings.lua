@@ -12,33 +12,36 @@ local all_mappings = {}
 
 -- Enhanced mapping function that stores mappings for which-key
 local function map(mode, lhs, rhs, opts)
+  -- Handle options with defaults
   opts = opts or {}
   opts.noremap = opts.noremap == nil and true or opts.noremap
   opts.silent = opts.silent == nil and true or opts.silent
   
-  if type(rhs) == "string" then
-    vim.keymap.set(mode, lhs, rhs, opts)
-  else
-    vim.keymap.set(mode, lhs, rhs, opts)
+  -- Set the mapping
+  local status_ok, _ = pcall(vim.keymap.set, mode, lhs, rhs, opts)
+  if not status_ok then
+    -- Just skip this mapping if it fails (may be due to missing function)
+    return false
   end
   
-  -- Track leader mappings for which-key
+  -- Track leader mappings for which-key using the new format
   if lhs:match("^<leader>") and opts.desc then
-    local prefix = lhs:match("^<leader>(.)")
-    local suffix = lhs:match("^<leader>.(.*)") or ""
-    
-    -- Create nested tables as needed
-    if not all_mappings[prefix] then
-      all_mappings[prefix] = {}
-    end
-    
-    -- Store mapping for which-key
-    if suffix == "" then
-      all_mappings[prefix][suffix] = { mode = mode, desc = opts.desc }
-    else
-      all_mappings[prefix][suffix] = { mode = mode, desc = opts.desc }
+    -- Extract the key sequence after <leader>
+    local suffix = lhs:match("^<leader>(.+)")
+    if suffix and suffix ~= "" then
+      -- Create mapping entry in the format expected by newer which-key versions
+      table.insert(all_mappings, {
+        "<leader>" .. suffix,
+        desc = opts.desc,
+        mode = type(mode) == "table" and mode or { mode },
+        nowait = opts.nowait,
+        remap = not (opts.noremap == true),
+        silent = opts.silent
+      })
     end
   end
+  
+  return true
 end
 
 -- Plugin availability checker
@@ -48,6 +51,8 @@ end
 
 -- External tool availability checker
 local function command_exists(cmd)
+  if not cmd or cmd == "" then return false end
+  
   local handle = io.popen("which " .. cmd .. " 2>/dev/null")
   if not handle then return false end
   
@@ -58,25 +63,27 @@ end
 
 -- Check if a module setup function exists
 local function has_module(module_name)
+  if not module_name or module_name == "" then return false end
+  
   local ok, mod = pcall(require, module_name)
   return ok and mod and type(mod.setup) == "function"
 end
 
 -- Run command in terminal (if toggleterm is available)
 local function run_in_terminal(cmd, direction)
+  if not cmd or cmd == "" then return false end
   direction = direction or "horizontal"
   
   -- First try using our terminal module
   if has_module("config.terminal") then
     local term = require("config.terminal")
     if term.run_command then
-      term.run_command(cmd)
-      return true
+      return term.run_command(cmd)
     end
   end
   
   -- Fallback to direct toggleterm use
-  local toggleterm_ok, toggleterm = has_plugin("toggleterm.terminal")
+  local toggleterm_ok, toggleterm = pcall(require, "toggleterm.terminal")
   if not toggleterm_ok then
     vim.notify("ToggleTerm not available", vim.log.levels.WARN)
     return false
@@ -89,6 +96,28 @@ local function run_in_terminal(cmd, direction)
   })
   term:toggle()
   return true
+end
+
+-- Get safe function from module
+local function get_safe_func(module_name, func_name)
+  if not module_name or not func_name then return nil end
+  
+  local mod_ok, mod = pcall(require, module_name)
+  if not mod_ok or not mod then return nil end
+  
+  if type(mod[func_name]) ~= "function" then return nil end
+  
+  return function(...)
+    local status_ok, result = pcall(mod[func_name], ...)
+    if not status_ok then
+      vim.notify(
+        string.format("Error executing %s.%s: %s", module_name, func_name, result),
+        vim.log.levels.ERROR
+      )
+      return nil
+    end
+    return result
+  end
 end
 
 -- ╭──────────────────────────────────────────────────────────╮
@@ -133,21 +162,26 @@ local function setup_core_mappings()
   map("n", "<leader>bp", ":bprevious<CR>", { desc = "Previous buffer" })
   map("n", "<leader>bd", ":bdelete<CR>", { desc = "Delete buffer" })
   map("n", "<leader>bb", ":e #<CR>", { desc = "Switch to last buffer" })
+  map("n", "<leader>bl", ":buffers<CR>", { desc = "List all buffers" })
   
   -- Tab navigation
   map("n", "<leader>tn", ":tabnext<CR>", { desc = "Next tab" })
   map("n", "<leader>tp", ":tabprevious<CR>", { desc = "Previous tab" })
   map("n", "<leader>tc", ":tabclose<CR>", { desc = "Close tab" })
   map("n", "<leader>tt", ":tabnew<CR>", { desc = "New tab" })
+  map("n", "<leader>to", ":tabonly<CR>", { desc = "Close all other tabs" })
   
-  -- ThePrimeagen's best remaps
+  -- Text navigation improvements
   map("n", "<C-d>", "<C-d>zz", { desc = "Move down half-page and center" })
   map("n", "<C-u>", "<C-u>zz", { desc = "Move up half-page and center" })
   map("n", "n", "nzzzv", { desc = "Next search result and center" })
   map("n", "N", "Nzzzv", { desc = "Previous search result and center" })
+  map("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
   
-  -- Quick save
+  -- Quick save and quit
   map("n", "<leader>w", ":w<CR>", { desc = "Save file" })
+  map("n", "<leader>q", ":confirm qa<CR>", { desc = "Quit all (confirm)" })
+  map("n", "<leader>Q", ":qa!<CR>", { desc = "Force quit all" })
   
   -- Exit insert mode with jk
   map("i", "jk", "<ESC>", { desc = "Exit insert mode" })
@@ -165,151 +199,125 @@ local function setup_core_mappings()
   -- Clear highlighting
   map("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlighting" })
   
-  -- Quick command mode
-  map("n", ";", ":", { desc = "Enter command mode" })
+  -- Yank to system clipboard
+  map({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
+  map("n", "<leader>Y", '"+Y', { desc = "Yank line to system clipboard" })
   
-  -- Quick quit
-  map("n", "<leader>q", ":qa<CR>", { desc = "Quit all" })
+  -- Delete without yanking
+  map({ "n", "v" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
+  
+  -- Replace currently selected text without changing register
+  map("v", "p", '"_dP', { desc = "Replace without yanking" })
+  
+  -- Center screen when using G and gg
+  map("n", "G", "Gzz", { desc = "Go to end of file and center" })
+  map("n", "gg", "ggzz", { desc = "Go to start of file and center" })
+  
+  -- Diagnostic navigation
+  map("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
+  map("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+  map("n", "<leader>xx", function()
+    vim.diagnostic.config({ virtual_text = not vim.diagnostic.config().virtual_text })
+    vim.notify("Diagnostics " .. (vim.diagnostic.config().virtual_text and "enabled" or "disabled"))
+  end, { desc = "Toggle diagnostics" })
+  map("n", "<leader>xf", vim.diagnostic.open_float, { desc = "Show diagnostic in float" })
+  map("n", "<leader>xl", vim.diagnostic.setloclist, { desc = "Diagnostics in loclist" })
+  
+  -- Reload config
+  map("n", "<leader><leader>r", function()
+    -- Save all modified buffers
+    vim.cmd("silent! wall")
+    -- Source init.lua
+    vim.cmd("source $MYVIMRC")
+    -- Notify user
+    vim.notify("Neovim configuration reloaded!", vim.log.levels.INFO)
+  end, { desc = "Reload config" })
 end
 
 local function setup_telescope_mappings()
   if not has_plugin("telescope") then
-    vim.notify("Telescope not available, file search mappings disabled", vim.log.levels.WARN)
+    vim.notify("Telescope not available, file search mappings disabled", vim.log.levels.DEBUG)
     return
   end
-
-  -- Telescope file pickers
-  map("n", "<leader>ff", function() require("telescope.builtin").find_files() end, { desc = "Find files" })
-  map("n", "<leader>fg", function() require("telescope.builtin").live_grep() end, { desc = "Live grep" })
-  map("n", "<leader>fb", function() require("telescope.builtin").buffers() end, { desc = "Find buffers" })
-  map("n", "<leader>fh", function() require("telescope.builtin").help_tags() end, { desc = "Help tags" })
-  map("n", "<leader>fr", function() require("telescope.builtin").oldfiles() end, { desc = "Recent files" })
-  map("n", "<leader>fn", function() require("telescope.builtin").find_files({cwd = vim.fn.stdpath("config")}) end, { desc = "Find in Neovim config" })
   
-  -- Telescope git pickers
-  map("n", "<leader>gc", function() require("telescope.builtin").git_commits() end, { desc = "Git commits" })
-  map("n", "<leader>gb", function() require("telescope.builtin").git_branches() end, { desc = "Git branches" })
-  map("n", "<leader>gs", function() require("telescope.builtin").git_status() end, { desc = "Git status" })
-  map("n", "<leader>gf", function() require("telescope.builtin").git_files() end, { desc = "Git files" })
+  -- File operations
+  map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
+  map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
+  map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
+  map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
+  map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
+  map("n", "<leader>fm", "<cmd>Telescope marks<CR>", { desc = "Find marks" })
+  map("n", "<leader>fc", "<cmd>Telescope colorscheme<CR>", { desc = "Colorschemes" })
+  map("n", "<leader>fk", "<cmd>Telescope keymaps<CR>", { desc = "Keymaps" })
+  map("n", "<leader>fs", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { desc = "Search in buffer" })
   
-  -- Telescope search pickers
-  map("n", "<leader>sw", function() require("telescope.builtin").grep_string() end, { desc = "Search word under cursor" })
-  map("n", "<leader>sc", function() require("telescope.builtin").command_history() end, { desc = "Command history" })
-  map("n", "<leader>sk", function() require("telescope.builtin").keymaps() end, { desc = "Keymaps" })
-  map("n", "<leader>ss", function() require("telescope.builtin").current_buffer_fuzzy_find() end, { desc = "Search in current buffer" })
-  map("n", "<leader>sd", function() require("telescope.builtin").diagnostics() end, { desc = "Diagnostics" })
+  -- Project management (if telescope-project is available)
+  if has_plugin("telescope").extensions and has_plugin("telescope").extensions.project then
+    map("n", "<leader>fp", "<cmd>Telescope projects<CR>", { desc = "Projects" })
+  end
   
-  -- File browser if available
-  local has_file_browser = has_plugin("telescope") and require("telescope").extensions.file_browser ~= nil
-  if has_file_browser then
-    map("n", "<leader>fe", function() require("telescope").extensions.file_browser.file_browser() end, { desc = "File browser" })
+  -- Session management (if auto-session and session-lens are available)
+  if has_plugin("session-lens") then
+    map("n", "<leader>fs", "<cmd>SearchSession<CR>", { desc = "Find sessions" })
+  end
+  
+  -- Advanced searches
+  if has_plugin("telescope").builtin then
+    local telescope = require("telescope")
+    local builtin = require("telescope.builtin")
+    
+    -- Define telescope-specific functions
+    local function live_grep_in_folder()
+      builtin.live_grep({
+        prompt_title = "Live Grep in Folder",
+        cwd = vim.fn.input("Folder: ", vim.fn.getcwd(), "dir"),
+      })
+    end
+    
+    local function find_files_in_folder()
+      builtin.find_files({
+        prompt_title = "Find Files in Folder",
+        cwd = vim.fn.input("Folder: ", vim.fn.getcwd(), "dir"),
+      })
+    end
+    
+    -- Register these more advanced functions
+    map("n", "<leader>fG", live_grep_in_folder, { desc = "Grep in folder" })
+    map("n", "<leader>fF", find_files_in_folder, { desc = "Files in folder" })
+    map("n", "<leader>fw", builtin.grep_string, { desc = "Grep word under cursor" })
   end
 end
 
 local function setup_git_mappings()
-  -- Git keybindings that gracefully fallback
-  
-  -- Try fugitive first, then lazygit, then fallback to git command
-  map("n", "<leader>gg", function()
-    if has_plugin("vim-fugitive") then
-      vim.cmd("Git")
-    elseif has_plugin("lazygit.nvim") then
-      vim.cmd("LazyGit")
-    elseif command_exists("lazygit") then
-      run_in_terminal("lazygit")
-    else
-      vim.notify("No Git UI available. Install vim-fugitive, lazygit.nvim, or lazygit CLI", vim.log.levels.WARN)
-    end
-  end, { desc = "Git status" })
-  
-  -- Gitsigns mappings (with fallbacks)
-  local function setup_gitsigns_mappings()
-    map("n", "<leader>gj", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").next_hunk()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Next git hunk" })
-    
-    map("n", "<leader>gk", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").prev_hunk()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Previous git hunk" })
-    
-    map("n", "<leader>gl", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").blame_line()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Git blame line" })
-    
-    map("n", "<leader>gp", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").preview_hunk()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Preview git hunk" })
-    
-    map("n", "<leader>gr", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").reset_hunk()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Reset git hunk" })
-    
-    map("n", "<leader>gR", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").reset_buffer()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Reset git buffer" })
-    
-    map("n", "<leader>gs", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").stage_hunk()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Stage git hunk" })
-    
-    map("n", "<leader>gu", function()
-      if has_plugin("gitsigns") then
-        require("gitsigns").undo_stage_hunk()
-      else
-        vim.notify("Gitsigns not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Undo stage git hunk" })
+  -- Basic git mappings using vim-fugitive (if available)
+  if has_plugin("fugitive") then
+    map("n", "<leader>gg", "<cmd>Git<CR>", { desc = "Git status" })
+    map("n", "<leader>gB", "<cmd>Git blame<CR>", { desc = "Git blame" })
+    map("n", "<leader>gd", "<cmd>Gvdiffsplit<CR>", { desc = "Git diff split" })
+    map("n", "<leader>gc", "<cmd>Git commit<CR>", { desc = "Git commit" })
+    map("n", "<leader>gp", "<cmd>Git push<CR>", { desc = "Git push" })
+    map("n", "<leader>gP", "<cmd>Git pull<CR>", { desc = "Git pull" })
+    map("n", "<leader>gl", "<cmd>Git log<CR>", { desc = "Git log" })
+  else
+    vim.notify("vim-fugitive not available, basic git mappings disabled", vim.log.levels.DEBUG)
   end
   
-  setup_gitsigns_mappings()
+  -- Advanced git mappings are set in git.lua's setup
+  -- These registrations are just for which-key
   
-  -- Git diff view
-  map("n", "<leader>gd", function()
-    if has_plugin("diffview") then
-      vim.cmd("DiffviewOpen")
-    elseif has_plugin("vim-fugitive") then
-      vim.cmd("Gdiff")
-    else
-      vim.notify("No diff view plugin available", vim.log.levels.WARN)
-    end
-  end, { desc = "Git diff" })
+  -- Git hunks with gitsigns.nvim
+  map("n", "<leader>ghr", "", { desc = "Reset hunk" })
+  map("n", "<leader>ghs", "", { desc = "Stage hunk" })
+  map("n", "<leader>ghp", "", { desc = "Preview hunk" })
+  map("n", "<leader>ghb", "", { desc = "Blame line" })
+  map("n", "<leader>ghd", "", { desc = "Diff this" })
   
-  -- Git conflict resolution
-  map("n", "<leader>gt", function()
-    if has_plugin("git-conflict") then
-      vim.cmd("GitConflictListQf")
-    else
-      vim.notify("Git-conflict plugin not available", vim.log.levels.WARN)
-    end
-  end, { desc = "List git conflicts" })
+  -- Git conflicts with git-conflict.nvim
+  map("n", "<leader>gco", "", { desc = "Choose ours" })
+  map("n", "<leader>gct", "", { desc = "Choose theirs" })
+  map("n", "<leader>gcb", "", { desc = "Choose both" })
+  map("n", "<leader>gc0", "", { desc = "Choose none" })
+  map("n", "<leader>gcl", "", { desc = "List conflicts" })
 end
 
 local function setup_lsp_mappings()
@@ -317,235 +325,214 @@ local function setup_lsp_mappings()
   -- Stored here for organization and which-key registration
   
   M.lsp_mappings = {
-    normal = {
-      ["gD"] = { function() vim.lsp.buf.declaration() end, "Go to declaration" },
-      ["gd"] = { function() vim.lsp.buf.definition() end, "Go to definition" },
-      ["K"] = { function() vim.lsp.buf.hover() end, "Show hover info" },
-      ["gi"] = { function() vim.lsp.buf.implementation() end, "Go to implementation" },
-      ["<C-k>"] = { function() vim.lsp.buf.signature_help() end, "Show signature help" },
-      ["<leader>la"] = { function() vim.lsp.buf.code_action() end, "Code actions" },
-      ["<leader>lr"] = { function() vim.lsp.buf.rename() end, "Rename symbol" },
-      ["<leader>lf"] = { function() vim.lsp.buf.format() end, "Format document" },
-      ["<leader>li"] = { function() vim.lsp.buf.incoming_calls() end, "Incoming calls" },
-      ["<leader>lo"] = { function() vim.lsp.buf.outgoing_calls() end, "Outgoing calls" },
-      ["<leader>ls"] = { function() vim.lsp.buf.document_symbol() end, "Document symbols" },
-      ["<leader>lw"] = { function() vim.lsp.buf.workspace_symbol() end, "Workspace symbols" },
-      ["<leader>ld"] = { function() vim.diagnostic.open_float() end, "Line diagnostics" },
-      ["[d"] = { function() vim.diagnostic.goto_prev() end, "Previous diagnostic" },
-      ["]d"] = { function() vim.diagnostic.goto_next() end, "Next diagnostic" },
-      ["<leader>lq"] = { function() vim.diagnostic.setloclist() end, "Set loc list" },
-      ["<leader>lR"] = { function() vim.lsp.buf.references() end, "Find references" },
-    },
+    -- LSP actions
+    ["<leader>lR"] = { function() vim.lsp.buf.references() end, "Find references", mode = "n" },
+    ["<leader>lr"] = { function() vim.lsp.buf.rename() end, "Rename symbol", mode = "n" },
+    ["<leader>lh"] = { function() vim.lsp.buf.hover() end, "Hover documentation", mode = "n" },
+    ["<leader>la"] = { function() vim.lsp.buf.code_action() end, "Code action", mode = "n" },
+    ["<leader>ld"] = { function() vim.lsp.buf.definition() end, "Go to definition", mode = "n" },
+    ["<leader>lD"] = { function() vim.lsp.buf.declaration() end, "Go to declaration", mode = "n" },
+    ["<leader>lt"] = { function() vim.lsp.buf.type_definition() end, "Go to type definition", mode = "n" },
+    ["<leader>li"] = { function() vim.lsp.buf.implementation() end, "Go to implementation", mode = "n" },
+    ["<leader>ls"] = { function() vim.lsp.buf.signature_help() end, "Signature help", mode = "n" },
+    ["<leader>lf"] = { function() vim.lsp.buf.format { async = true } end, "Format buffer", mode = "n" },
+    ["<leader>lF"] = { function() vim.lsp.buf.format { async = true, range = { ["start"] = vim.api.nvim_buf_get_mark(0, "<"), ["end"] = vim.api.nvim_buf_get_mark(0, ">") } } end, "Format selection", mode = "v" }
   }
   
-  -- Register with which-key (if available)
-  for mode, mode_mappings in pairs(M.lsp_mappings) do
-    for key, mapping in pairs(mode_mappings) do
-      -- Don't set these now - they'll be set on LSP attach
-      -- But do register them with which-key
-      if key:match("^<leader>") and mapping[2] then
-        local prefix = key:match("^<leader>(.)")
-        local suffix = key:match("^<leader>.(.*)") or ""
-        
-        if prefix and not all_mappings[prefix] then
-          all_mappings[prefix] = {}
-        end
-        
-        if prefix then
-          all_mappings[prefix][suffix] = { mode = mode, desc = mapping[2] }
-        end
-      end
-    end
-  end
-end
-
-local function setup_terminal_mappings()
-  -- Defer to terminal module if available
-  if has_module("config.terminal") then
-    -- Let the terminal module set up its own keybindings
-    return
+  -- We don't directly set these here since they'll be applied on LSP attach
+  -- But we do register them for which-key
+  
+  for key, mapping in pairs(M.lsp_mappings) do
+    map(mapping.mode, key, "", { desc = mapping[2] })
   end
   
-  -- Terminal keybindings with function checks
-  -- Toggle a horizontal terminal
-  map("n", "<leader>th", function()
-    if has_plugin("toggleterm") then
-      local term = require("toggleterm.terminal").Terminal:new({ direction = "horizontal" })
-      term:toggle()
-    else
-      -- Fallback to basic terminal
-      vim.cmd("split | terminal")
-      vim.cmd("startinsert")
-    end
-  end, { desc = "Toggle horizontal terminal" })
-  
-  -- Toggle a vertical terminal
-  map("n", "<leader>tv", function()
-    if has_plugin("toggleterm") then
-      local term = require("toggleterm.terminal").Terminal:new({ direction = "vertical" })
-      term:toggle()
-    else
-      -- Fallback to basic terminal
-      vim.cmd("vsplit | terminal")
-      vim.cmd("startinsert")
-    end
-  end, { desc = "Toggle vertical terminal" })
-  
-  -- Toggle a floating terminal
-  map("n", "<leader>tf", function()
-    if has_plugin("toggleterm") then
-      local term = require("toggleterm.terminal").Terminal:new({ direction = "float" })
-      term:toggle()
-    else
-      -- Fallback to basic terminal
-      vim.cmd("terminal")
-      vim.cmd("startinsert")
-    end
-  end, { desc = "Toggle floating terminal" })
-  
-  -- Terminal navigation
-  map("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-  map("t", "<C-h>", "<C-\\><C-n><C-w>h", { desc = "Move to left window from terminal" })
-  map("t", "<C-j>", "<C-\\><C-n><C-w>j", { desc = "Move to bottom window from terminal" })
-  map("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Move to top window from terminal" })
-  map("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to right window from terminal" })
+  -- Workspace mappings
+  map("n", "<leader>lwa", function() vim.lsp.buf.add_workspace_folder() end, { desc = "Add workspace folder" })
+  map("n", "<leader>lwr", function() vim.lsp.buf.remove_workspace_folder() end, { desc = "Remove workspace folder" })
+  map("n", "<leader>lwl", function() 
+    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  end, { desc = "List workspace folders" })
 end
 
 local function setup_ide_mappings()
   -- IDE-like features with graceful fallbacks
   
   -- File explorer
+  -- Use a function to ensure on-demand loading
+  map("n", "<leader>ef", function()
+    if has_plugin("nvim-tree") then
+      vim.cmd("NvimTreeFindFile")
+    elseif has_plugin("neo-tree") then
+      vim.cmd("Neotree reveal")
+    else
+      vim.cmd("Explore")
+    end
+  end, { desc = "Find in file explorer" })
+  
+  map("n", "<leader>er", function()
+    if has_plugin("nvim-tree") then
+      vim.cmd("NvimTreeRefresh")
+    elseif has_plugin("neo-tree") then
+      vim.cmd("Neotree refresh")
+    else
+      vim.cmd("Explore")
+    end
+  end, { desc = "Refresh file explorer" })
+  
   map("n", "<leader>e", function()
     if has_plugin("nvim-tree") then
       vim.cmd("NvimTreeToggle")
     elseif has_plugin("neo-tree") then
       vim.cmd("Neotree toggle")
-    elseif vim.fn.exists(":Lexplore") == 2 then
-      vim.cmd("Lexplore")
     else
       vim.cmd("Explore")
     end
   end, { desc = "Toggle file explorer" })
   
-  -- Document outline/symbols
-  map("n", "<leader>o", function()
-    if has_plugin("aerial") then
-      vim.cmd("AerialToggle")
-    elseif has_plugin("symbols-outline") then
-      vim.cmd("SymbolsOutline")
-    elseif has_plugin("vista") then
-      vim.cmd("Vista!!")
-    elseif has_plugin("telescope") then
-      require("telescope.builtin").lsp_document_symbols()
+  -- Terminal
+  map("n", "<leader>tf", function()
+    if has_plugin("toggleterm") then
+      local toggleterm = require("toggleterm")
+      toggleterm.toggle(0, nil, nil, "float")
     else
-      vim.notify("No outline plugin available", vim.log.levels.WARN)
+      vim.cmd("vsplit | terminal")
     end
-  end, { desc = "Toggle document outline" })
+  end, { desc = "Floating terminal" })
   
-  -- Diagnostics
+  map("n", "<leader>th", function()
+    if has_plugin("toggleterm") then
+      local toggleterm = require("toggleterm")
+      toggleterm.toggle(0, nil, nil, "horizontal")
+    else
+      vim.cmd("split | terminal")
+    end
+  end, { desc = "Horizontal terminal" })
+  
+  map("n", "<leader>tv", function()
+    if has_plugin("toggleterm") then
+      local toggleterm = require("toggleterm")
+      toggleterm.toggle(0, nil, nil, "vertical")
+    else
+      vim.cmd("vsplit | terminal")
+    end
+  end, { desc = "Vertical terminal" })
+  
+  -- Trouble.nvim (or quickfix fallback)
   map("n", "<leader>xx", function()
     if has_plugin("trouble") then
       vim.cmd("TroubleToggle")
     else
+      vim.cmd("copen")
+    end
+  end, { desc = "Toggle diagnostics" })
+  
+  map("n", "<leader>xw", function()
+    if has_plugin("trouble") then
+      vim.cmd("TroubleToggle workspace_diagnostics")
+    else
+      vim.diagnostic.setqflist()
+    end
+  end, { desc = "Workspace diagnostics" })
+  
+  map("n", "<leader>xd", function()
+    if has_plugin("trouble") then
+      vim.cmd("TroubleToggle document_diagnostics")
+    else
       vim.diagnostic.setloclist()
     end
-  end, { desc = "Toggle diagnostics panel" })
+  end, { desc = "Document diagnostics" })
   
-  -- UndoTree - defer to module if available
-  if not has_module("config.undotree") then
-    map("n", "<leader>u", function()
-      if vim.fn.exists(":UndotreeToggle") == 2 then
-        vim.cmd("UndotreeToggle")
+  map("n", "<leader>xq", function()
+    if has_plugin("trouble") then
+      vim.cmd("TroubleToggle quickfix")
+    else
+      vim.cmd("copen")
+    end
+  end, { desc = "Quickfix list" })
+  
+  map("n", "<leader>xl", function()
+    if has_plugin("trouble") then
+      vim.cmd("TroubleToggle loclist")
+    else
+      vim.cmd("lopen")
+    end
+  end, { desc = "Location list" })
+  
+  -- Zen mode / Distraction free
+  map("n", "<leader>z", function()
+    if has_plugin("zen-mode") then
+      vim.cmd("ZenMode")
+    else
+      -- Fallback to a simple distraction-free mode
+      vim.cmd("set laststatus=0 | set showtabline=0 | set nonumber | set norelativenumber")
+    end
+  end, { desc = "Zen mode" })
+  
+  -- AI features
+  map("n", "<leader>ac", function()
+    if has_plugin("copilot.lua") then
+      vim.cmd("Copilot panel")
+    else
+      vim.notify("Copilot not available", vim.log.levels.WARN)
+    end
+  end, { desc = "Copilot panel" })
+  
+  map("n", "<leader>ae", function()
+    if has_plugin("copilot.lua") then
+      vim.cmd("Copilot enable")
+    else
+      vim.notify("Copilot not available", vim.log.levels.WARN)
+    end
+  end, { desc = "Enable Copilot" })
+  
+  map("n", "<leader>ad", function()
+    if has_plugin("copilot.lua") then
+      vim.cmd("Copilot disable")
+    else
+      vim.notify("Copilot not available", vim.log.levels.WARN)
+    end
+  end, { desc = "Disable Copilot" })
+  
+  -- Chat interface
+  map("n", "<leader>ai", function()
+    if has_plugin("CopilotChat") then
+      vim.cmd("CopilotChatOpen")
+    elseif has_plugin("chatgpt") then
+      vim.cmd("ChatGPT")
+    else
+      vim.notify("No AI chat interface available", vim.log.levels.WARN)
+    end
+  end, { desc = "Open AI chat" })
+  
+  -- Code runtime
+  map("n", "<leader>r", function()
+    -- Get filetype and choose action based on that
+    local ft = vim.bo.filetype
+    if ft == "python" then
+      run_in_terminal("python " .. vim.fn.expand("%"))
+    elseif ft == "javascript" or ft == "typescript" then
+      run_in_terminal("node " .. vim.fn.expand("%"))
+    elseif ft == "go" then
+      run_in_terminal("go run " .. vim.fn.expand("%"))
+    elseif ft == "rust" then
+      run_in_terminal("cargo run")
+    elseif ft == "lua" then
+      -- Special case for Lua: if it looks like a Neovim plugin, source it
+      if vim.fn.expand("%"):match("%.lua$") and (
+        vim.fn.expand("%"):match("^lua/") or
+        vim.fn.expand("%"):match("^plugin/") or
+        vim.fn.expand("%"):match("^after/")
+      ) then
+        vim.cmd("source " .. vim.fn.expand("%"))
+        vim.notify("Sourced " .. vim.fn.expand("%"), vim.log.levels.INFO)
       else
-        vim.notify("UndoTree not available", vim.log.levels.WARN)
+        run_in_terminal("lua " .. vim.fn.expand("%"))
       end
-    end, { desc = "Toggle undo tree" })
-  end
-  
-  -- Project view - defer to module if available
-  if not has_module("config.project") then
-    map("n", "<leader>pp", function()
-      if has_plugin("telescope") and require("telescope").extensions.projects then
-        require("telescope").extensions.projects.projects({})
-      else
-        vim.notify("Projects plugin not available", vim.log.levels.WARN)
-      end
-    end, { desc = "Project list" })
-  end
+    else
+      vim.notify("No run command defined for filetype: " .. ft, vim.log.levels.WARN)
+    end
+  end, { desc = "Run file" })
 end
-
-local function setup_backend_dev_mappings()
-  -- Backend development specific keybindings
-  
-  -- Python specific mappings - defer to module if available
-  if not has_module("config.python") then
-    map("n", "<leader>pr", function()
-      local file = vim.fn.expand("%:p")
-      if vim.bo.filetype ~= "python" then
-        vim.notify("Not a Python file", vim.log.levels.WARN)
-        return
-      end
-      
-      local cmd = "python " .. file
-      run_in_terminal(cmd)
-    end, { desc = "Run Python file" })
-  end
-  
-  -- Database client
-  map("n", "<leader>db", function()
-    local clients = {
-      { name = "PostgreSQL", cmd = "psql" },
-      { name = "MySQL", cmd = "mysql" },
-      { name = "SQLite", cmd = "sqlite3" },
-      { name = "MongoDB", cmd = "mongosh" },
-    }
-    
-    local available = {}
-    for _, client in ipairs(clients) do
-      if command_exists(client.cmd) then
-        table.insert(available, client)
-      end
-    end
-    
-    if #available == 0 then
-      vim.notify("No database clients available", vim.log.levels.WARN)
-      return
-    elseif #available == 1 then
-      run_in_terminal(available[1].cmd)
-    else
-      vim.ui.select(
-        vim.tbl_map(function(c) return c.name end, available),
-        { prompt = "Select database client:" },
-        function(choice, idx)
-          if not choice then return end
-          run_in_terminal(available[idx].cmd)
-        end
-      )
-    end
-  end, { desc = "Database client" })
-  
-  -- Docker
-  map("n", "<leader>dc", function()
-    if command_exists("docker") then
-      run_in_terminal("docker ps")
-    else
-      vim.notify("Docker not available", vim.log.levels.WARN)
-    end
-  end, { desc = "Docker containers" })
-  
-  -- HTTP client
-  map("n", "<leader>hr", function()
-    if has_plugin("rest.nvim") then
-      vim.cmd("RestRun")
-    else
-      vim.notify("REST client not available", vim.log.levels.WARN)
-    end
-  end, { desc = "Run HTTP request" })
-end
-
--- ╭──────────────────────────────────────────────────────────╮
--- │                 Main Setup Function                       │
--- ╰──────────────────────────────────────────────────────────╯
 
 function M.setup()
   -- Set up basic keybindings without plugin dependencies
@@ -555,57 +542,54 @@ function M.setup()
   setup_telescope_mappings()
   setup_git_mappings()
   setup_lsp_mappings()
-  setup_terminal_mappings()
   setup_ide_mappings()
-  setup_backend_dev_mappings()
   
-  -- Set up which-key integration
-  local wk_ok, wk = pcall(require, "which-key")
-  if wk_ok then
-    -- Merge all collected mappings into which-key format
-    local wk_mappings = {}
+  -- Register which-key groups
+  local which_key_ok, which_key = pcall(require, "which-key")
+  if which_key_ok then
+    -- Define groups using the new format
+    local groups = {
+      { "<leader>b", group = " Buffers" },
+      { "<leader>f", group = " Find/Files" },
+      { "<leader>w", group = " Windows" },
+      { "<leader>t", group = " Terminal/Tabs" },
+      { "<leader>g", group = " Git" },
+      { "<leader>gh", group = "Hunks" },
+      { "<leader>gc", group = "Conflicts" },
+      { "<leader>l", group = " LSP" },
+      { "<leader>lw", group = "Workspace" },
+      { "<leader>e", group = " Explorer" },
+      { "<leader>x", group = " Diagnostics" },
+      { "<leader>a", group = " AI" },
+    }
     
-    for prefix, mappings in pairs(all_mappings) do
-      -- Create group name for the prefix
-      wk_mappings["<leader>" .. prefix] = { 
-        name = "+" .. prefix:upper() .. "-commands",
-      }
-      
-      -- Register individual mappings
-      for key, mapping in pairs(mappings) do
-        if key ~= "" then -- Skip the group itself
-          wk_mappings["<leader>" .. prefix .. key] = { 
-            mapping.desc,
-            mode = mapping.mode 
-          }
-        end
-      end
-    end
-    
-    -- Register with which-key
-    wk.register(wk_mappings)
+    -- Register all keymappings with which-key
+    which_key.register(groups)
+    which_key.register(all_mappings)
+  else
+    vim.notify("which-key.nvim not found, keybinding hints will be limited", vim.log.levels.DEBUG)
   end
-  
-  -- LSP on_attach setup
-  vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(args)
-      local bufnr = args.buf
-      
-      -- Apply LSP mappings to this buffer
-      if M.lsp_mappings and M.lsp_mappings.normal then
-        for key, mapping in pairs(M.lsp_mappings.normal) do
-          vim.keymap.set("n", key, mapping[1], { buffer = bufnr, desc = mapping[2] })
-        end
-      end
-    end,
-  })
-  
-  return true
 end
 
--- Store LSP keymaps for on_attach
-M.get_lsp_mappings = function()
-  return M.lsp_mappings
-end
+-- Autocmd for applying LSP keybindings when LSP attaches
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+  callback = function(ev)
+    -- Apply LSP keybindings to the buffer
+    for lhs, mapping in pairs(M.lsp_mappings) do
+      local opts = {
+        buffer = ev.buf,
+        desc = mapping[2]
+      }
+      
+      -- Extract the handler function
+      local rhs = mapping[1]
+      
+      -- Set the buffer-specific mapping
+      local mode = mapping.mode or "n"  -- Default to normal mode if not specified
+      vim.keymap.set(mode, lhs, rhs, opts)
+    end
+  end,
+})
 
 return M

@@ -1,0 +1,2 @@
+-- Dashboard configuration placeholder
+return {}

@@ -1,8 +1,0 @@
-[project]
-name = "nvim-setup"
-version = "0.1.0"
-description = "Modern Neovim configuration and management with uv and Python 3.11."
-requires-python = ">=3.11"
-
-[tool.uv]
-virtualenvs.in-project = true

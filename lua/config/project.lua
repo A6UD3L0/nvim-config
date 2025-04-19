@@ -4,8 +4,9 @@
 local M = {}
 
 function M.setup()
-  -- Check if telescope is available
-  local telescope_ok, telescope = pcall(require, "telescope")
+  -- Use utility for plugin existence check
+  local utils = require('utils')
+  local telescope_ok, telescope = utils.require_safe("telescope", "Telescope")
   if not telescope_ok then
     vim.notify("Telescope not found. Project management will be limited.", vim.log.levels.WARN)
     return

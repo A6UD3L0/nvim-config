@@ -2,7 +2,9 @@
 local M = {}
 
 function M.setup()
-  local status_ok, nvim_tree = pcall(require, "nvim-tree")
+  -- Use utility for plugin existence check
+  local utils = require('utils')
+  local status_ok, nvim_tree = utils.require_safe("nvim-tree", "nvim-tree")
   if not status_ok then
     vim.notify("nvim-tree not found. File navigation may not work properly.", vim.log.levels.WARN)
     return

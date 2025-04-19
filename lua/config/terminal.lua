@@ -4,7 +4,9 @@
 local M = {}
 
 function M.setup()
-  local status_ok, toggleterm = pcall(require, "toggleterm")
+  -- Use utility for plugin existence check
+  local utils = require('utils')
+  local status_ok, toggleterm = utils.require_safe("toggleterm", "toggleterm.nvim")
   if not status_ok then
     vim.notify("toggleterm.nvim not found. Terminal integration will be limited.", vim.log.levels.WARN)
     return

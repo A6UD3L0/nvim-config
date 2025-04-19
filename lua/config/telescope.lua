@@ -2,7 +2,9 @@
 local M = {}
 
 function M.setup()
-  local status_ok, telescope = pcall(require, "telescope")
+  -- Use utility for plugin existence check
+  local utils = require('utils')
+  local status_ok, telescope = utils.require_safe("telescope", "telescope.nvim")
   if not status_ok then
     vim.notify("telescope.nvim not found. Navigation features may be limited.", vim.log.levels.WARN)
     return

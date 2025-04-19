@@ -1,0 +1,12 @@
+MAKE SURE TO USE UV as proyect manager 
+   Error  12:43:18 msg_show.lua_error Error detected while processing LspAttach Autocommands for "*":
+Error executing lua callback: /Users/juan/.config/nvim/lua/config/lsp.lua:97: module 'mappings' not found:
+	no field package.preload['mappings']
+	cache_loader: module 'mappings' not found
+	cache_loader_lib: module 'mappings' not found
+	no file './mappings.lua'
+	no file '/opt/homebrew/share/luajit-2.1/mappings.lua'
+	no file '/usr/local/share/lua/5.1/mappings.lua'
+	no file '/usr/local/share/lua/5.1/mappings/init.lua'
+	no file '/opt/homebrew/share/lua/5.1/mappings.lua'
+

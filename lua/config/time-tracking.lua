@@ -4,6 +4,9 @@
 local M = {}
 
 function M.setup()
+  -- Use utility for directory and file creation
+  local utils = require('utils')
+
   -- Check if wakatime plugin is available
   if not pcall(function() vim.cmd("WakaTimeApiKey") end) then
     vim.notify("WakaTime plugin not found. Code time tracking will be limited.", vim.log.levels.INFO)
@@ -12,9 +15,7 @@ function M.setup()
   -- Set up for the code stats dashboard creation
   -- Create directory for reports if it doesn't exist
   local stats_dir = vim.fn.stdpath("data") .. "/codestats"
-  if vim.fn.isdirectory(stats_dir) == 0 then
-    vim.fn.mkdir(stats_dir, "p")
-  end
+  utils.ensure_dir_exists(stats_dir)
   
   -- Track which filetypes we're spending time in
   local filetype_times = {}
@@ -22,6 +23,7 @@ function M.setup()
   local current_file = ""
   local current_filetype = ""
   local stats_file = stats_dir .. "/stats.json"
+  utils.ensure_file_exists(stats_file)
   
   -- Initialize or load existing stats
   local function load_stats()
@@ -99,13 +101,13 @@ function M.setup()
       update_filetype_time()
       
       -- Update current file info
-      current_file = vim.fn.expand("%:p")
+      current_file = vim.api.nvim_buf_get_name(0)
       current_filetype = ft
       filetype_times[current_filetype] = os.time()
     end
   })
   
-  -- Update time on leaving a buffer
+  -- Track BufLeave to save stats on buffer leave
   vim.api.nvim_create_autocmd({"BufLeave"}, {
     group = tracking_group,
     callback = function()
@@ -113,7 +115,7 @@ function M.setup()
     end
   })
   
-  -- Update time periodically
+  -- Track CursorHold and CursorHoldI to save stats periodically
   vim.api.nvim_create_autocmd({"CursorHold", "CursorHoldI"}, {
     group = tracking_group,
     callback = function()
@@ -121,8 +123,8 @@ function M.setup()
     end
   })
   
-  -- Update time before leaving Vim
-  vim.api.nvim_create_autocmd({"VimLeave"}, {
+  -- Track VimLeave to save stats on exit
+  vim.api.nvim_create_autocmd({"VimLeavePre"}, {
     group = tracking_group,
     callback = function()
       update_filetype_time()

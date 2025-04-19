@@ -4,7 +4,8 @@
 local M = {}
 
 function M.setup()
-  -- Check if undotree is available
+  -- Use utility for plugin existence check
+  local utils = require('utils')
   if vim.fn.exists(":UndotreeToggle") == 0 then
     vim.notify("UndoTree not found. Change history visualization will be limited.", vim.log.levels.WARN)
     return
@@ -45,12 +46,7 @@ function M.setup()
   
   -- Persistent undo history across sessions
   local undodir = vim.fn.stdpath('data') .. '/undodir'
-  
-  -- Create undodir if it doesn't exist
-  if vim.fn.isdirectory(undodir) == 0 then
-    vim.fn.mkdir(undodir, "p")
-  end
-  
+  utils.ensure_dir_exists(undodir)
   -- Set undofile to save undo history
   vim.opt.undodir = undodir
   vim.opt.undofile = true
@@ -84,7 +80,7 @@ function M.setup()
       vim.opt_local.relativenumber = false
       
       -- Set more readable colors
-      vim.cmd([[
+      vim.cmd([[ 
         hi! link UndotreeNode Special
         hi! link UndotreeBranch Statement
         hi! link UndotreeCurrent Identifier

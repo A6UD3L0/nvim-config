@@ -299,82 +299,44 @@ This configuration features ThePrimeagen's optimized key bindings combined with 
 | `<leader>ds`     | SQL documentation                         |
 | `<leader>db`     | Bash documentation                        |
 
-## 🧩 Architecture
+## 🧩 Architecture & Maintenance Patterns
 
-The configuration follows a MECE (Mutually Exclusive, Collectively Exhaustive) design principle to ensure clean separation of concerns, maintainability, and performance.
+### MECE Plugin Structure
+- All plugins are organized by responsibility (LSP, Git, UI, navigation, etc.)
+- Each config module has a single responsibility and no circular dependencies
+- Utilities (in `lua/utils/init.lua`) are used for plugin checks and directory/file creation
 
-### Core Components:
+### Keymap Management
+- **All global/static keymaps** are defined in `lua/mappings.lua`
+- **Plugin-specific or buffer-local keymaps** are set in their respective config modules
+- Use the `desc` key for all keymaps for which-key integration
+- Use `utils.require_safe` for all plugin existence checks
+- Use `utils.ensure_dir_exists` and `utils.ensure_file_exists` for directory/file creation
 
-- **`init.lua`**: Entry point and basic configuration
-- **`lua/plugins.lua`**: Plugin management with lazy.nvim
-- **`lua/settings.lua`**: Core Neovim settings independent of plugins
-- **`lua/mappings.lua`**: Key mappings and functions
-- **`lua/which_key_setup.lua`**: Which-key configuration for keybinding organization
-- **`lua/plugins/`**: Domain-specific plugin configurations
+### Extending the Config
+- To add a new plugin, create a config in `lua/config/` and register it in the appropriate plugin module
+- Add global keymaps to `mappings.lua` and buffer-local keymaps in the plugin config
+- Follow the MECE pattern for new modules
 
-### Plugin Architecture:
+### Utilities
+- Common helpers are in `lua/utils/init.lua`
+- Extend this module for new patterns (e.g., terminal runners, plugin checks)
 
-Plugins are organized into logical domains:
-- **UI and Appearance**: Theme, status line, bufferline, etc.
-- **Editor and Syntax**: Treesitter, indentation, comments, etc.
-- **LSP and Completion**: Language servers, completion, snippets
-- **Navigation**: Telescope, Harpoon, file explorer
-- **Git Integration**: LazyGit, Gitsigns, diffview
-- **Languages**: Python, Go, and other language-specific plugins
-- **Utilities**: Terminal, documentation, debugging
+## 🛠️ Onboarding & Troubleshooting
 
-## 🛠️ Configuration
+- Run `:checkhealth` after installation to verify all dependencies
+- Use which-key (`<Space>`) to discover all available keybindings
+- For plugin errors, ensure the plugin is installed and available in your runtimepath
+- For missing system dependencies, follow the suggestions from `:checkhealth` or the error message
 
-### Customizing Themes
+## 🤝 Contributing
 
-To change the color theme:
-```lua
--- In lua/plugins/ui.lua, modify the colorscheme line
-vim.cmd("colorscheme tokyonight") -- Change to your preferred theme
-```
+- Please follow the MECE and keymap patterns described above for any PRs
+- Document any new keymaps or utilities in this README for maintainers
 
-### Adding New LSP Servers
+---
 
-To add more language servers:
-1. Install the server with Mason: `:MasonInstall server_name`
-2. Add server configuration in `lua/plugins/backend-essentials.lua`
-
-### Adding Custom Keybindings
-
-1. Add your mappings to `lua/mappings.lua`
-2. Register namespaces in `lua/which_key_setup.lua`
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-#### LSP Not Working
-- Check Mason has installed the required servers: `:Mason`
-- Verify server configured in `lua/plugins/backend-essentials.lua`
-- Run `:LspInfo` to check the status of language servers
-
-#### Slow Performance
-- Check startup time: `nvim --startuptime startup.log`
-- Use `:TSUpdate` to update Treesitter parsers
-- Ensure outdated plugins are updated with `:Lazy update`
-
-#### Unicode/Icon Issues
-- Verify a Nerd Font is installed and configured in your terminal
-- Check terminal supports true color with: `:checkhealth`
-
-#### Telescope Issues
-- Ensure ripgrep is installed for live grep functionality
-- Check `:checkhealth telescope` for any missing dependencies
-
-## 📝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+For any issues, suggestions, or contributions, please open an issue or PR on GitHub!
 
 ## 📜 License
 

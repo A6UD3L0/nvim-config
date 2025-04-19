@@ -24,6 +24,10 @@ local group_colors = {
   Code        = "#61AFEF", -- Code actions (bright blue)
   Substitute  = "#E5C07B", -- Substitute & replace (yellow)
   Quickfix    = "#E06C75", -- Quickfix & lists (red)
+  Markdown    = "#66D9EF", -- Markdown & docs (light blue-green)
+  Data        = "#8BE9FD", -- Data science & DB (light blue)
+  Yank        = "#F7DC6F", -- Yank & clipboard (yellow)
+  Venv        = "#8F0A1A", -- Python Venv (dark red)
 }
 
 -- Descriptive icons for better visual clarity and categorization
@@ -46,6 +50,10 @@ local key_icons = {
   c = "", -- Code Actions
   s = "", -- Substitute
   q = "", -- Quickfix
+  m = "", -- Markdown
+  d = "", -- Data
+  y = "", -- Yank
+  v = "", -- Venv
 }
 
 function M.setup()
@@ -124,24 +132,36 @@ function M.setup()
   -- ==== MECE KEY GROUP ORGANIZATION ====
   -- Primary namespaces with consistent and intuitive naming
   which_key.register({
-    ["<leader>f"] = { name = key_icons.f .. "%{WhichKeyGroupFind}Find Files%*" },
-    ["<leader>g"] = { name = key_icons.g .. "%{WhichKeyGroupGit}Git Operations%*" },
-    ["<leader>l"] = { name = key_icons.l .. "%{WhichKeyGroupLSP}LSP%*" },
-    ["<leader>b"] = { name = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers%*" },
-    ["<leader>t"] = { name = key_icons.t .. "%{WhichKeyGroupTerminal}Terminal%*" },
-    ["<leader>w"] = { name = key_icons.w .. "%{WhichKeyGroupWindow}Windows%*" },
-    ["<leader>e"] = { name = key_icons.e .. "%{WhichKeyGroupExplorer}Explorer%*" },
-    ["<leader>x"] = { name = key_icons.x .. "%{WhichKeyGroupDiagnostic}Diagnostics%*" },
+    ["<leader>f"] = { name = key_icons.f .. "%{WhichKeyGroupFind}Find & Search%*" },
+    ["<leader>g"] = { name = key_icons.g .. "%{WhichKeyGroupGit}Git & VCS%*" },
+    ["<leader>l"] = { name = key_icons.l .. "%{WhichKeyGroupLSP}LSP & Lang%*" },
+    ["<leader>b"] = { name = key_icons.b .. "%{WhichKeyGroupBuffer}Buffers & Tabs%*" },
+    ["<leader>t"] = { name = key_icons.t .. "%{WhichKeyGroupTerminal}Terminal & Shell%*" },
+    ["<leader>w"] = { name = key_icons.w .. "%{WhichKeyGroupWindow}Windows & Splits%*" },
+    ["<leader>e"] = { name = key_icons.e .. "%{WhichKeyGroupExplorer}Explorer & Files%*" },
+    ["<leader>x"] = { name = key_icons.x .. "%{WhichKeyGroupDiagnostic}Diagnostics & Trouble%*" },
     ["<leader>a"] = { name = key_icons.a .. "%{WhichKeyGroupAI}AI & Assist%*" },
-    ["<leader>h"] = { name = key_icons.h .. "%{WhichKeyGroupNavigation}Marks%*" },
+    ["<leader>h"] = { name = key_icons.h .. "%{WhichKeyGroupNavigation}Marks & Harpoon%*" },
     ["<leader>z"] = { name = key_icons.z .. "%{WhichKeyGroupZen}Zen & Focus%*" },
-    ["<leader>u"] = { name = key_icons.u .. "%{WhichKeyGroupUtility}Utilities%*" },
-    ["<leader>k"] = { name = key_icons.k .. "%{WhichKeyGroupKeymaps}Keymaps%*" },
-    ["<leader>p"] = { name = key_icons.p .. "%{WhichKeyGroupProject}Project%*" },
-    ["<leader>r"] = { name = key_icons.r .. "%{WhichKeyGroupRun}Run & Test%*" },
-    ["<leader>c"] = { name = key_icons.c .. "%{WhichKeyGroupCode}Code Actions%*" },
-    ["<leader>s"] = { name = key_icons.s .. "%{WhichKeyGroupSubstitute}Substitute%*" },
-    ["<leader>q"] = { name = key_icons.q .. "%{WhichKeyGroupQuickfix}Quickfix%*" },
+    ["<leader>u"] = { name = key_icons.u .. "%{WhichKeyGroupUtility}Utilities & Undo%*" },
+    ["<leader>k"] = { name = key_icons.k .. "%{WhichKeyGroupKeymaps}Keymaps & Help%*" },
+    ["<leader>p"] = { name = key_icons.p .. "%{WhichKeyGroupProject}Project & Session%*" },
+    ["<leader>pu"] = { name = key_icons.p .. "UV: Install Python deps" },
+    ["<leader>pv"] = { name = key_icons.p .. "UV: Create venv" },
+    ["<leader>pa"] = { name = key_icons.p .. "UV: Add package under cursor" },
+    ["<leader>pr"] = { name = key_icons.p .. "UV: Remove package under cursor" },
+    ["<leader>ps"] = { name = key_icons.p .. "UV: Sync environment" },
+    ["<leader>pt"] = { name = key_icons.p .. "UV: List packages" },
+    ["<leader>pl"] = { name = key_icons.p .. "UV: List venvs" },
+    ["<leader>pd"] = { name = key_icons.p .. "UV: Destroy current venv" },
+    ["<leader>r"] = { name = key_icons.r .. "%{WhichKeyGroupRun}Run, Test & REPL%*" },
+    ["<leader>c"] = { name = key_icons.c .. "%{WhichKeyGroupCode}Code Actions & Refactor%*" },
+    ["<leader>s"] = { name = key_icons.s .. "%{WhichKeyGroupSubstitute}Substitute, Sort & Stats%*" },
+    ["<leader>q"] = { name = key_icons.q .. "%{WhichKeyGroupQuickfix}Quickfix & Quit%*" },
+    ["<leader>m"] = { name = key_icons.m .. "%{WhichKeyGroupMarkdown}Markdown & Docs%*" },
+    ["<leader>d"] = { name = key_icons.d .. "%{WhichKeyGroupData}Data Science & DB%*" },
+    ["<leader>y"] = { name = key_icons.y .. "%{WhichKeyGroupYank}Yank & Clipboard%*" },
+    ["<leader>v"] = { name = key_icons.v .. "%{WhichKeyGroupVenv}Python Venv%*" },
     ["<leader>?"] = { name = "Show All Keymaps" },
   }, { mode = "n", prefix = "<leader>" })
 

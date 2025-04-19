@@ -21,6 +21,16 @@ map("n", "<leader>pf", function()
   if telescope_ok then telescope.find_files() end
 end, { desc = "Find files in project" })
 
+-- UV Project Manager
+map("n", "<leader>pu", ":!uv pip install -r requirements.txt<CR>", { desc = "UV: Install Python deps" })
+map("n", "<leader>pv", ":!uv venv .venv<CR>", { desc = "UV: Create venv" })
+map("n", "<leader>pa", ":!uv pip install <C-r><C-w><CR>", { desc = "UV: Add package under cursor" })
+map("n", "<leader>pr", ":!uv pip remove <C-r><C-w><CR>", { desc = "UV: Remove package under cursor" })
+map("n", "<leader>ps", ":!uv pip sync<CR>", { desc = "UV: Sync environment" })
+map("n", "<leader>pt", ":!uv pip list<CR>", { desc = "UV: List packages" })
+map("n", "<leader>pl", ":!uv venv list<CR>", { desc = "UV: List venvs" })
+map("n", "<leader>pd", ":!uv venv destroy .venv<CR>", { desc = "UV: Destroy current venv" })
+
 -- ToggleTerm integration
 map("n", "<leader>tt", "<cmd>ToggleTerm direction=horizontal<CR>", { desc = "Toggle terminal" })
 
@@ -47,6 +57,14 @@ if wk_ok then
     ["<leader>p"] = { name = "+project" },
     ["<leader>u"] = { "Toggle UndoTree" },
     ["<leader>e"] = { "Toggle file explorer" },
+    ["<leader>pu"] = { "UV: Install Python deps" },
+    ["<leader>pv"] = { "UV: Create venv" },
+    ["<leader>pa"] = { "UV: Add package under cursor" },
+    ["<leader>pr"] = { "UV: Remove package under cursor" },
+    ["<leader>ps"] = { "UV: Sync environment" },
+    ["<leader>pt"] = { "UV: List packages" },
+    ["<leader>pl"] = { "UV: List venvs" },
+    ["<leader>pd"] = { "UV: Destroy current venv" },
   })
 end
 

@@ -4,6 +4,7 @@
 
 local keybindings = require("core.keybindings")
 local map = keybindings.map
+require("core.keybindings.base")
 local utils = require("core.utils")
 
 local M = {}
@@ -28,7 +29,6 @@ function M.setup()
     -- File navigation
     map("n", "<leader>ff", telescope.find_files, { desc = "Find files" })
     map("n", "<leader>fg", telescope.live_grep, { desc = "Live grep" })
-    map("n", "<leader>fb", telescope.buffers, { desc = "Find buffers" })
     map("n", "<leader>fh", telescope.help_tags, { desc = "Help tags" })
     map("n", "<leader>fr", telescope.oldfiles, { desc = "Recent files" })
     map("n", "<leader>fk", telescope.keymaps, { desc = "Find keymaps" })
@@ -101,7 +101,7 @@ function M.setup()
     -- Enhanced buffer navigation with telescope
     local has_telescope, telescope = utils.has_plugin("telescope.builtin")
     if has_telescope then
-      map("n", "<leader>bb", telescope.buffers, { desc = "Find buffers" })
+      -- Removed duplicate buffer navigation mappings
     end
     
     return true

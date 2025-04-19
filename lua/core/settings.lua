@@ -6,6 +6,18 @@ local M = {}
 
 -- Default settings with documentation
 M.defaults = {
+  -- Performance tuning
+  performance = {
+    updatetime = 250,             -- Faster completion and highlighting
+    timeoutlen = 300,             -- Faster key sequence completion
+    ttimeoutlen = 10,             -- Very fast timeout for terminal key codes
+    redrawtime = 1500,            -- Max time spent redrawing syntax highlighting
+    ttyfast = true,               -- Smoother redrawing
+    lazyredraw = true,            -- Don't redraw during macros
+    showcmd = true,               -- Show partial command in last line
+    hidden = true,                -- Allow switching buffers without saving
+  },
+  
   -- Editor behavior
   editor = {
     -- Line numbers and cursor
@@ -49,347 +61,267 @@ M.defaults = {
   -- UI settings
   ui = {
     -- Colors and visuals
-    termguicolors = true,         -- Enable 24-bit RGB colors
-    background = "dark",          -- Color scheme background
-    colorscheme = "tokyonight",   -- Default color scheme
-    
-    -- Interface elements
-    cmdheight = 1,                -- Command line height
-    pumheight = 10,               -- Popup menu max height
-    laststatus = 3,               -- Global statusline
-    showtabline = 1,              -- Show tabline only if >1 tab
-    signcolumn = "yes",           -- Always show sign column
+    termguicolors = true,         -- Use GUI colors in terminal
+    background = "dark",          -- Dark background
     showmode = false,             -- Don't show mode in command line
-    shortmess = "filnxtToOFc",    -- Shorten messages in command line
+    showtabline = 2,              -- Always show the tab line
+    laststatus = 3,               -- Global status line
+    signcolumn = "yes",           -- Always show sign column
     
-    -- Split behavior
-    splitbelow = true,            -- Horizontal splits go below
-    splitright = true,            -- Vertical splits go right
+    -- Visual cues
+    list = true,                  -- Show whitespace characters
+    listchars = "tab:» ,trail:·,extends:›,precedes:‹,nbsp:␣",
     
-    -- Visual aids
-    ruler = false,                -- Hide ruler (position info)
+    -- UI elements
+    cmdheight = 1,                -- Command line height
+    pumheight = 10,               -- Max items in completion menu
     showmatch = true,             -- Highlight matching brackets
-    list = true,                  -- Show invisible characters
-    listchars = "tab:› ,trail:•,extends:»,precedes:«,nbsp:␣",
-    conceallevel = 0,             -- Text is shown normally
-    concealcursor = "",           -- Never conceal cursor line
+    matchtime = 2,                -- Blink time for matching brackets
     
-    -- Cursor customization
-    guicursor = "n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20",
+    -- File backups
+    backup = false,               -- Don't keep backup files
+    writebackup = false,          -- Don't make backup before overwriting
+    swapfile = false,             -- Don't use swap files
+    undofile = true,              -- Persistent undo history
+    
+    -- Theme preferences
+    transparency = false,         -- Window transparency
+    theme = "tokyonight",         -- Default theme
   },
   
-  -- Performance settings
-  performance = {
-    -- Redraw and updates
-    updatetime = 250,             -- Faster completion and highlighting
-    timeoutlen = 300,             -- Faster key sequence completion
-    ttimeoutlen = 10,             -- Very fast timeout for terminal codes
-    redrawtime = 1500,            -- Max time for syntax highlighting
-    ttyfast = true,               -- Smoother redrawing
-    lazyredraw = true,            -- Don't redraw during macros
-    
-    -- File limits
-    maxfile = 10 * 1024 * 1024,   -- Max file size before optimizations
+  -- System directories
+  directories = {
+    undo_dir = "~/.local/share/nvim/undo",  -- Persistent undo history
+    backup_dir = "~/.local/share/nvim/backup", -- Backup files
+    swap_dir = "~/.local/share/nvim/swap",  -- Swap files
   },
   
   -- LSP settings
   lsp = {
-    -- General LSP behavior
-    automatic_installation = true, -- Auto-install LSP servers
-    format_on_save = true,         -- Format code on save
-    virtual_text = true,           -- Show diagnostics as virtual text
-    float_border = "rounded",      -- Border style for floating windows
-    
-    -- Python-specific settings
-    python = {
-      formatter = "black",         -- Default Python formatter
-      linter = "ruff",             -- Default Python linter
-      type_checker = "pyright",    -- Default Python type checker
+    -- Diagnostics display
+    diagnostics = {
+      virtual_text = true,        -- Show diagnostics as virtual text
+      underline = true,           -- Underline code with issues
+      update_in_insert = false,   -- Don't update diagnostics in insert mode
+      severity_sort = true,       -- Sort by severity
+      float = {
+        border = "rounded",       -- Bordered floating windows
+        source = "always",        -- Always show source
+      },
     },
     
-    -- Web development settings
-    web = {
-      formatter = "prettier",      -- Default web formatter
-      linter = "eslint",           -- Default web linter
+    -- Completion settings
+    completion = {
+      enabled = true,             -- Enable LSP completion
+      autocomplete = true,        -- Automatically show completion menu
+      keyword_length = 2,         -- Min chars to trigger completion
     },
+    
+    -- Formatting
+    format_on_save = true,        -- Format on save
+    format_timeout = 1000,        -- Formatting timeout in ms
+    
+    -- Navigation
+    code_lens = true,             -- Enable code lens refreshing
+    signature_help = true,        -- Show signature help
+    inlay_hints = false,          -- Show inlay hints
   },
   
-  -- Python tools settings
+  -- Python settings
   python = {
     -- uv.nvim settings
     uv = {
       enabled = true,              -- Enable uv.nvim integration
       auto_venv_activation = true, -- Auto-activate virtual environments
-      auto_install_requirements = false, -- Auto-install from requirements.txt
+      default_venv_path = ".venv", -- Default venv path
+      auto_pip_install = true,     -- Auto install Python dependencies
     },
     
-    -- Virtual environment settings
-    venv = {
-      auto_create = false,         -- Auto-create venv for new projects
-      path = ".venv",              -- Default venv directory name
-      always_create_global = false, -- Create global venv if not found
+    -- Linting and formatting
+    linting = {
+      enabled = true,              -- Enable linting
+      tool = "ruff",               -- Default linter: ruff
+    },
+    
+    formatting = {
+      enabled = true,              -- Enable formatting
+      tool = "black",              -- Default formatter: black
+    },
+    
+    -- Testing
+    testing = {
+      enabled = true,              -- Enable test running
+      framework = "pytest",        -- Default test framework
+      auto_discovery = true,       -- Auto-discover tests
     },
   },
   
-  -- Keybinding settings
+  -- Keybinding preferences
   keybindings = {
-    leader = " ",                  -- Leader key
-    localleader = ",",             -- Local leader key
-    timeout = 300,                 -- Timeout for key sequences
-    which_key_delay = 200,         -- Delay before showing which-key
-    icons = true,                  -- Use icons in which-key
-    
-    -- Keybinding style
-    use_traditional = false,       -- Use Vim traditional bindings
-    enhanced_navigation = true,    -- Use enhanced navigation keys
+    leader = " ",                 -- Space as leader key
+    timeout = 300,                -- Timeout for key sequences
+    which_key = {
+      popup_mappings = {
+        scroll_down = "<c-d>",    -- Scroll down in which-key popup
+        scroll_up = "<c-u>",      -- Scroll up in which-key popup
+      },
+      window = {
+        border = "rounded",       -- Border style
+        padding = { 1, 1, 1, 1 }, -- Window padding
+      },
+      layout = {
+        spacing = 6,              -- Spacing between columns
+      },
+    },
   },
 }
 
 -- User settings (loaded from config)
 M.user = {}
 
--- Merged settings (defaults + user)
-M.current = vim.deepcopy(M.defaults)
+-- Current settings (merged defaults and user settings)
+M.current = {}
 
--- Load user settings from a file
-function M.load_user_settings()
-  local config_path = vim.fn.stdpath("config") .. "/user_settings.lua"
+-- Merge user settings with defaults
+function M.merge_settings()
+  -- Create a deep copy of defaults
+  M.current = vim.deepcopy(M.defaults)
   
-  -- Check if user settings file exists
-  if vim.fn.filereadable(config_path) == 1 then
-    local status_ok, user_settings = pcall(dofile, config_path)
-    if status_ok and type(user_settings) == "table" then
-      M.user = user_settings
-      -- Merge user settings into current settings
-      M.current = vim.tbl_deep_extend("force", M.defaults, M.user)
-      return true
-    else
-      vim.notify("Failed to load user settings from " .. config_path, vim.log.levels.ERROR)
-    end
-  end
-  
-  return false
-end
-
--- Get a setting with validation
-function M.get(path, default)
-  -- Parse the path (e.g., "editor.tabstop")
-  local parts = vim.split(path, ".", { plain = true })
-  local current = M.current
-  
-  -- Traverse the settings table
-  for i = 1, #parts - 1 do
-    current = current[parts[i]]
-    if current == nil then
-      if default ~= nil then
-        return default
-      else
-        -- Return the default from the defaults table if possible
-        local default_value = M.defaults
-        for j = 1, #parts do
-          default_value = default_value[parts[j]]
-          if default_value == nil then
-            break
-          end
-          
-          if j == #parts then
-            return default_value
-          end
-        end
-        
-        return nil
-      end
-    end
-  end
-  
-  -- Get the final value
-  local value = current[parts[#parts]]
-  if value == nil then
-    if default ~= nil then
-      return default
-    else
-      -- Try to get from defaults
-      local default_value = M.defaults
-      for j = 1, #parts do
-        default_value = default_value[parts[j]]
-        if default_value == nil then
-          break
+  -- Merge with user settings
+  local schema = require("core.schema")
+  for section, values in pairs(M.user) do
+    if type(values) == "table" and type(M.defaults[section]) == "table" then
+      -- Validate section against schema if available
+      if schema.schemas[section] then
+        local valid, err = schema.validate(values, schema.schemas[section])
+        if not valid then
+          vim.notify("Invalid settings in section '" .. section .. "': " .. err, vim.log.levels.WARN)
         end
       end
       
-      return default_value
+      -- Merge valid sections
+      M.current[section] = vim.tbl_deep_extend("force", M.current[section] or {}, values)
+    else
+      -- For non-table values, just overwrite
+      M.current[section] = values
     end
   end
   
-  return value
+  -- Call any post-processing functions after merge
+  M.post_process_settings()
+  
+  return M.current
 end
 
--- Set a setting with validation
-function M.set(path, value)
-  -- Parse the path (e.g., "editor.tabstop")
-  local parts = vim.split(path, ".", { plain = true })
-  local current = M.current
-  
-  -- Traverse and create tables as needed
-  for i = 1, #parts - 1 do
-    if current[parts[i]] == nil then
-      current[parts[i]] = {}
+-- Post-process merged settings
+function M.post_process_settings()
+  -- Example: Convert relative paths to absolute
+  if M.current.directories then
+    for name, path in pairs(M.current.directories) do
+      if type(path) == "string" and path:sub(1, 1) == "~" then
+        M.current.directories[name] = vim.fn.expand(path)
+      end
     end
-    current = current[parts[i]]
   end
-  
-  -- Set the value
-  current[parts[#parts]] = value
-  
-  -- Update the vim option if it corresponds to one
-  local vim_opt_map = {
-    ["editor.number"] = "number",
-    ["editor.relativenumber"] = "relativenumber",
-    ["editor.cursorline"] = "cursorline",
-    ["editor.cursorcolumn"] = "cursorcolumn",
-    ["editor.wrap"] = "wrap",
-    ["editor.tabstop"] = "tabstop",
-    ["editor.shiftwidth"] = "shiftwidth",
-    ["editor.expandtab"] = "expandtab",
-    ["ui.background"] = "background",
-    ["ui.signcolumn"] = "signcolumn",
-    -- Add more mappings as needed
-  }
-  
-  if vim_opt_map[path] then
-    vim.opt[vim_opt_map[path]] = value
-  end
-  
-  return true
 end
 
--- Apply core settings from the settings manager
+-- Load user settings from user configuration
+function M.load_user_settings()
+  -- Try to load user configuration
+  local ok, user_config = pcall(require, "user.settings")
+  if ok and type(user_config) == "table" then
+    M.user = user_config
+    vim.notify("Loaded user settings", vim.log.levels.DEBUG)
+  else
+    vim.notify("No user settings found, using defaults", vim.log.levels.DEBUG)
+  end
+  
+  -- Merge with defaults
+  return M.merge_settings()
+end
+
+-- Apply settings to Neovim
 function M.apply_settings()
+  -- Performance settings
+  for name, value in pairs(M.current.performance) do
+    vim.opt[name] = value
+  end
+  
   -- Editor settings
   for name, value in pairs(M.current.editor) do
     -- Skip settings that shouldn't be directly applied
     if name ~= "clipboard" then -- Handle clipboard specially
-      pcall(function() vim.opt[name] = value end)
+      vim.opt[name] = value
     end
   end
   
-  -- Handle clipboard specially due to different OS requirements
-  if M.current.editor.clipboard == "unnamedplus" and vim.fn.has("unnamedplus") == 1 then
-    vim.opt.clipboard = "unnamedplus"
-  elseif M.current.editor.clipboard ~= "" then
-    vim.opt.clipboard = "unnamed"
+  -- Clipboard integration requires special handling
+  if M.current.editor.clipboard then
+    vim.opt.clipboard = M.current.editor.clipboard
   end
   
   -- UI settings
   for name, value in pairs(M.current.ui) do
-    -- Skip applying colorscheme directly
-    if name ~= "colorscheme" then
-      pcall(function() vim.opt[name] = value end)
+    -- Skip special values like theme
+    if name ~= "theme" and name ~= "transparency" then
+      vim.opt[name] = value
     end
   end
   
-  -- Apply colorscheme
-  if M.current.ui.colorscheme and M.current.ui.colorscheme ~= "" then
-    pcall(vim.cmd, "colorscheme " .. M.current.ui.colorscheme)
+  -- Apply theme if specified
+  if M.current.ui.theme and M.current.ui.theme ~= "" then
+    -- Will be applied by the theme plugin later
+    vim.g.theme = M.current.ui.theme
   end
   
-  -- Performance settings
-  for name, value in pairs(M.current.performance) do
-    if name ~= "maxfile" then -- maxfile is not a vim option
-      pcall(function() vim.opt[name] = value end)
-    end
-  end
-  
-  -- Apply keybinding settings
-  vim.g.mapleader = M.current.keybindings.leader
-  vim.g.maplocalleader = M.current.keybindings.localleader
-  vim.opt.timeoutlen = M.current.keybindings.timeout
-  
-  -- Set up large file handling
-  vim.api.nvim_create_autocmd("BufReadPre", {
-    callback = function(args)
-      local max_filesize = M.current.performance.maxfile
-      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(args.buf))
-      if ok and stats and stats.size > max_filesize then
-        vim.notify("Large file detected, reducing features for better performance", vim.log.levels.INFO)
-        vim.cmd("syntax off")
-        vim.bo[args.buf].foldmethod = "manual"
-        vim.bo[args.buf].swapfile = false
-        vim.bo[args.buf].undolevels = -1
-        vim.opt_local.spell = false
-        vim.opt_local.list = false
-      end
-    end
-  })
-  
-  return true
-end
-
--- Save user settings to a file
-function M.save_user_settings()
-  local config_path = vim.fn.stdpath("config") .. "/user_settings.lua"
-  
-  -- Serialize settings table to Lua code
-  local lines = { "-- User Settings" }
-  table.insert(lines, "-- This file is auto-generated. Modify settings through the API.")
-  table.insert(lines, "return {")
-  
-  -- Helper function to serialize a table
-  local function serialize_table(tbl, indent)
-    indent = indent or 2
-    local result = {}
-    
-    for k, v in pairs(tbl) do
-      local key = type(k) == "number" and "[" .. k .. "]" or k
-      
-      if type(v) == "table" then
-        table.insert(result, string.rep(" ", indent) .. key .. " = {")
-        local nested = serialize_table(v, indent + 2)
-        for _, line in ipairs(nested) do
-          table.insert(result, line)
-        end
-        table.insert(result, string.rep(" ", indent) .. "},")
-      elseif type(v) == "string" then
-        table.insert(result, string.rep(" ", indent) .. key .. ' = "' .. v .. '",')
-      elseif type(v) == "boolean" or type(v) == "number" or v == nil then
-        table.insert(result, string.rep(" ", indent) .. key .. " = " .. tostring(v) .. ",")
+  -- Create and set directories
+  for name, path in pairs(M.current.directories) do
+    -- Ensure directory exists
+    local dir_exists = vim.fn.isdirectory(path)
+    if dir_exists == 0 then
+      local success = vim.fn.mkdir(path, "p")
+      if success == 0 then
+        vim.notify("Failed to create directory: " .. path, vim.log.levels.WARN)
       end
     end
     
-    return result
+    -- Set corresponding Vim option if applicable
+    if name == "undo_dir" then
+      vim.opt.undodir = path
+    elseif name == "backup_dir" then
+      vim.opt.backupdir = path
+    elseif name == "swap_dir" then
+      vim.opt.directory = path
+    end
   end
   
-  -- Serialize user settings
-  local serialized = serialize_table(M.user)
-  for _, line in ipairs(serialized) do
-    table.insert(lines, line)
+  -- Set leader key
+  if M.current.keybindings and M.current.keybindings.leader then
+    vim.g.mapleader = M.current.keybindings.leader
+    vim.g.maplocalleader = M.current.keybindings.leader
   end
   
-  table.insert(lines, "}")
+  -- Apply LSP diagnostic settings
+  if M.current.lsp and M.current.lsp.diagnostics then
+    vim.diagnostic.config(M.current.lsp.diagnostics)
+  end
   
-  -- Write to file
-  vim.fn.writefile(lines, config_path)
+  -- Enable JIT compilation for LuaJIT when available
+  if jit and jit.version then
+    jit.on()
+  end
   
+  vim.notify("Applied settings", vim.log.levels.DEBUG)
   return true
 end
 
 -- Initialize settings
 function M.setup()
-  -- Load user settings
   M.load_user_settings()
-  
-  -- Apply settings
   M.apply_settings()
   
-  -- Set up autocmd to save settings on exit
-  vim.api.nvim_create_autocmd("VimLeave", {
-    callback = function()
-      M.save_user_settings()
-    end,
-    group = vim.api.nvim_create_augroup("SettingsSave", { clear = true }),
-  })
-  
-  return true
+  -- Return settings for other modules to use
+  return M.current
 end
 
 return M

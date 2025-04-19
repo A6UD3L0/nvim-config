@@ -36,8 +36,8 @@ function M.setup()
   map("n", "<leader>dl", "yyp", { desc = "Duplicate line" })
   map("v", "<leader>dl", "y`>p", { desc = "Duplicate selection" })
   
-  -- Join lines without moving cursor
-  map("n", "J", "mzJ`z", { desc = "Join lines (keep cursor)" })
+  -- Join lines without moving cursor (moved to base keymaps)
+  -- map("n", "J", "mzJ`z", { desc = "Join lines (keep cursor)" })
   
   -- ╭──────────────────────────────────────────────────────────╮
   -- │                      Search and Replace                   │
@@ -75,8 +75,8 @@ function M.setup()
     vim.cmd("/" .. current_word)
   end, { desc = "Search word under cursor" })
   
-  -- Clear search highlighting
-  map("n", "<leader>sc", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+  -- Clear search highlighting (moved to base keymaps)
+  -- map("n", "<leader>sc", ":nohlsearch<CR>", { desc = "Clear search highlight" })
   
   -- ╭──────────────────────────────────────────────────────────╮
   -- │                      Code Actions                         │

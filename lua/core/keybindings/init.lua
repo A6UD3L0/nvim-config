@@ -98,109 +98,180 @@ function M.register_group(prefix, group_name, icon, color)
   end
 end
 
--- Function to initialize all keybinding modules
-function M.setup()
-  -- Set leader key
-  vim.g.mapleader = " "
+-- Map a set of keybindings for a specific domain with common prefixes
+-- This helps avoid repetitive code in each keybinding module
+-- @param domain_name string The name of the domain (e.g., "lsp", "git")
+-- @param prefix string The leader prefix to use (e.g., "<leader>l")
+-- @param mappings table A table of keybindings in the format { [key] = { action, description, [mode] } }
+-- @param default_mode string The default mode for mappings if not specified (default: "n")
+function M.map_domain(domain_name, prefix, mappings, default_mode)
+  default_mode = default_mode or "n"
   
-  -- Load all keybinding modules
-  M.load_core_mappings()
-  M.load_lsp_mappings()
-  M.load_navigation_mappings()
-  M.load_terminal_mappings()
-  M.load_ui_mappings()
-  M.load_window_mappings()
-  M.load_file_mappings()
-  M.load_edit_mappings()
-  M.load_project_mappings()
-  M.load_git_mappings()
-  M.load_python_mappings()
+  -- Register the domain group with which-key
+  M.register_group(prefix, domain_name:gsub("^%l", string.upper))
   
-  -- Initialize which-key with our mappings if available
-  M.initialize_which_key()
+  -- Create all the mappings
+  for key, mapping in pairs(mappings) do
+    local action = mapping[1]
+    local desc = mapping[2]
+    local mode = mapping[3] or default_mode
+    
+    -- Construct the full key sequence
+    local lhs = prefix .. key
+    
+    -- Create the mapping
+    M.map(mode, lhs, action, { desc = desc })
+  end
 end
 
--- Load core mappings that don't require plugins
+-- Create a set of LSP buffer-local mappings
+-- Used by the LSP on_attach functions
+-- @param client table The LSP client instance
+-- @param bufnr number The buffer number to apply mappings to
+function M.apply_lsp_buffer_mappings(client, bufnr)
+  local function buf_map(mode, lhs, rhs, opts)
+    opts = opts or {}
+    opts.buffer = bufnr
+    M.map(mode, lhs, rhs, opts)
+  end
+  
+  -- Standard LSP keymaps
+  buf_map("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+  buf_map("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+  buf_map("n", "K", vim.lsp.buf.hover, { desc = "Show hover information" })
+  buf_map("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+  buf_map("n", "<C-k>", vim.lsp.buf.signature_help, { desc = "Show signature help" })
+  buf_map("n", "<leader>lr", vim.lsp.buf.rename, { desc = "Rename symbol" })
+  buf_map("n", "<leader>la", vim.lsp.buf.code_action, { desc = "Code action" })
+  buf_map("n", "gr", vim.lsp.buf.references, { desc = "Find references" })
+  
+  -- Diagnostics
+  buf_map("n", "<leader>lj", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+  buf_map("n", "<leader>lk", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
+  buf_map("n", "<leader>ll", vim.diagnostic.open_float, { desc = "Line diagnostics" })
+  buf_map("n", "<leader>lq", vim.diagnostic.setloclist, { desc = "Set location list" })
+  
+  -- Workspace
+  buf_map("n", "<leader>lwa", vim.lsp.buf.add_workspace_folder, { desc = "Add workspace folder" })
+  buf_map("n", "<leader>lwr", vim.lsp.buf.remove_workspace_folder, { desc = "Remove workspace folder" })
+  buf_map("n", "<leader>lwl", function()
+    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  end, { desc = "List workspace folders" })
+  
+  -- Document formatting if supported
+  if client.supports_method("textDocument/formatting") then
+    buf_map("n", "<leader>lf", function() 
+      vim.lsp.buf.format({ bufnr = bufnr }) 
+    end, { desc = "Format document" })
+  end
+  
+  -- Range formatting if supported
+  if client.supports_method("textDocument/rangeFormatting") then
+    buf_map("v", "<leader>lf", function() 
+      vim.lsp.buf.format({ bufnr = bufnr }) 
+    end, { desc = "Format selection" })
+  end
+  
+  -- Setup buffer-local which-key mappings
+  local has_which_key, which_key = utils.has_plugin("which-key")
+  if has_which_key then
+    which_key.register({
+      ["<leader>l"] = { name = " LSP" },
+      ["<leader>lw"] = { name = " Workspace" },
+      ["<leader>lf"] = { name = " Find/Format" },
+    }, { buffer = bufnr })
+  end
+end
+
+-- Function to initialize all keybinding modules
+function M.setup()
+  -- Load global base mappings first
+  require("core.keybindings.base")
+
+  -- Initialize domain-specific keybinding modules
+  M.load_core_mappings()
+  M.load_window_mappings()
+  M.load_lsp_mappings()
+  M.load_navigation_mappings()
+  M.load_git_mappings()
+  M.load_file_mappings()
+  M.load_terminal_mappings()
+  M.load_ui_mappings()
+  M.load_project_mappings()
+  M.load_python_mappings()
+  M.load_edit_mappings()
+  
+  -- Register all leader mappings with which-key if available
+  local has_which_key, which_key = utils.has_plugin("which-key")
+  if has_which_key then
+    which_key.register(M.all_mappings)
+  end
+  
+  return true
+end
+
+-- Hook for LSP on_attach
+function M.on_lsp_attach(client, bufnr)
+  -- Load LSP keybindings for this buffer
+  local lsp = require("core.keybindings.lsp")
+  lsp.apply_buffer_mappings(client, bufnr)
+end
+
+-- Load domain-specific keybinding modules
+
 function M.load_core_mappings()
   local core = require("core.keybindings.core")
   core.setup()
 end
 
--- Load LSP-specific mappings
-function M.load_lsp_mappings()
-  local lsp = require("core.keybindings.lsp")
-  lsp.setup()
-end
-
--- Load navigation mappings (telescope, file browsing, etc.)
-function M.load_navigation_mappings()
-  local navigation = require("core.keybindings.navigation")
-  navigation.setup()
-end
-
--- Load terminal-related mappings
-function M.load_terminal_mappings()
-  local terminal = require("core.keybindings.terminal")
-  terminal.setup()
-end
-
--- Load UI-related mappings
-function M.load_ui_mappings()
-  local ui = require("core.keybindings.ui")
-  ui.setup()
-end
-
--- Load window management mappings
 function M.load_window_mappings()
   local window = require("core.keybindings.window")
   window.setup()
 end
 
--- Load file operation mappings
-function M.load_file_mappings()
-  local file = require("core.keybindings.file")
-  file.setup()
+function M.load_lsp_mappings()
+  local lsp = require("core.keybindings.lsp")
+  lsp.setup()
 end
 
--- Load text editing mappings
-function M.load_edit_mappings()
-  local edit = require("core.keybindings.edit")
-  edit.setup()
+function M.load_navigation_mappings()
+  local navigation = require("core.keybindings.navigation")
+  navigation.setup()
 end
 
--- Load project management mappings
-function M.load_project_mappings()
-  local project = require("core.keybindings.project")
-  project.setup()
-end
-
--- Load git mappings
-function M.load_git_mappings()
-  local git = require("core.keybindings.git")
-  git.setup()
-end
-
--- Load Python-specific mappings
 function M.load_python_mappings()
   local python = require("core.keybindings.python")
   python.setup()
 end
 
--- Initialize which-key with our collected mappings
-function M.initialize_which_key()
-  local has_which_key, which_key = utils.has_plugin("which-key")
-  if not has_which_key then
-    vim.notify("which-key not found. Key guide will not be available.", vim.log.levels.WARN)
-    return
-  end
-  
-  which_key.register(M.all_mappings)
+function M.load_terminal_mappings()
+  local terminal = require("core.keybindings.terminal")
+  terminal.setup()
 end
 
--- Apply LSP keybindings when an LSP attaches to a buffer
-function M.on_lsp_attach(client, bufnr)
-  local lsp = require("core.keybindings.lsp")
-  lsp.apply_buffer_mappings(client, bufnr)
+function M.load_git_mappings()
+  local git = require("core.keybindings.git")
+  git.setup()
+end
+
+function M.load_file_mappings()
+  local file = require("core.keybindings.file")
+  file.setup()
+end
+
+function M.load_edit_mappings()
+  local edit = require("core.keybindings.edit")
+  edit.setup()
+end
+
+function M.load_ui_mappings()
+  local ui = require("core.keybindings.ui")
+  ui.setup()
+end
+
+function M.load_project_mappings()
+  local project = require("core.keybindings.project")
+  project.setup()
 end
 
 return M

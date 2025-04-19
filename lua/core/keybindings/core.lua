@@ -4,6 +4,7 @@
 
 local keybindings = require("core.keybindings")
 local map = keybindings.map
+require("core.keybindings.base")
 
 local M = {}
 
@@ -12,29 +13,29 @@ function M.setup()
   -- │                    Window Navigation                      │
   -- ╰──────────────────────────────────────────────────────────╯
   
-  -- Better window navigation
-  map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
-  map("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
-  map("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
-  map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
+  -- Better window navigation (moved to base keymaps)
+  -- map("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
+  -- map("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
+  -- map("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
+  -- map("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
   
-  -- Window resizing
-  map("n", "<C-Up>", ":resize -2<CR>", { desc = "Decrease window height" })
-  map("n", "<C-Down>", ":resize +2<CR>", { desc = "Increase window height" })
-  map("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
-  map("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
+  -- Window resizing (moved to base keymaps)
+  -- map("n", "<C-Up>", ":resize -2<CR>", { desc = "Decrease window height" })
+  -- map("n", "<C-Down>", ":resize +2<CR>", { desc = "Increase window height" })
+  -- map("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
+  -- map("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
   
   -- ╭──────────────────────────────────────────────────────────╮
   -- │                    Buffer Navigation                      │
   -- ╰──────────────────────────────────────────────────────────╯
   
-  -- Navigate buffers
-  map("n", "<S-l>", ":bnext<CR>", { desc = "Next buffer" })
-  map("n", "<S-h>", ":bprevious<CR>", { desc = "Previous buffer" })
+  -- Navigate buffers (moved to base keymaps)
+  -- map("n", "<S-l>", ":bnext<CR>", { desc = "Next buffer" })
+  -- map("n", "<S-h>", ":bprevious<CR>", { desc = "Previous buffer" })
   
-  -- Close buffer
-  map("n", "<leader>bd", ":bdelete<CR>", { desc = "Delete buffer" })
-  map("n", "<leader>bD", ":bdelete!<CR>", { desc = "Force delete buffer" })
+  -- Close buffer handled by base keymaps
+  -- map("n", "<leader>bd", ":bdelete<CR>", { desc = "Delete buffer" })
+  -- map("n", "<leader>bD", ":bdelete!<CR>", { desc = "Force delete buffer" })
   
   -- ╭──────────────────────────────────────────────────────────╮
   -- │                      Text Editing                         │
@@ -51,8 +52,8 @@ function M.setup()
   -- Maintain paste register
   map("v", "p", '"_dP', { desc = "Paste without overwriting register" })
   
-  -- Clear search highlighting
-  map("n", "<leader><space>", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+  -- Clear search highlighting moved to base keymaps
+  -- map("n", "<leader><space>", ":nohlsearch<CR>", { desc = "Clear search highlight" })
   
   -- ╭──────────────────────────────────────────────────────────╮
   -- │                     Configuration                         │
@@ -75,7 +76,7 @@ function M.setup()
   -- ╰──────────────────────────────────────────────────────────╯
   
   -- Better line operations
-  map("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
+  -- map("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
   
   -- Better scrolling
   map("n", "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
@@ -112,9 +113,9 @@ function M.setup()
   map("n", "<leader>q", ":q<CR>", { desc = "Quit" })
   map("n", "<leader>Q", ":qa!<CR>", { desc = "Force quit all" })
   
-  -- Register which-key groups
-  keybindings.register_group("<leader>b", "Buffer", "", "#E0AF68") -- Buffer (orange)
-  keybindings.register_group("<leader>t", "Toggle", "", "#B4F9F8") -- Toggle (turquoise)
+  -- Register which-key groups (now registered in base keymaps)
+  -- keybindings.register_group("<leader>b", "Buffer", "", "#E0AF68")
+  -- keybindings.register_group("<leader>t", "Toggle", "", "#B4F9F8")
 end
 
 return M

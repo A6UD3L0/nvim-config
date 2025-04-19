@@ -46,6 +46,9 @@ map("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "Open LazyGit" })
 -- Diagnostics
 map("n", "<leader>fd", "<cmd>Telescope diagnostics<CR>", { desc = "Diagnostics" })
 
+-- LSP buffer-local mappings setup stub (for lsp.lua)
+local M = {}
+
 -- Which-key registration (if available)
 local wk_ok, wk = pcall(require, "which-key")
 if wk_ok then
@@ -68,4 +71,20 @@ if wk_ok then
   })
 end
 
-return {}
+function M.setup_lsp_mappings(bufnr)
+  -- Example: buffer-local LSP mappings
+  local opts = { noremap = true, silent = true, buffer = bufnr }
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+  vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+end
+
+function M.setup_diagnostic_window_mappings(buf)
+  -- Example: diagnostic window mappings
+  local opts = { noremap = true, silent = true, buffer = buf }
+  vim.keymap.set("n", "q", ":close<CR>", opts)
+end
+
+return M

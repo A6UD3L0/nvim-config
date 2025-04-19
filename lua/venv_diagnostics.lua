@@ -401,7 +401,7 @@ function M.display_results(results)
   vim.api.nvim_win_set_option(win, 'cursorline', true)
   
   -- Use centralized mapping function from mappings.lua
-  require("mappings").setup_diagnostic_window_mappings(buf)
+  require("config.mappings").setup_diagnostic_window_mappings(buf)
   
   return { buf = buf, win = win }
 end

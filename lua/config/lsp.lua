@@ -94,7 +94,7 @@ function M.setup()
 
       -- Set up buffer-local keymaps and options
       -- Use our improved mappings function
-      require("mappings").setup_lsp_mappings(bufnr)
+      require("config.mappings").setup_lsp_mappings(bufnr)
       
       -- Enable completion triggered by <c-x><c-o>
       vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'

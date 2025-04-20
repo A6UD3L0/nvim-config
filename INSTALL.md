@@ -1,133 +1,183 @@
-# Python Project Management with UV in Neovim
+# INSTALL.md — Minimalist Modular Neovim Configuration
 
-This configuration integrates [UV](https://github.com/astral-sh/uv) into Neovim for seamless Python project management.
+## 1. Backup & Migration
 
-## Project Root Detection
-- UV integration auto-detects a project root by searching for `.venv/`, `pyproject.toml`, or `.python-version`.
-
-## User Commands
-The following Vim commands are available (executed via a terminal, requires `toggleterm.nvim` or equivalent):
-
-```
-:UvInit <args>         # Initialize a new UV project
-:UvAdd <args>          # Add one or more dependencies
-:UvRun <args>          # Run a command in the UV environment
-:UvLock                # Lock dependencies
-:UvSync                # Sync dependencies
-:UvPython <args>       # Run 'uv python <args>'
-:UvPin <args>          # Pin a Python version
-:UvToolInstall <args>  # Install a tool (e.g. black, ruff)
-:Uvx <args>            # Run a tool with uvx
+### Back Up Existing Neovim Config
+```sh
+mv ~/.config/nvim ~/.config/nvim_backup_$(date +%Y%m%d)
+# For Windows:
+ren %APPDATA%\nvim nvim_backup_%DATE:~10,4%%DATE:~4,2%%DATE:~7,2%
 ```
 
-## Keybindings
-All common UV actions are mapped with `<leader>p` (project) and `<leader>t` (tool):
+### Export/Restore Old Settings
+- To restore: move your backup back to `~/.config/nvim` or `%APPDATA%\nvim`.
+- To merge: copy over select files (e.g. snippets, settings) into the new structure.
 
-| Keybinding       | Command         | Description                  |
-|------------------|----------------|------------------------------|
-| `<leader>pi`     | :UvInit        | Initialize project           |
-| `<leader>pa`     | :UvAdd         | Add dependencies             |
-| `<leader>pr`     | :UvRun         | Run command in env           |
-| `<leader>pl`     | :UvLock        | Lock dependencies            |
-| `<leader>ps`     | :UvSync        | Sync dependencies            |
-| `<leader>pp`     | :UvPython      | Python management            |
-| `<leader>pv`     | :UvPin         | Pin Python version           |
-| `<leader>ti`     | :UvToolInstall | Install tool                 |
-| `<leader>tx`     | :Uvx           | Run tool with uvx            |
+---
 
-## Automatic VirtualEnv Activation
-When you open a Python file, if a `.venv/` directory is found in the project root, it will be auto-activated for your shell session.
+## 2. Repository Setup
 
-## Example Usage
-```
-:UvInit example
-:UvAdd ruff
-:UvRun ruff check
-:UvLock
-:UvSync
-:UvPython install 3.11
-:UvPin 3.11
-:UvToolInstall black
-:Uvx black --version
+### Clone the Repo
+```sh
+git clone https://github.com/A6UD3L0/nvim-config.git ~/.config/nvim
+cd ~/.config/nvim
 ```
 
-## Troubleshooting
-- **UV not found:** Ensure `uv` is installed and available in your `PATH`.
-- **ToggleTerm required:** These commands require a terminal integration such as `toggleterm.nvim`.
-- **Virtualenv activation:** Only affects shell commands run from within Neovim, not external terminals.
+### Switch to Desired Branch
+```sh
+git checkout final   # or mainv4-ui-refactor, nvim-uv-python, etc.
+```
 
-## Installation Guide: UV for Python Project Management
+---
 
-### 1. Remove Previous UV Versions
+## 3. Cross-Platform Prerequisites
 
-Before installing a new version of UV, ensure any previous versions are removed:
+### Linux (Ubuntu/Debian)
+```sh
+sudo apt update
+sudo apt install -y neovim git ripgrep fd-find python3 python3-pip nodejs npm golang docker.io
+# Symlink fd if needed:
+ln -s $(which fdfind) ~/.local/bin/fd
+```
 
-- **macOS/Linux:**
+### Fedora
+```sh
+sudo dnf install -y neovim git ripgrep fd-find python3 python3-pip nodejs npm golang docker
+```
+
+### macOS (Homebrew)
+```sh
+brew install neovim git ripgrep fd python3 node go docker luarocks
+brew install --cask docker
+# (Optional) For Lua lint/format:
+brew install stylua
+luarocks install luacheck
+```
+
+### Windows (WSL or Native)
+- **WSL**: Use Ubuntu/Fedora steps above inside WSL.
+- **Native**:
+  - [Install Neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim#windows)
+  - [Install Scoop](https://scoop.sh/) or [Chocolatey](https://chocolatey.org/)
+  - With Scoop:
+    ```powershell
+    scoop install neovim git ripgrep fd python nodejs go
+    scoop install docker
+    ```
+  - With Chocolatey:
+    ```powershell
+    choco install neovim git ripgrep fd python nodejs golang docker-desktop
+    ```
+- **Clipboard**: Install [win32yank](https://github.com/equalsraf/win32yank) for clipboard support.
+
+### Environment Variables & Shell Tweaks
+- Ensure `$PATH` includes nvim, python, go, node, docker, etc.
+- For Docker: Add user to `docker` group (`sudo usermod -aG docker $USER`), then log out/in.
+- For Python: Use [uv](https://github.com/astral-sh/uv) for project management.
+
+---
+
+## 4. Plugin Manager Bootstrapping
+- On first launch, `init.lua` will auto-install [lazy.nvim](https://github.com/folke/lazy.nvim).
+- To sync plugins manually:
   ```sh
-  pipx uninstall uv || pip uninstall uv || brew uninstall uv || rm -rf $(which uv)
+  nvim
+  :Lazy sync
+  :Mason
+  :MasonInstallAll
   ```
-- **Windows (PowerShell):**
-  ```powershell
-  pipx uninstall uv; pip uninstall uv; Remove-Item (Get-Command uv).Source -Force
-  ```
+- Use `:Mason` to install LSP servers, formatters, and DAPs as needed.
 
 ---
 
-### 2. Install UV
+## 5. Configuration Activation
 
-#### macOS (Homebrew or pipx)
+### Standard Location
+- **Linux/macOS**: `~/.config/nvim`
+- **Windows**: `%APPDATA%\nvim`
+
+### Alternative: Launch with Custom Path
 ```sh
-# Using Homebrew (recommended)
-brew install astral-sh/uv/uv
-
-# Or using pipx
-pipx install uv
+nvim -u /path/to/your/repo/init.lua
 ```
 
-#### Linux (pipx or prebuilt binary)
+---
+
+## 6. Post-Install Checks
+
+### Health Checks
 ```sh
-# Using pipx
-pipx install uv
-
-# Or download a prebuilt binary from:
-# https://github.com/astral-sh/uv/releases
-# Then move it to a directory in your PATH, e.g.:
-chmod +x uv-linux-x86_64
-sudo mv uv-linux-x86_64 /usr/local/bin/uv
+nvim --headless -c "checkhealth" -c "quit"
 ```
+- Or in Neovim:
+  - `:checkhealth`
+  - Check for: core, LSP, Treesitter, which-key, uv.nvim
 
-#### Windows (pipx or prebuilt binary)
-```powershell
-# Using pipx
-pipx install uv
-
-# Or download the Windows executable from:
-# https://github.com/astral-sh/uv/releases
-# Add the directory to your PATH if needed.
-```
+### Troubleshooting
+- If a plugin or parser is missing, run `:Lazy sync` or `:TSInstall <lang>`.
+- For LSP issues, use `:Mason` and ensure all servers are installed.
+- For Python/uv: ensure `uv` is in your PATH and a `.venv` or `pyproject.toml` exists in your project.
 
 ---
 
-### 3. Verify Installation
+## 7. Usage & Getting Started
 
-After installation, check that UV is available:
+### Launch Neovim
 ```sh
-uv --version
+nvim
 ```
-If this fails, ensure your PATH is set correctly and that you are not running an old version.
+
+### Discover Keymaps
+- Press `<leader>?` or `<leader>` to see available mappings (which-key).
+- All mappings are grouped by workflow: File, Git, LSP, REPL, Test, Debug, Docker, SQL, Python/uv, Tabs, etc.
+
+### Documentation
+- See `README.md` for config structure and features.
+- See `lua/custom/whichkey_mece.lua` for keymap groups.
+- See language/workflow modules in `lua/custom/` for specific integrations (REPL, test, debug, Docker, SQL, uv.nvim).
 
 ---
 
-### 4. Neovim Requirements
-- This configuration expects [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) or a similar terminal plugin for :TermExec.
-- Python 3.7+ is recommended. Use `uv python install <version>` to manage Python versions.
+## 8. Platform-Specific Notes
+
+### Windows
+- **WSL**: Use Linux install instructions; symlink config to `/mnt/c/Users/<User>/AppData/Local/nvim` if needed.
+- **Clipboard**: Install [win32yank](https://github.com/equalsraf/win32yank) and set up Neovim clipboard provider.
+- **Python/Go**: Use official installers or Scoop/Chocolatey.
+- **Docker**: Use Docker Desktop for Windows.
+- **Path Handling**: Use forward slashes or double backslashes in config paths.
+
+### macOS
+- Use Homebrew for all dependencies.
+- For Python/Go: `brew install python3 go`
+- For Docker: `brew install --cask docker`
+
+### Linux
+- Use APT/Yum/DNF for dependencies.
+- For Docker: Add user to `docker` group and restart session.
+- For clipboard: Install `xclip` or `wl-clipboard` if needed.
 
 ---
 
-### 5. Troubleshooting
-- **UV not found:** Make sure the install directory is in your PATH and restart your terminal/editor.
-- **Permission errors:** Try running your shell/editor as administrator or use `sudo` where appropriate.
-- **Windows:** If you see execution policy errors, you may need to allow running scripts (`Set-ExecutionPolicy RemoteSigned`).
+## 9. Updating & Maintenance
+
+### Pull Latest Changes
+```sh
+git pull origin final
+```
+
+### Update Plugins & LSPs
+- In Neovim:
+  - `:Lazy update`
+  - `:Mason` → update or install new servers
+
+### Test New Branches Safely
+```sh
+git checkout -b my-feature
+# Make changes, test, and merge as needed
+```
+- Always back up your config before major changes.
 
 ---
-For more info, see the [UV documentation](https://github.com/astral-sh/uv).
+
+**For help, see the README, open an issue, or join the Neovim community!**

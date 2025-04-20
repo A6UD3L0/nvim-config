@@ -58,6 +58,7 @@ return {
   { 'rcarriga/nvim-dap-ui', event = 'VeryLazy' },
   { 'leoluz/nvim-dap-go', ft = 'go' },
   { 'mfussenegger/nvim-dap-python', ft = 'python' },
+  { 'nvim-neotest/nvim-nio', event = 'VeryLazy' },
 
   -- Docker
   { 'skanehira/docker.nvim', cmd = { 'DockerContainers', 'DockerImages', 'DockerCompose' }, config = function() require('custom.docker') end },

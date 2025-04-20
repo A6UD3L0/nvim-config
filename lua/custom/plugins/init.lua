@@ -55,7 +55,7 @@ return {
   { 'nvim-neotest/neotest-python', ft = 'python' },
   { 'nvim-neotest/neotest-go', ft = 'go' },
   { 'mfussenegger/nvim-dap', event = 'VeryLazy' },
-  { 'rcarriga/nvim-dap-ui', event = 'VeryLazy' },
+  -- { 'rcarriga/nvim-dap-ui', event = 'VeryLazy' },
   { 'leoluz/nvim-dap-go', ft = 'go' },
   { 'mfussenegger/nvim-dap-python', ft = 'python' },
 

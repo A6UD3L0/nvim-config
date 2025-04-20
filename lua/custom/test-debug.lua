@@ -19,7 +19,7 @@ do
   neotest.setup { adapters = adapters }
 
   local ok_dap, dap = pcall(require, 'dap')
-  local ok_dapui, dapui = pcall(require, 'dapui')
+  local ok_dapui, dapui = false, nil -- DAP UI disabled, remove references
   if not ok_dapui then
     vim.schedule(function()
       vim.notify('dap-ui: missing dependency nvim-nio', vim.log.levels.WARN)
@@ -35,11 +35,6 @@ do
     if ok_dap_go then
       dap_go.setup()
     end
-    dapui.setup()
-    vim.api.nvim_create_autocmd('FileType', {
-      pattern = 'dap-repl',
-      callback = function() dapui.open() end,
-    })
     vim.keymap.set('n', '<F5>', function() dap.continue() end, { desc = 'Debug: Start/Continue' })
     vim.keymap.set('n', '<F10>', function() dap.step_over() end, { desc = 'Debug: Step Over' })
     vim.keymap.set('n', '<F11>', function() dap.step_into() end, { desc = 'Debug: Step Into' })

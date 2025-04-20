@@ -22,7 +22,7 @@ return {
   { 'nvim-tree/nvim-web-devicons', lazy = true },
 
   -- Keymap/which-key
-  { 'folke/which-key.nvim', event = 'VeryLazy', config = function() require('custom.keymaps') end },
+  { 'folke/which-key.nvim', event = 'VeryLazy', config = function() require('custom.whichkey_mece') end },
 
   -- File navigation & search
   { 'nvim-telescope/telescope.nvim', tag = '0.1.8', dependencies = { 'nvim-lua/plenary.nvim' }, cmd = 'Telescope' },

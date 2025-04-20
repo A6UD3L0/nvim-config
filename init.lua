@@ -11,7 +11,7 @@ require('custom.test-debug')
 require('custom.docker')
 require('custom.sql')
 require('custom.ui')
-require('custom.remap')
+-- require('custom.keymaps') -- (legacy, now consolidated in whichkey_mece.lua)
 require('custom.whichkey_mece')
 
 -- Backend & Machine Learning Neovim Config

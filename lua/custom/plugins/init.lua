@@ -88,7 +88,7 @@ return {
   {
     dir = vim.fn.stdpath('config') .. '/lua/custom',
     config = function()
-      require('whichkey_mece')
+      require('custom.whichkey_mece')
     end,
     event = 'VeryLazy',
     dependencies = { 'folke/which-key.nvim' },

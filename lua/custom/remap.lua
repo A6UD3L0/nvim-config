@@ -13,9 +13,6 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', opts)
 
 -- General Navigation & Editing
 vim.keymap.set('n', '<leader>pv', vim.cmd.Ex, { desc = 'Open netrw file explorer' })
-vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move selection down' })
-vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move selection up' })
-vim.keymap.set('n', 'J', 'mzJ`z', { desc = 'Join lines and keep cursor' })
 vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Page down and center' })
 vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Page up and center' })
 vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Next search and center' })
@@ -38,10 +35,6 @@ vim.keymap.set('n', '<leader>+', '<C-a>', opts) -- increment
 vim.keymap.set('n', '<leader>-', '<C-x>', opts) -- decrement
 
 -- Window management
-vim.keymap.set('n', '<leader>v', '<C-w>v', opts)      -- split window vertically
-vim.keymap.set('n', '<leader>h', '<C-w>s', opts)      -- split window horizontally
-vim.keymap.set('n', '<leader>se', '<C-w>=', opts)     -- make split windows equal width & height
-vim.keymap.set('n', '<leader>xs', ':close<CR>', opts) -- close current split window
 vim.keymap.set('n', '<C-k>', ':wincmd k<CR>', opts)
 vim.keymap.set('n', '<C-j>', ':wincmd j<CR>', opts)
 vim.keymap.set('n', '<C-h>', ':wincmd h<CR>', opts)
@@ -61,10 +54,9 @@ vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { silent = true, desc =
 vim.keymap.set('n', '<leader><leader>', function() vim.cmd('so') end, { desc = 'Source current file' })
 
 -- UndoTree
-vim.keymap.set('n', '<leader>u', ':UndotreeToggle<CR>', { desc = 'Toggle UndoTree (visualize and browse undo history)' })
+vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = 'Toggle UndoTree' })
 
--- Error/Quickfix/Location List
-vim.keymap.set('n', '<C-f>', '<cmd>silent !tmux neww tmux-sessionizer<CR>', { desc = 'Open tmux sessionizer' })
+-- Quickfix/Location List
 vim.keymap.set('n', '<C-k>', '<cmd>cnext<CR>zz', { desc = 'Next quickfix' })
 vim.keymap.set('n', '<C-j>', '<cmd>cprev<CR>zz', { desc = 'Prev quickfix' })
 vim.keymap.set('n', '<leader>k', '<cmd>lnext<CR>zz', { desc = 'Next location list' })
@@ -89,11 +81,9 @@ vim.keymap.set('n', '<Esc>', ':noh<CR>', opts)
 -- Insert mode: jk or kj to exit
 vim.keymap.set('i', 'jk', '<ESC>', opts)
 vim.keymap.set('i', 'kj', '<ESC>', opts)
-vim.keymap.set('i', '<C-c>', '<Esc>', opts)
 
--- Custom code snippets for Go error handling and Cellular Automaton
-vim.keymap.set('n', '<leader>ee', "oif err != nil {<CR>}<Esc>Oreturn err<Esc>", { desc = 'Insert Go: if err != nil { return err }' })
-vim.keymap.set('n', '<leader>ea', "oassert.NoError(err, \"\")<Esc>F\";a", { desc = 'Insert Go: assert.NoError(err)' })
+-- Go-specific mappings
+vim.keymap.set('n', '<leader>ea', "oassert.NoError(err, \"\")<Esc>F";a", { desc = 'Insert Go: assert.NoError(err)' })
 vim.keymap.set('n', '<leader>ef', "oif err != nil {<CR>}<Esc>Olog.Fatalf(\"error: %s\\n\", err.Error())<Esc>jj", { desc = 'Insert Go: log.Fatalf on error' })
 vim.keymap.set('n', '<leader>el', "oif err != nil {<CR>}<Esc>Ologger.Error(\"error\", \"error\", err)<Esc>F.;i", { desc = 'Insert Go: logger.Error on error' })
 vim.keymap.set('n', '<leader>ca', function() require('cellular-automaton').start_animation('make_it_rain') end, { desc = 'Cellular Automaton: make it rain' })

@@ -22,6 +22,27 @@ wk.register({
     x = { ':Uvx ', 'Run Tool (uvx)' },
     f = { '<Plug>PlenaryTestFile', 'Plenary Test File' },
   },
+  -- Git/Version Control
+  g = {
+    name = 'Git',
+    g = { ':LazyGit<CR>', 'Open LazyGit' },
+    c = { ':Git commit<CR>', 'Git Commit' },
+    p = { ':Git push<CR>', 'Git Push' },
+    l = { ':Git pull<CR>', 'Git Pull' },
+    b = { ':Git blame<CR>', 'Git Blame' },
+  },
+  -- Harpoon (quick file/project navigation)
+  h = {
+    name = 'Harpoon',
+    a = { function() require('harpoon.mark').add_file() end, 'Harpoon Add File' },
+    m = { function() require('harpoon.ui').toggle_quick_menu() end, 'Harpoon Menu' },
+    n = { function() require('harpoon.ui').nav_next() end, 'Harpoon Next' },
+    p = { function() require('harpoon.ui').nav_prev() end, 'Harpoon Prev' },
+    ['1'] = { function() require('harpoon.ui').nav_file(1) end, 'Harpoon File 1' },
+    ['2'] = { function() require('harpoon.ui').nav_file(2) end, 'Harpoon File 2' },
+    ['3'] = { function() require('harpoon.ui').nav_file(3) end, 'Harpoon File 3' },
+    ['4'] = { function() require('harpoon.ui').nav_file(4) end, 'Harpoon File 4' },
+  },
   -- File/Buffer/Window
   b = { '<cmd>enew<CR>', 'New Buffer' },
   x = { ':Bdelete!<CR>', 'Close Buffer' },

@@ -344,7 +344,8 @@ require('lazy').setup({
       },
     },
   },
-
+  -- Integrate UV editor commands and which-key group
+  require("core.utils.editor_commands").setup_wk(require("which-key")),
   -- NOTE: Plugins can specify dependencies.
   --
   -- The dependencies are proper plugin specifications as well - anything

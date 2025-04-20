@@ -83,7 +83,7 @@ vim.keymap.set('i', 'jk', '<ESC>', opts)
 vim.keymap.set('i', 'kj', '<ESC>', opts)
 
 -- Go-specific mappings
-vim.keymap.set('n', '<leader>ea', "oassert.NoError(err, \"\")<Esc>F";a", { desc = 'Insert Go: assert.NoError(err)' })
+vim.keymap.set('n', '<leader>ea', "oassert.NoError(err, \"\")<Esc>F\"a", { desc = 'Insert Go: assert.NoError(err)' })
 vim.keymap.set('n', '<leader>ef', "oif err != nil {<CR>}<Esc>Olog.Fatalf(\"error: %s\\n\", err.Error())<Esc>jj", { desc = 'Insert Go: log.Fatalf on error' })
 vim.keymap.set('n', '<leader>el', "oif err != nil {<CR>}<Esc>Ologger.Error(\"error\", \"error\", err)<Esc>F.;i", { desc = 'Insert Go: logger.Error on error' })
 vim.keymap.set('n', '<leader>ca', function() require('cellular-automaton').start_animation('make_it_rain') end, { desc = 'Cellular Automaton: make it rain' })

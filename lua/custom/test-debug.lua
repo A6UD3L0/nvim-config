@@ -22,7 +22,7 @@ do
   local ok_dapui, dapui = false, nil -- DAP UI disabled, remove references
   if not ok_dapui then
     vim.schedule(function()
-      vim.notify('dap-ui: missing dependency nvim-nio', vim.log.levels.WARN)
+      -- vim.notify('dap-ui: missing dependency nvim-nio', vim.log.levels.WARN) -- nvim-nio reference removed
     end)
     return
   end

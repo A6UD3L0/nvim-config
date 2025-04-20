@@ -75,6 +75,15 @@ return {
     },
   },
 
+  -- UV Python project management integration
+  {
+    dir = vim.fn.stdpath('config') .. '/lua/custom',
+    config = function()
+      require('uv_python')
+    end,
+    event = 'VeryLazy',
+  },
+
   -- null-ls for formatting and diagnostics
   {
     'nvimtools/none-ls.nvim',

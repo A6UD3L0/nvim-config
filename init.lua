@@ -1,7 +1,7 @@
 -- Load custom modular config
 require('custom.settings')
-require('custom.lualine')
 require('custom.plugins')
+require('custom.lualine')
 require('custom.treesitter')
 require('custom.mason')
 require('custom.lsp')

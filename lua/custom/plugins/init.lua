@@ -8,7 +8,14 @@ return {
   end },
 
   -- UI/UX
-  { 'nvim-lualine/lualine.nvim', event = 'VeryLazy', config = function() require('custom.lualine') end },
+  {
+    'nvim-lualine/lualine.nvim',
+    event = { 'UiEnter', 'CmdlineEnter' },
+    cmd = { 'LualineToggle' },
+    config = function()
+      require('custom.lualine')
+    end
+  },
   { 'akinsho/bufferline.nvim', event = 'VeryLazy', config = function() require('custom.bufferline') end },
   { 'lukas-reineke/indent-blankline.nvim', event = 'VeryLazy', config = function() require('custom.indent_blankline') end },
   { 'petertriho/nvim-scrollbar', event = 'VeryLazy', config = function() require('custom.scrollbar') end },

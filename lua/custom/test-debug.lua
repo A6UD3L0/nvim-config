@@ -20,7 +20,13 @@ do
 
   local ok_dap, dap = pcall(require, 'dap')
   local ok_dapui, dapui = pcall(require, 'dapui')
-  if ok_dap and ok_dapui then
+  if not ok_dapui then
+    vim.schedule(function()
+      vim.notify('dap-ui: missing dependency nvim-nio', vim.log.levels.WARN)
+    end)
+    return
+  end
+  if ok_dap then
     local ok_dap_py, dap_python = pcall(require, 'dap-python')
     if ok_dap_py then
       dap_python.setup('~/.virtualenvs/debugpy/bin/python')

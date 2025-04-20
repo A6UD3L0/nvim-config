@@ -84,6 +84,16 @@ return {
     event = 'VeryLazy',
   },
 
+  -- MECE WhichKey registration
+  {
+    dir = vim.fn.stdpath('config') .. '/lua/custom',
+    config = function()
+      require('whichkey_mece')
+    end,
+    event = 'VeryLazy',
+    dependencies = { 'folke/which-key.nvim' },
+  },
+
   -- null-ls for formatting and diagnostics
   {
     'nvimtools/none-ls.nvim',
@@ -137,6 +147,18 @@ return {
           end
         end,
       }
+    end,
+  },
+  -- UndoTree plugin
+  {
+    'mbbill/undotree',
+    cmd = 'UndotreeToggle',
+    keys = {
+      { '<leader>u', ':UndotreeToggle<CR>', desc = 'Toggle UndoTree' },
+    },
+    config = function()
+      vim.g.undotree_WindowLayout = 2 -- vertical split
+      vim.g.undotree_SetFocusWhenToggle = 1
     end,
   },
 }

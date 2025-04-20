@@ -84,6 +84,20 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
+-- Dynamically detect this config’s root directory
+local init_file = debug.getinfo(1, "S").source:sub(2)
+local config_dir = vim.fn.fnamemodify(init_file, ":h")
+
+-- Prepend to runtimepath so `lua/` is on the module search path
+vim.opt.runtimepath:prepend(config_dir)
+
+-- Ensure Lua modules under `lua/` are found
+package.path = table.concat({
+  config_dir .. "/lua/?.lua",
+  config_dir .. "/lua/?/init.lua",
+  package.path,
+}, ";")
+
 require('custom.remap')
 
 -- Set <space> as the leader key
@@ -345,7 +359,19 @@ require('lazy').setup({
     },
   },
   -- Integrate UV editor commands and which-key group
-  require("core.utils.editor_commands").setup_wk(require("which-key")),
+  local function safe_require(mod)
+    local ok, m = pcall(require, mod)
+    if not ok then
+      vim.notify('Failed to load '..mod..'\n'..m, vim.log.levels.WARN, {title='nvim-config'})
+      return nil
+    end
+    return m
+  end
+
+  local editor_commands = safe_require('core.utils.editor_commands')
+  if editor_commands and require('which-key') then
+    editor_commands.setup_wk(require('which-key'))
+  end,
   -- NOTE: Plugins can specify dependencies.
   --
   -- The dependencies are proper plugin specifications as well - anything

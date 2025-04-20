@@ -1,2 +1,0 @@
- -- whichkey_mece.lua is now deprecated. All <leader> mappings are consolidated in keymaps.lua
--- Please see lua/custom/keymaps.lua for the authoritative which-key configuration.

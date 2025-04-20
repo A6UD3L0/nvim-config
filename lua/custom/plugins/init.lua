@@ -54,8 +54,13 @@ return {
   { 'nvim-neotest/neotest', event = 'VeryLazy', config = function() require('custom.test-debug') end },
   { 'nvim-neotest/neotest-python', ft = 'python' },
   { 'nvim-neotest/neotest-go', ft = 'go' },
-  { 'mfussenegger/nvim-dap', event = 'VeryLazy' },
-  -- { 'rcarriga/nvim-dap-ui', event = 'VeryLazy' },
+  { 'mfussenegger/nvim-dap', event = 'VeryLazy', config = function()
+    require('custom.test-debug')
+  end },
+  { 'rcarriga/nvim-dap-ui', event = 'VeryLazy', config = function()
+    local ok, dapui = pcall(require, 'dapui')
+    if ok then dapui.setup() end
+  end },
   { 'leoluz/nvim-dap-go', ft = 'go' },
   { 'mfussenegger/nvim-dap-python', ft = 'python' },
 

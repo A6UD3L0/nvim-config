@@ -154,8 +154,8 @@ cmp.setup.cmdline(":", {
 
 -- 5. DAP setup
 local dap = require("dap")
-local dapui = require("dapui")
-dapui.setup()
+-- local dapui = require("dapui") -- removed, nvim-dap-ui not installed
+-- dapui.setup()
 require("dap-python").setup("python")
 require("dap-go").setup()
 

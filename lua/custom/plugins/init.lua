@@ -1,164 +1,71 @@
--- You can add your own plugins here or in other files in this directory!
--- I promise not to create any merge conflicts in this directory :)
---
--- See the kickstart.nvim README for more information
+-- plugins/init.lua: All plugin specs for lazy.nvim, optimized for minimal, on-demand loading
+-- UI, LSP, Treesitter, REPL, Testing, Docker, SQL, Git, Python (uv), and utility plugins
 return {
-  -- hardtime.nvim for enforcing time constraints on key sequences
-  {
-    'm4xshen/hardtime.nvim',
-    dependencies = { 'MunifTanjim/nui.nvim' },
-    opts = {},
-  },
-  {
-    'folke/noice.nvim',
-    event = 'VeryLazy',
-    opts = function()
-      return {
-        lsp = {
-          override = {
-            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-            ["vim.lsp.util.stylize_markdown"] = true,
-            ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
-          },
-        },
-        presets = {
-          bottom_search = true, -- use a classic bottom cmdline for search
-          command_palette = true, -- position the cmdline and popupmenu together
-          long_message_to_split = true, -- long messages will be sent to a split
-          inc_rename = false, -- enables an input dialog for inc-rename.nvim
-          lsp_doc_border = false, -- add a border to hover docs and signature help
-        },
-      }
-    end,
-    dependencies = {
-      'MunifTanjim/nui.nvim',
-      'rcarriga/nvim-notify',
-    },
-  },
-  -- UV.nvim for project management
-  {
-    'benomahony/uv.nvim',
-    config = function()
-      require('uv').setup()
-    end,
-  },
+  -- Everforest theme
+  { 'neanias/everforest-nvim', lazy = false, priority = 1000, config = function()
+    vim.g.everforest_background = 'soft'
+    vim.cmd('colorscheme everforest')
+  end },
 
+  -- UI/UX
+  { 'nvim-lualine/lualine.nvim', event = 'VeryLazy', config = function() require('custom.lualine') end },
+  { 'akinsho/bufferline.nvim', event = 'VeryLazy', config = function() require('custom.bufferline') end },
+  { 'lukas-reineke/indent-blankline.nvim', event = 'VeryLazy', config = function() require('custom.indent_blankline') end },
+  { 'petertriho/nvim-scrollbar', event = 'VeryLazy', config = function() require('custom.scrollbar') end },
+  { 'nvim-tree/nvim-web-devicons', lazy = true },
+
+  -- Keymap/which-key
+  { 'folke/which-key.nvim', event = 'VeryLazy', config = function() require('custom.keymaps') end },
+
+  -- File navigation & search
+  { 'nvim-telescope/telescope.nvim', tag = '0.1.8', dependencies = { 'nvim-lua/plenary.nvim' }, cmd = 'Telescope' },
+
+  -- Git
+  { 'kdheepak/lazygit.nvim', cmd = 'LazyGit', dependencies = { 'nvim-lua/plenary.nvim' } },
+  { 'lewis6991/gitsigns.nvim', event = 'BufReadPre', config = true },
+
+  -- Treesitter
+  { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = { 'BufReadPost', 'BufNewFile' }, config = function() require('custom.treesitter') end },
+
+  -- Mason & LSP
+  { 'williamboman/mason.nvim', event = 'VeryLazy', config = function() require('custom.mason') end },
+  { 'williamboman/mason-lspconfig.nvim', event = 'VeryLazy' },
+  { 'neovim/nvim-lspconfig', event = { 'BufReadPre', 'BufNewFile' }, config = function() require('custom.lsp') end },
+  { 'hrsh7th/nvim-cmp', event = 'InsertEnter' },
+  { 'hrsh7th/cmp-nvim-lsp', event = 'InsertEnter' },
+  { 'L3MON4D3/LuaSnip', event = 'InsertEnter' },
+  { 'saadparwaiz1/cmp_luasnip', event = 'InsertEnter' },
+
+  -- null-ls
+  { 'nvimtools/none-ls.nvim', event = 'VeryLazy', config = function() require('custom.null-ls') end },
+  { 'jayp0521/mason-null-ls.nvim', event = 'VeryLazy' },
+
+  -- REPL
+  { 'Vigemus/iron.nvim', ft = { 'python', 'sh', 'bash' }, config = function() require('custom.repl') end },
+
+  -- Test/Debug
+  { 'nvim-neotest/neotest', event = 'VeryLazy', config = function() require('custom.test-debug') end },
+  { 'nvim-neotest/neotest-python', ft = 'python' },
+  { 'nvim-neotest/neotest-go', ft = 'go' },
+  { 'mfussenegger/nvim-dap', event = 'VeryLazy' },
+  { 'rcarriga/nvim-dap-ui', event = 'VeryLazy' },
+  { 'leoluz/nvim-dap-go', ft = 'go' },
+  { 'mfussenegger/nvim-dap-python', ft = 'python' },
+
+  -- Docker
+  { 'skanehira/docker.nvim', cmd = { 'DockerContainers', 'DockerImages', 'DockerCompose' }, config = function() require('custom.docker') end },
+  { 'akinsho/toggleterm.nvim', event = 'VeryLazy' },
+
+  -- SQL/DB
+  { 'tpope/vim-dadbod', cmd = { 'DB', 'DBUI', 'DBExec' } },
+  { 'kristijanhusak/vim-dadbod-ui', cmd = { 'DBUI' } },
+  { 'kristijanhusak/vim-dadbod-completion', ft = { 'sql', 'mysql', 'plsql' } },
+
+  -- Python project management (uv.nvim)
+  { 'benomahony/uv.nvim', event = 'VeryLazy', config = function() require('custom.uv_python') end },
+
+  -- Utility
+  { 'mbbill/undotree', cmd = 'UndotreeToggle' },
+  { 'ThePrimeagen/harpoon', branch = 'harpoon2', dependencies = { 'nvim-lua/plenary.nvim' }, event = 'VeryLazy' },
   { 'wakatime/vim-wakatime', lazy = false },
-  -- Harpoon for quick file navigation
-  {
-    'ThePrimeagen/harpoon',
-    branch = 'harpoon2',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-  },
-
-  -- Telescope for fuzzy finding
-  {
-    'nvim-telescope/telescope.nvim',
-    tag = '0.1.8',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-  },
-
-  -- LazyGit integration
-  {
-    'kdheepak/lazygit.nvim',
-    lazy = true,
-    cmd = {
-      'LazyGit',
-      'LazyGitConfig',
-      'LazyGitCurrentFile',
-      'LazyGitFilter',
-      'LazyGitFilterCurrentFile',
-    },
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    keys = {
-      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
-    },
-  },
-
-  -- UV Python project management integration
-  {
-    dir = vim.fn.stdpath('config') .. '/lua/custom',
-    config = function()
-      require('uv_python')
-    end,
-    event = 'VeryLazy',
-  },
-
-  -- MECE WhichKey registration
-  {
-    dir = vim.fn.stdpath('config') .. '/lua/custom',
-    config = function()
-      require('custom.whichkey_mece')
-    end,
-    event = 'VeryLazy',
-    dependencies = { 'folke/which-key.nvim' },
-  },
-
-  -- null-ls for formatting and diagnostics
-  {
-    'nvimtools/none-ls.nvim',
-    dependencies = {
-      'nvimtools/none-ls-extras.nvim',
-      'jayp0521/mason-null-ls.nvim',
-    },
-    config = function()
-      local null_ls = require 'null-ls'
-      local formatting = null_ls.builtins.formatting
-      local diagnostics = null_ls.builtins.diagnostics
-
-      -- Ensure formatters & linters are installed
-      require('mason-null-ls').setup {
-        ensure_installed = {
-          'checkmake',
-          'prettier',
-          'stylua',
-          'eslint_d',
-          'shfmt',
-          'ruff',
-        },
-        automatic_installation = true,
-      }
-
-      -- Configure sources
-      local sources = {
-        diagnostics.checkmake,
-        formatting.prettier.with { filetypes = { 'html', 'json', 'yaml', 'markdown' } },
-        formatting.stylua,
-        formatting.shfmt.with { args = { '-i', '4' } },
-        formatting.terraform_fmt,
-        require('none-ls.formatting.ruff').with { extra_args = { '--extend-select', 'I' } },
-        require 'none-ls.formatting.ruff_format',
-      }
-
-      -- Auto-format on save
-      local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-      null_ls.setup {
-        sources = sources,
-        on_attach = function(client, bufnr)
-          if client.supports_method 'textDocument/formatting' then
-            vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
-            vim.api.nvim_create_autocmd('BufWritePre', {
-              group = augroup,
-              buffer = bufnr,
-              callback = function()
-                vim.lsp.buf.format { async = false }
-              end,
-            })
-          end
-        end,
-      }
-    end,
-  },
-  -- UndoTree plugin
-  {
-    'mbbill/undotree',
-    cmd = 'UndotreeToggle',
-    keys = {
-      { '<leader>u', ':UndotreeToggle<CR>', desc = 'Toggle UndoTree' },
-    },
-    config = function()
-      vim.g.undotree_WindowLayout = 2 -- vertical split
-      vim.g.undotree_SetFocusWhenToggle = 1
-    end,
-  },
 }

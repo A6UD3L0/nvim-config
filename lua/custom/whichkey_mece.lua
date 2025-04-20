@@ -102,7 +102,7 @@ do
     o = { function() require('dap').step_over() end, 'Step Over' },
     O = { function() require('dap').step_out() end, 'Step Out' },
     r = { function() require('dap').repl.open() end, 'Open REPL' },
-    u = { function() require('dapui').toggle() end, 'Toggle DAP UI' },
+    -- u = { function() require('dapui').toggle() end, 'Toggle DAP UI' }, -- Disabled: nvim-dap-ui not installed
     t = { function() require('dap').terminate() end, 'Terminate Session' },
   })
 

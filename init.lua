@@ -1,3 +1,19 @@
+-- Load custom modular config
+require('custom.settings')
+require('custom.lualine')
+require('custom.plugins')
+require('custom.treesitter')
+require('custom.mason')
+require('custom.lsp')
+require('custom.null-ls')
+require('custom.repl')
+require('custom.test-debug')
+require('custom.docker')
+require('custom.sql')
+require('custom.ui')
+require('custom.remap')
+require('custom.whichkey_mece')
+
 -- Backend & Machine Learning Neovim Config
 -- Portable, modern, and robust
 
@@ -171,27 +187,7 @@ vim.keymap.set("n", "<leader>fg", require("telescope.builtin").live_grep, { desc
 vim.keymap.set("n", "<leader>fb", require("telescope.builtin").buffers, { desc = "Buffers" })
 vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags, { desc = "Help Tags" })
 
--- 10. WhichKey group registration
-local wk = require("which-key")
-wk.register({
-  p = { name = " Python/Project" },
-  g = { name = " Git" },
-  t = { name = "󰙨 Test/Term" },
-  d = { name = " Debug" },
-  l = { name = " LSP" },
-  c = { name = " Container" },
-}, { prefix = "<leader>" })
-
--- 11. UV/Editor Commands
-local ok, ec = pcall(require, "core.utils.editor_commands")
-if ok then
-  ec.setup_wk(wk)
-end
-
--- 12. LSP keymaps
-dofile(vim.fn.stdpath("config").."/lua/custom/remap.lua")
-
--- 13. Onboarding & health
+-- 10. Onboarding & health
 vim.api.nvim_create_user_command("SetupHelp", function()
   vim.cmd("edit SETUP.md")
 end, { desc = "Open onboarding/setup instructions" })

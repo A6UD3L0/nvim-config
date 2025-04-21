@@ -34,4 +34,18 @@ vim.keymap.set('i', 'kj', '<ESC>', opts)
 -- Neo-tree: Open with <backslash> (\\) in normal mode
 vim.keymap.set('n', '\\', ':Neotree toggle<CR>', { desc = 'Toggle File Explorer (Neo-tree)' })
 
+-- ToggleTerm: <leader>tt opens terminal, <leader>tg opens lazygit in terminal
+vim.keymap.set('n', '<leader>tt', function() require('toggleterm').toggle() end, { desc = 'Toggle Terminal' })
+vim.keymap.set('n', '<leader>tg', function()
+  require('toggleterm.terminal').Terminal:new({
+    cmd = 'lazygit',
+    hidden = true,
+    direction = 'float',
+    close_on_exit = true,
+  }):toggle()
+end, { desc = 'Lazygit (in terminal)' })
+
+-- Optional: <C-Space> for terminal autocompletion (if using nvim-cmp or similar)
+-- For shell completion, ensure your shell (bash/zsh/fish) is configured for completion inside terminal.
+
 -- (All <leader> mappings, Go snippets, and UV commands have been moved to whichkey_mece.lua)

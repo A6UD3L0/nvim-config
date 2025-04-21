@@ -42,7 +42,7 @@ do
     g = { ":Telescope live_grep<CR>", "Live Grep" },
     b = { ":Telescope buffers<CR>", "Buffers" },
     h = { ":Telescope help_tags<CR>", "Help Tags" },
-    e = { ":NvimTreeToggle<CR>", "File Explorer" },
+    e = { ":Neotree toggle<CR>", "File Explorer (Neo-tree)" },
     r = { ":Telescope oldfiles<CR>", "Recent Files" },
     k = { ":Telescope keymaps<CR>", "Keymaps" },
     E = { ":Ex<CR>", "netrw Explorer" },

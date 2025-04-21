@@ -17,7 +17,7 @@ do
     buf_map('n', ']d', vim.diagnostic.goto_next, 'Next Diagnostic')
   end
 
-  local servers = { 'pyright', 'clangd', 'gopls', 'sqlls', 'dockerls', 'bashls' }
+  local servers = { 'pyright', 'clangd', 'gopls', 'sqlls', 'dockerls', 'bashls', 'ruff_lsp' }
   for _, server in ipairs(servers) do
     lspconfig[server].setup {
       on_attach = on_attach,

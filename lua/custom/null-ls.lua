@@ -10,7 +10,7 @@ do
   null_ls.setup {
     sources = {
       null_ls.builtins.formatting.black,
-      null_ls.builtins.formatting.ruff,
+      -- null_ls.builtins.formatting.ruff, -- Removed: not available in none-ls
       null_ls.builtins.formatting.clang_format,
       null_ls.builtins.formatting.gofmt,
       null_ls.builtins.formatting.sqlfluff,

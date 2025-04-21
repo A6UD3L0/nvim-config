@@ -17,7 +17,9 @@ do
     buf_map('n', ']d', vim.diagnostic.goto_next, 'Next Diagnostic')
   end
 
-  local servers = { 'pyright', 'clangd', 'gopls', 'sqlls', 'dockerls', 'bashls', 'ruff_lsp' }
+  -- Use 'ruff' via none-ls/null-ls, not ruff-lsp
+  -- Remove ruff_lsp from LSP servers
+  local servers = { 'pyright', 'clangd', 'gopls', 'sqlls', 'dockerls', 'bashls' }
   for _, server in ipairs(servers) do
     lspconfig[server].setup {
       on_attach = on_attach,

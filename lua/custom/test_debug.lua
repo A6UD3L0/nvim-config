@@ -1,26 +1,27 @@
 -- test-debug.lua: Configure neotest and nvim-dap for Python and Go, with safe loading
 
-do
-  local ok_neotest, neotest = pcall(require, 'neotest')
-  if not ok_neotest then
-    vim.schedule(function()
-      vim.notify("[nvim-config] Could not load 'neotest'. Test integration will be disabled.", vim.log.levels.WARN)
-    end)
-    return
-  end
-  local ok_py, neotest_python = pcall(require, 'neotest-python')
-  local ok_go, neotest_go = pcall(require, 'neotest-go')
-  local adapters = {}
-  if ok_py then
-    table.insert(adapters, neotest_python({ dap = { justMyCode = false } }))
-  end
-  if ok_go then
-    table.insert(adapters, neotest_go)
-  end
-  neotest.setup { adapters = adapters }
+-- Avoid recursive require loop: do NOT require this module from dap or dap-python plugins
+local ok_neotest, neotest = pcall(require, 'neotest')
+if not ok_neotest then
+  vim.schedule(function()
+    vim.notify("[nvim-config] Could not load 'neotest'. Test integration will be disabled.", vim.log.levels.WARN)
+  end)
+  return
+end
+local ok_py, neotest_python = pcall(require, 'neotest-python')
+local ok_go, neotest_go = pcall(require, 'neotest-go')
+local adapters = {}
+if ok_py then
+  table.insert(adapters, neotest_python({ dap = { justMyCode = false } }))
+end
+if ok_go then
+  table.insert(adapters, neotest_go)
+end
+neotest.setup { adapters = adapters }
 
-  local ok_dap, dap = pcall(require, 'dap')
-  if not ok_dap then return end
+-- DAP setup (do NOT require this file from dap plugin configs)
+local ok_dap, dap = pcall(require, 'dap')
+if ok_dap then
   local ok_dap_py, dap_python = pcall(require, 'dap-python')
   if ok_dap_py then
     dap_python.setup('~/.virtualenvs/debugpy/bin/python')
@@ -32,10 +33,10 @@ do
 
   -- DAP UI guarded setup
   local ok_dapui, dapui = pcall(require, 'dapui')
-  if not ok_dapui then
-    vim.notify('dap-ui: nvim-nio not found, skipping setup', vim.log.levels.WARN)
-  else
+  if ok_dapui then
     dapui.setup({})
+  else
+    vim.notify('dap-ui: nvim-nio not found, skipping setup', vim.log.levels.WARN)
   end
 
   vim.keymap.set('n', '<F5>', function() dap.continue() end, { desc = 'Debug: Start/Continue' })

@@ -17,7 +17,7 @@ do
   end
   mason_lspconfig.setup {
     ensure_installed = {
-      'pyright', 'clangd', 'gopls', 'sqls', 'dockerls', 'bashls', 'ruff-lsp'
+      'pyright', 'clangd', 'gopls', 'sqls', 'dockerls', 'bashls'
     },
     automatic_installation = true,
   }

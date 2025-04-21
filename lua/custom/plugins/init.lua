@@ -71,9 +71,9 @@ return {
   { 'mfussenegger/nvim-dap-python', ft = 'python' },
 
   -- Docker
-  { 'akinsho/docker-tools.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' }, config = function()
-    require('docker-tools').setup({})
-  end },
+  -- { 'akinsho/docker-tools.nvim', version = '*', dependencies = { 'nvim-lua/plenary.nvim' }, config = function()
+  --   require('docker-tools').setup({})
+  -- end },
   { 'akinsho/toggleterm.nvim', event = 'VeryLazy' },
 
   -- SQL/DB

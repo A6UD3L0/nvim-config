@@ -94,25 +94,8 @@ do
     S = { function() require('neotest').summary.toggle() end, 'Toggle Summary' },
   })
 
-  -- Debug (all debug actions under 'd', Docker moved to 'D' to avoid overlap)
-  register_group('d', ' Debug', {
-    b = { function() require('dap').toggle_breakpoint() end, 'Toggle Breakpoint' },
-    c = { function() require('dap').continue() end, 'Continue' },
-    i = { function() require('dap').step_into() end, 'Step Into' },
-    o = { function() require('dap').step_over() end, 'Step Over' },
-    O = { function() require('dap').step_out() end, 'Step Out' },
-    r = { function() require('dap').repl.open() end, 'Open REPL' },
-    -- u = { function() require('dapui').toggle() end, 'Toggle DAP UI' }, -- Disabled: nvim-dap-ui not installed
-    t = { function() require('dap').terminate() end, 'Terminate Session' },
-  })
-
-  -- Docker (moved to 'D' to keep Debug and Docker MECE)
-  register_group('D', '🐳 Docker', {
-    o = { ":DockerContainers<CR>", "List Containers" },
-    b = { ":TermExec cmd='docker compose build' direction=horizontal<CR>", "Compose Build" },
-    l = { ":TermExec cmd='docker logs -f <container>' direction=horizontal<CR>", "Tail Logs" },
-    d = { ":TermExec cmd='docker compose down' direction=horizontal<CR>", "Compose Down" },
-  })
+  -- Debug (all debug actions under 'd')
+  -- Docker group removed for now
 
   -- SQL/DB
   register_group('s', '💾 SQL/DB', {

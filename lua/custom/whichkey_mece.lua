@@ -112,8 +112,8 @@ wk.register({
   t = {
     name = " Terminal",
     t = { ":ToggleTerm<CR>", "Toggle Horizontal Terminal" },
-    v = { ":ToggleTerm direction=vertical<CR>", "Toggle Vertical Terminal" },
-    f = { ":ToggleTerm direction=float<CR>", "Toggle Floating Terminal" },
+    v = { function() require("toggleterm.terminal").Terminal:new{direction="vertical"}:toggle() end, "Toggle Vertical Terminal" },
+    f = { function() require("toggleterm.terminal").Terminal:new{direction="float"}:toggle() end, "Toggle Floating Terminal" },
   },
 
   --  Misc/Utilities

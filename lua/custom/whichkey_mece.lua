@@ -95,24 +95,40 @@ wk.register({
   },
 
   --  Python/Project (UV)
-  p = {
-    name = " Python/Project",
-    i = { ":UvInit ", "Init Project" },
-    a = { ":UvAdd ", "Add Dependency" },
-    r = { ":UvRun ", "Run Command" },
+  P = {
+    name = " Python/Project (UV)",
+    i = { ":UvInit<Space>", "Init Project" },
+    a = { ":UvAdd<Space>", "Add Dependency" },
+    r = { ":UvRun<Space>", "Run Project Command" },
     l = { ":UvLock<CR>", "Lock Dependencies" },
     s = { ":UvSync<CR>", "Sync Project" },
-    v = { ":UvPython ", "Set Python Version" },
-    p = { ":UvPin ", "Pin Python" },
-    t = { ":UvToolInstall ", "Install Tool" },
-    x = { ":Uvx ", "Run Tool (uvx)" },
+    v = { ":UvPython<Space>", "Set Python Version" },
+    p = { ":UvPin<Space>", "Pin Python Version" },
+    t = { ":UvToolInstall<Space>", "Install Tool" },
+    x = { ":Uvx<Space>", "Run Tool (uvx)" },
   },
 
   --  Misc/Utilities
   x = {
-    name = " Misc",
+    name = " Misc/Utilities",
     s = { [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Substitute Word" },
     c = { function() require("cellular-automaton").start_animation("make_it_rain") end, "Cellular Automaton" },
     S = { function() vim.cmd("so") end, "Source File" },
+  },
+
+  --  Debug (nvim-dap & nvim-dap-ui)
+  d = {
+    name = " Debug",
+    s = { function() require('dap').continue() end, "Start/Continue Debug" },
+    i = { function() require('dap').step_into() end, "Step Into" },
+    o = { function() require('dap').step_over() end, "Step Over" },
+    u = { function() require('dap').step_out() end, "Step Out" },
+    b = { function() require('dap').toggle_breakpoint() end, "Toggle Breakpoint" },
+    B = { function() require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, "Set Conditional Breakpoint" },
+    r = { function() require('dap').repl.open() end, "Open REPL" },
+    l = { function() require('dap').run_last() end, "Run Last Debug" },
+    t = { function() require('dapui').toggle() end, "Toggle DAP UI" },
+    e = { function() require('dapui').eval() end, "Eval Expression" },
+    c = { function() require('dap').clear_breakpoints() end, "Clear Breakpoints" },
   },
 }, { prefix = "<leader>" })

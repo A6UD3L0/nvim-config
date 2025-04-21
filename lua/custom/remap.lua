@@ -31,4 +31,7 @@ vim.keymap.set('n', '<Esc>', ':noh<CR>', opts)
 vim.keymap.set('i', 'jk', '<ESC>', opts)
 vim.keymap.set('i', 'kj', '<ESC>', opts)
 
+-- Neo-tree: Open with <backslash> (\\) in normal mode
+vim.keymap.set('n', '\\', ':Neotree toggle<CR>', { desc = 'Toggle File Explorer (Neo-tree)' })
+
 -- (All <leader> mappings, Go snippets, and UV commands have been moved to whichkey_mece.lua)

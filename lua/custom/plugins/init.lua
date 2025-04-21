@@ -31,6 +31,7 @@ return {
   { 'folke/which-key.nvim', event = 'VeryLazy', config = function() require('custom.whichkey_mece') end },
 
   -- File navigation & search
+  { 'nvim-neo-tree/neo-tree.nvim', branch = 'v3.x', dependencies = { 'nvim-lua/plenary.nvim', 'nvim-tree/nvim-web-devicons', 'MunifTanjim/nui.nvim' }, cmd = { 'Neotree' }, config = true },
   { 'nvim-telescope/telescope.nvim', tag = '0.1.8', dependencies = { 'nvim-lua/plenary.nvim' }, cmd = 'Telescope' },
 
   -- Git

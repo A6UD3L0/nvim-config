@@ -20,6 +20,12 @@ return {
   -- { 'lukas-reineke/indent-blankline.nvim', event = 'VeryLazy', config = function() require('custom.indent_blankline') end },
   -- { 'petertriho/nvim-scrollbar', event = 'VeryLazy', config = function() require('custom.scrollbar') end },
   { 'nvim-tree/nvim-web-devicons', lazy = true },
+  {
+    'folke/noice.nvim',
+    event = 'VeryLazy',
+    dependencies = { 'MunifTanjim/nui.nvim', 'rcarriga/nvim-notify' },
+    config = true
+  },
 
   -- Keymap/which-key
   { 'folke/which-key.nvim', event = 'VeryLazy', config = function() require('custom.whichkey_mece') end },

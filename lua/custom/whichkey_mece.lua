@@ -108,6 +108,14 @@ wk.register({
     x = { ":Uvx<Space>", "Run Tool (uvx)" },
   },
 
+  --  Terminal (ToggleTerm)
+  t = {
+    name = " Terminal",
+    t = { ":ToggleTerm<CR>", "Toggle Horizontal Terminal" },
+    v = { ":ToggleTerm direction=vertical<CR>", "Toggle Vertical Terminal" },
+    f = { ":ToggleTerm direction=float<CR>", "Toggle Floating Terminal" },
+  },
+
   --  Misc/Utilities
   x = {
     name = " Misc/Utilities",

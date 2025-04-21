@@ -19,25 +19,29 @@ do
   neotest.setup { adapters = adapters }
 
   local ok_dap, dap = pcall(require, 'dap')
-  local ok_dapui, dapui = false, nil -- DAP UI disabled, remove references
-  if not ok_dapui then
-    vim.schedule(function()
-      -- vim.notify('dap-ui: missing dependency nvim-nio', vim.log.levels.WARN) -- nvim-nio reference removed
-    end)
+  if not ok_dap then
     return
   end
-  if ok_dap then
-    local ok_dap_py, dap_python = pcall(require, 'dap-python')
-    if ok_dap_py then
-      dap_python.setup('~/.virtualenvs/debugpy/bin/python')
-    end
-    local ok_dap_go, dap_go = pcall(require, 'dap-go')
-    if ok_dap_go then
-      dap_go.setup()
-    end
-    vim.keymap.set('n', '<F5>', function() dap.continue() end, { desc = 'Debug: Start/Continue' })
-    vim.keymap.set('n', '<F10>', function() dap.step_over() end, { desc = 'Debug: Step Over' })
-    vim.keymap.set('n', '<F11>', function() dap.step_into() end, { desc = 'Debug: Step Into' })
-    vim.keymap.set('n', '<F12>', function() dap.step_out() end, { desc = 'Debug: Step Out' })
+  local ok_dap_py, dap_python = pcall(require, 'dap-python')
+  if ok_dap_py then
+    dap_python.setup('~/.virtualenvs/debugpy/bin/python')
   end
+  local ok_dap_go, dap_go = pcall(require, 'dap-go')
+  if ok_dap_go then
+    dap_go.setup()
+  end
+
+  -- DAP UI guarded setup
+  local ok, dapui = pcall(require, 'dapui')
+  if not ok then
+    vim.notify('dap-ui: nvim-nio not found, skipping setup', vim.log.levels.WARN)
+    return
+  end
+
+  dapui.setup({})
+
+  vim.keymap.set('n', '<F5>', function() dap.continue() end, { desc = 'Debug: Start/Continue' })
+  vim.keymap.set('n', '<F10>', function() dap.step_over() end, { desc = 'Debug: Step Over' })
+  vim.keymap.set('n', '<F11>', function() dap.step_into() end, { desc = 'Debug: Step Into' })
+  vim.keymap.set('n', '<F12>', function() dap.step_out() end, { desc = 'Debug: Step Out' })
 end

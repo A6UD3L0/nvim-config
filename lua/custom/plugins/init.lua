@@ -57,9 +57,13 @@ return {
   { 'mfussenegger/nvim-dap', event = 'VeryLazy', config = function()
     require('custom.test-debug')
   end },
-  { 'rcarriga/nvim-dap-ui', event = 'VeryLazy', config = function()
+  { 'rcarriga/nvim-dap-ui', event = 'VeryLazy', dependencies = { 'nvim-neotest/nvim-nio' }, config = function()
     local ok, dapui = pcall(require, 'dapui')
-    if ok then dapui.setup() end
+    if not ok then
+      vim.notify('dap-ui: nvim-nio not found, skipping setup', vim.log.levels.WARN)
+      return
+    end
+    dapui.setup({})
   end },
   { 'leoluz/nvim-dap-go', ft = 'go' },
   { 'mfussenegger/nvim-dap-python', ft = 'python' },
@@ -80,4 +84,5 @@ return {
   { 'mbbill/undotree', cmd = 'UndotreeToggle' },
   { 'ThePrimeagen/harpoon', branch = 'harpoon2', dependencies = { 'nvim-lua/plenary.nvim' }, event = 'VeryLazy' },
   { 'wakatime/vim-wakatime', lazy = false },
+  { 'nvim-neotest/nvim-nio', event = 'VeryLazy' },
 }

@@ -3,7 +3,13 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
 local opts = { noremap = true, silent = true }
 
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', opts)
+-- Ensure <Space> triggers which-key popup
+vim.keymap.set('n', '<Space>', function()
+  local ok, wk = pcall(require, 'which-key')
+  if ok then
+    wk.show('')
+  end
+end, { desc = 'Show which-key' })
 
 -- General navigation, editing, and window management (non-leader)
 vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Page down and center' })

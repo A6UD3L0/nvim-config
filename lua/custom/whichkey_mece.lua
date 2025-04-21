@@ -154,6 +154,9 @@ do
     n = { ":noautocmd w <CR>", "Save (noautocmd)" },
   })
 
+  -- NvimTree: Open with <leader>e or <leader>f e, but you want <BS> (backslash) to open NvimTree
+  vim.keymap.set('n', '\\', ':NvimTreeToggle<CR>', { desc = 'Toggle File Explorer (NvimTree)' })
+
 --[[
   Major reassignments:
     - Docker group moved from <leader>d to <leader>D for MECE with Debug.

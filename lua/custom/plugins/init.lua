@@ -57,11 +57,11 @@ return {
   { 'Vigemus/iron.nvim', ft = { 'python', 'sh', 'bash' }, config = function() require('custom.repl') end },
 
   -- Test/Debug
-  { 'nvim-neotest/neotest', event = 'VeryLazy', config = function() require('custom.test-debug') end },
+  { 'nvim-neotest/neotest', event = 'VeryLazy', config = function() require('custom.test_debug') end },
   { 'nvim-neotest/neotest-python', ft = 'python' },
   { 'nvim-neotest/neotest-go', ft = 'go' },
   { 'mfussenegger/nvim-dap', event = 'VeryLazy', config = function()
-    require('custom.test-debug')
+    require('custom.test_debug')
   end },
   { 'rcarriga/nvim-dap-ui', event = 'VeryLazy', config = function()
     local ok, dapui = pcall(require, 'dapui')

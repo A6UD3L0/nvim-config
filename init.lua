@@ -80,4 +80,4 @@ require("lazy").setup({
 })
 
 -- Only load the plugin spec. All plugin-dependent code is loaded by Lazy.nvim via config blocks.
-require('custom.plugins')
+require("lazy").setup(require("custom.plugins"))

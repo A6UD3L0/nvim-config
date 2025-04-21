@@ -94,6 +94,15 @@ return {
     dependencies = { 'folke/which-key.nvim' },
   },
 
+  -- ToggleTerm for integrated terminal
+  {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    config = true,
+    opts = {},
+    event = 'VeryLazy',
+  },
+
   -- null-ls for formatting and diagnostics
   {
     'nvimtools/none-ls.nvim',

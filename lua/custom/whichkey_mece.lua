@@ -142,8 +142,20 @@ wk.register({
     B = { function() require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, "Set Conditional Breakpoint" },
     r = { function() require('dap').repl.open() end, "Open REPL" },
     l = { function() require('dap').run_last() end, "Run Last Debug" },
-    t = { function() require('dapui').toggle() end, "Toggle DAP UI" },
-    e = { function() require('dapui').eval() end, "Eval Expression" },
+    t = {
+      function()
+        local ok, dapui = pcall(require, "dapui")
+        if ok then dapui.toggle() end
+      end,
+      "Toggle DAP UI"
+    },
+    e = {
+      function()
+        local ok, dapui = pcall(require, "dapui")
+        if ok then dapui.eval() end
+      end,
+      "Eval Expression"
+    },
     c = { function() require('dap').clear_breakpoints() end, "Clear Breakpoints" },
   },
 }, { prefix = "<leader>" })

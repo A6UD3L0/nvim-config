@@ -142,13 +142,7 @@ wk.register({
     B = { function() require('dap').set_breakpoint(vim.fn.input('Breakpoint condition: ')) end, "Set Conditional Breakpoint" },
     r = { function() require('dap').repl.open() end, "Open REPL" },
     l = { function() require('dap').run_last() end, "Run Last Debug" },
-    t = {
-      function()
-        local ok, dapui = pcall(require, "dapui")
-        if ok then dapui.toggle() end
-      end,
-      "Toggle DAP UI"
-    },
+    t = { ":DapUIToggle<CR>", "Toggle DAP UI (safe)" },
     e = {
       function()
         local ok, dapui = pcall(require, "dapui")

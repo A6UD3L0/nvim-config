@@ -73,55 +73,54 @@ return {
   config = function()
     local dap = require 'dap'
 
-    -- Setup dapui first!
-    require('dapui').setup {
-      -- Set icons to characters that are more likely to work in every terminal.
-      --    Feel free to remove or use ones that you like more! :)
-      --    Don't feel like these are good choices.
-      icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
-      controls = {
-        icons = {
-          pause = '⏸',
-          play = '▶',
-          step_into = '⏎',
-          step_over = '⏭',
-          step_out = '⏮',
-          step_back = 'b',
-          run_last = '▶▶',
-          terminate = '⏹',
-          disconnect = '⏏',
+    local ok_ui, dapui = pcall(require, 'dapui')
+    if ok_ui then
+      dapui.setup {
+        icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+        controls = {
+          icons = {
+            pause      = '⏸',
+            play       = '▶',
+            step_into  = '⏎',
+            step_over  = '⏭',
+            step_out   = '⏮',
+            step_back  = 'b',
+            run_last   = '▶▶',
+            terminate  = '⏹',
+            disconnect = '⏏',
+          },
         },
-      },
-    }
-
-    -- Now require dapui safely
-    local ok, dapui = pcall(require, 'dapui')
-    if not ok then
+      }
+    else
       vim.notify("nvim-dap-ui failed to load", vim.log.levels.ERROR)
       return
     end
 
-    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-    dap.listeners.before.event_exited['dapui_config'] = dapui.close
+    if ok_ui then
+      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+      dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+      dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
-    -- Safe patch for dapui.controls.enable_controls (prevents nil errors)
-    if dapui.controls and type(dapui.controls.enable_controls) == "function" then
-      local orig_enable_controls = dapui.controls.enable_controls
-      dapui.controls.enable_controls = function(element, ...)
-        if element == nil then return end
-        return orig_enable_controls(element, ...)
+      if dapui.controls and type(dapui.controls.enable_controls) == "function" then
+        local orig_enable_controls = dapui.controls.enable_controls
+        dapui.controls.enable_controls = function(element, ...)
+          if element == nil then return end
+          return orig_enable_controls(element, ...)
+        end
       end
     end
 
-    -- Install golang specific config
     require('dap-go').setup {
       delve = {
-        -- On Windows delve must be run attached or it crashes.
-        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
         detached = vim.fn.has 'win32' == 0,
       },
     }
     require('dap-python').setup 'uv'
   end,
 }
+
+-- safe toggle command
+vim.api.nvim_create_user_command('DapUIToggle', function()
+  local ok, dapui = pcall(require, 'dapui')
+  if ok then pcall(dapui.toggle) end
+end, { desc = 'Toggle nvim-dap-ui safely' })

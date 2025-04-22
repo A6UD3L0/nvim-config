@@ -189,20 +189,5 @@ return {
     end,
   },
   -- Patch dapui.controls.enable_controls to avoid nil errors
-  {
-    dir = vim.fn.stdpath('config') .. '/lua/custom',
-    config = function()
-      local dapui_ok, dapui = pcall(require, "dapui")
-      if dapui_ok and dapui.controls and type(dapui.controls.enable_controls) == "function" then
-        local orig_enable_controls = dapui.controls.enable_controls
-        dapui.controls.enable_controls = function(element, ...)
-          if element == nil then
-            return
-          end
-          return orig_enable_controls(element, ...)
-        end
-      end
-    end,
-    event = 'VeryLazy',
-  },
+  -- (Removed problematic custom patch block; see debug.lua for safe patching)
 }

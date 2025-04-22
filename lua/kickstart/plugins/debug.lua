@@ -138,6 +138,15 @@ return {
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
+    -- Safe patch for dapui.controls.enable_controls (prevents nil errors)
+    if dapui.controls and type(dapui.controls.enable_controls) == "function" then
+      local orig_enable_controls = dapui.controls.enable_controls
+      dapui.controls.enable_controls = function(element, ...)
+        if element == nil then return end
+        return orig_enable_controls(element, ...)
+      end
+    end
+
     -- Install golang specific config
     require('dap-go').setup {
       delve = {

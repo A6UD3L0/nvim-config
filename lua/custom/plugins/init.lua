@@ -43,7 +43,25 @@ return {
     end,
   },
 
-  { 'wakatime/vim-wakatime', lazy = false },
+  { 'wakatime/vim-wakatime', lazy = false,
+    config = function()
+      local ok, _ = pcall(require, 'wakatime')
+      if not ok then return end
+      local api_key = vim.fn.getenv('WAKATIME_API_KEY')
+      if api_key and api_key ~= '' then
+        vim.cmd('WakaTimeApiKey ' .. api_key)
+      else
+        -- ~/.wakatime.cfg fallback is handled by WakaTime CLI
+        local cfg = vim.fn.expand('~/.wakatime.cfg')
+        if vim.fn.filereadable(cfg) == 0 then
+          vim.schedule(function()
+            vim.notify('⚠️ WakaTime API key not found. Set $WAKATIME_API_KEY or run :WakaTimeApiKey', vim.log.levels.WARN)
+          end)
+        end
+      end
+    end,
+  },
+
   -- Harpoon for quick file navigation
   {
     'ThePrimeagen/harpoon',

@@ -12,7 +12,8 @@ local opts = { noremap = true, silent = true }
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', opts)
 
 -- General Navigation & Editing
-vim.keymap.set('n', '<leader>pv', vim.cmd.Ex, { desc = 'Open netrw file explorer' })
+-- (Removed <leader>pv mapping to avoid UV/Which-Key submenu conflict)
+-- vim.keymap.set('n', '<leader>pv', vim.cmd.Ex, { desc = 'Open netrw file explorer' })
 vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Page down and center' })
 vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Page up and center' })
 vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Next search and center' })

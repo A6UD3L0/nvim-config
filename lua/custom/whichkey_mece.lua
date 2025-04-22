@@ -1,4 +1,8 @@
- local wk = require("which-key")
+ -- whichkey_mece.lua: Central which-key group registration for all major features.
+-- Only register project/UV (<leader>p), terminal (<leader>t), and debug (<leader>d) keymaps here for clarity and DRYness.
+-- Do NOT duplicate these in remap.lua or editor_commands.lua.
+
+local wk = require("which-key")
 
 wk.setup({
   window = {
@@ -94,7 +98,7 @@ wk.register({
     m = { "zc", "Close Fold" },
   },
 
-  --  Python/Project (UV)
+  --  Python/Project (UV) - CANONICAL <leader>p
   p = {
     name = " Python/Project (UV)",
     i = { ":UvInit<Space>", "Init Project" },
@@ -108,7 +112,7 @@ wk.register({
     x = { ":Uvx<Space>", "Run Tool (uvx)" },
   },
 
-  --  Terminal (ToggleTerm)
+  --  Terminal (ToggleTerm) - CANONICAL <leader>t
   t = {
     name = " Terminal",
     t = { ":ToggleTerm<CR>", "Toggle Horizontal Terminal" },
@@ -124,7 +128,7 @@ wk.register({
     S = { function() vim.cmd("so") end, "Source File" },
   },
 
-  --  Debug (nvim-dap & nvim-dap-ui)
+  --  Debug (nvim-dap & nvim-dap-ui) - CANONICAL <leader>d
   d = {
     name = " Debug",
     s = { function() require('dap').continue() end, "Start/Continue Debug" },

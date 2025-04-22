@@ -1,5 +1,5 @@
--- remap.lua: Refactored, Unified, and Documented Key Mappings
--- All mappings use vim.keymap.set, are grouped by purpose, and are fully documented.
+-- remap.lua: General/documented keymaps for navigation, editing, and utilities.
+-- Do NOT register project/UV (<leader>p), terminal (<leader>t), or debug (<leader>d) mappings here. Those belong in whichkey_mece.lua only.
 
 -- Set leader and localleader keys (do this only once, at the top)
 vim.g.mapleader = ' '
@@ -12,8 +12,6 @@ local opts = { noremap = true, silent = true }
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', opts)
 
 -- General Navigation & Editing
--- (Removed <leader>pv mapping to avoid UV/Which-Key submenu conflict)
--- vim.keymap.set('n', '<leader>pv', vim.cmd.Ex, { desc = 'Open netrw file explorer' })
 vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'Page down and center' })
 vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Page up and center' })
 vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Next search and center' })
@@ -24,7 +22,7 @@ vim.keymap.set('n', '=ap', "ma=ap'a", { desc = 'Reindent paragraph' })
 vim.keymap.set({ 'n', 'v' }, '<leader>y', [[$'+y]], { desc = 'Yank to system clipboard' })
 vim.keymap.set('n', '<leader>Y', [[$'+Y]], { desc = 'Yank line to system clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<leader>d', '"_d', { desc = 'Delete without yanking' })
-vim.keymap.set('x', '<leader>p', [['_dP]], { desc = 'Paste without yanking' })
+vim.keymap.set('x', '<leader>p', '"_dP', { desc = 'Paste without yanking' })
 vim.keymap.set('n', 'x', '"_x', { desc = 'Delete char without yanking' })
 
 -- Buffer/Window/Tab Management

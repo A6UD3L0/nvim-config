@@ -1,5 +1,5 @@
--- UV Python Project Management Integration for Neovim
--- Project root detection and .venv auto-activation only
+-- uv_python.lua: UV Python Project Management Integration for Neovim.
+-- Handles project root detection and .venv auto-activation only. Do NOT register which-key or project keymaps here.
 
 local uv_utils = {}
 
@@ -30,15 +30,5 @@ vim.api.nvim_create_autocmd('BufEnter', {
     end
   end,
 })
-
--- Setup UV commands and Which-Key integration
-local ok, uv_cmds = pcall(require, 'core.utils.editor_commands')
-if ok then
-  uv_cmds.setup_commands()
-  local wk_ok, wk = pcall(require, 'which-key')
-  if wk_ok then
-    uv_cmds.setup_wk(wk)
-  end
-end
 
 return uv_utils

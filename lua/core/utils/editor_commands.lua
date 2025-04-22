@@ -1,5 +1,5 @@
--- lua/core/utils/editor_commands.lua
--- Canonical UV project/user-command and which-key integration
+-- lua/core/utils/editor_commands.lua: Defines UV project commands as Neovim user commands.
+-- Do NOT register which-key UV/project group here if using whichkey_mece.lua as canonical. Only provide command registration.
 
 local M = {}
 
@@ -38,33 +38,6 @@ function M.setup_commands()
       end
     end, cmd.opts)
   end
-end
-
---- Register Which-Key UV submenu under <leader>p
-function M.setup_wk(wk)
-  if not wk then return end
-  local entries = {}
-  for _, cmd in ipairs(uv_commands) do
-    local key = cmd.name:gsub('^Uv', ''):lower()
-    entries[key] = { ':'..cmd.name..' ', cmd.opts.desc }
-  end
-  wk.register({
-    p = {
-      name = ' Python/Project',
-      i = entries.init,
-      a = entries.add,
-      r = entries.run,
-      l = entries.lock,
-      s = entries.sync,
-      p = entries.python,
-      v = entries.pin,
-      t = {
-        name = '+Tool',
-        i = entries.toolinstall,
-        x = entries.uvx or entries.toolrun,
-      },
-    },
-  }, { prefix = '<leader>' })
 end
 
 return M

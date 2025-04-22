@@ -63,14 +63,14 @@ wk.register({
   --  Harpoon
   h = {
     name = " Harpoon",
-    a = { function() require("harpoon.mark").add_file() end, "Add File" },
-    m = { function() require("harpoon.ui").toggle_quick_menu() end, "Menu" },
-    n = { function() require("harpoon.ui").nav_next() end,        "Next" },
-    p = { function() require("harpoon.ui").nav_prev() end,        "Prev" },
-    ["1"] = { function() require("harpoon.ui").nav_file(1) end,   "File 1" },
-    ["2"] = { function() require("harpoon.ui").nav_file(2) end,   "File 2" },
-    ["3"] = { function() require("harpoon.ui").nav_file(3) end,   "File 3" },
-    ["4"] = { function() require("harpoon.ui").nav_file(4) end,   "File 4" },
+    a = { function() require("harpoon"):list():append() end, "Add File" },
+    m = { function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end, "Menu" },
+    n = { function() require("harpoon"):list():next() end, "Next" },
+    p = { function() require("harpoon"):list():prev() end, "Prev" },
+    ["1"] = { function() require("harpoon"):list():select(1) end, "File 1" },
+    ["2"] = { function() require("harpoon"):list():select(2) end, "File 2" },
+    ["3"] = { function() require("harpoon"):list():select(3) end, "File 3" },
+    ["4"] = { function() require("harpoon"):list():select(4) end, "File 4" },
   },
 
   --  Buffers/Windows

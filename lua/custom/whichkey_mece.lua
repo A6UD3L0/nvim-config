@@ -1,5 +1,5 @@
  -- whichkey_mece.lua: Central which-key group registration for all major features.
--- Only register project/UV (<leader>p), terminal (<leader>t), and debug (<leader>d) keymaps here for clarity and DRYness.
+-- Only register project/UV (<leader>P), terminal (<leader>t), and debug (<leader>d) keymaps here for clarity and DRYness.
 -- Do NOT duplicate these in remap.lua or editor_commands.lua.
 
 local wk = require("which-key")
@@ -98,18 +98,21 @@ wk.register({
     m = { "zc", "Close Fold" },
   },
 
-  --  Python/Project (UV) - CANONICAL <leader>p
-  p = {
+  --  Python/Project (UV) - CANONICAL <leader>P
+  P = {
     name = " Python/Project (UV)",
     i = { ":UvInit<Space>", "Init Project" },
-    a = { ":UvAdd<Space>", "Add Dependency" },
-    r = { ":UvRun<Space>", "Run Project Command" },
-    l = { ":UvLock<CR>", "Lock Dependencies" },
-    s = { ":UvSync<CR>", "Sync Project" },
-    v = { ":UvPython<Space>", "Set Python Version" },
-    p = { ":UvPin<Space>", "Pin Python Version" },
-    t = { ":UvToolInstall<Space>", "Install Tool" },
-    x = { ":Uvx<Space>", "Run Tool (uvx)" },
+    a = { ":UvActivate<Space>", "Activate .venv" },
+    r = { ":UvRun<Space>", "Run Main" },
+    t = { ":UvTest<Space>", "Run Tests" },
+    s = { ":UvShell<Space>", "Shell in venv" },
+    c = { ":UvConsole<Space>", "Python Console" },
+    p = { ":UvPip<Space>", "Pip Install" },
+    u = { ":UvUpdate<Space>", "Update Deps" },
+    l = { ":UvLint<Space>", "Lint" },
+    f = { ":UvFormat<Space>", "Format" },
+    d = { ":UvDocs<Space>", "Docs" },
+    m = { ":UvMigrate<Space>", "Migrate" },
   },
 
   --  Terminal (ToggleTerm) - CANONICAL <leader>t

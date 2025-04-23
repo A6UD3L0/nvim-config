@@ -185,7 +185,7 @@ return {
 
   -- Docker workflow integration
   {
-    'skanehira/docker.nvim',
+    'phukon/docker.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
     ft = { 'dockerfile', 'yaml' },
     opts = {},

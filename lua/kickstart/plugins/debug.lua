@@ -74,7 +74,8 @@ local plugin = {
     }
 
     -- Python adapter (uses UV)
-    require('dap-python').setup 'uv'
+    require('dap-python').setup(vim.fn.exepath("python3"))
+
   end,
 }
 

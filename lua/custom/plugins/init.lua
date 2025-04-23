@@ -202,6 +202,11 @@ return {
       vim.g.undotree_SetFocusWhenToggle = 1
     end,
   },
+  { -- Ensure DAP UI is installed for nvim-dap-ui
+    'rcarriga/nvim-dap-ui',
+    dependencies = { 'mfussenegger/nvim-dap' },
+    lazy = false,
+  },
   -- Patch dapui.controls.enable_controls to avoid nil errors
   -- (Removed problematic custom patch block; see debug.lua for safe patching)
 }

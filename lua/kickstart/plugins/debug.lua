@@ -28,7 +28,6 @@ local plugin = {
   },
   config = function()
     local dap = require 'dap'
-
     -- Protected load of dap-ui
     local ok_ui, dapui = pcall(require, 'dapui')
     if ok_ui then

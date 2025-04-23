@@ -69,13 +69,6 @@ return {
     dependencies = { 'nvim-lua/plenary.nvim' },
   },
 
-  -- Telescope for fuzzy finding
-  {
-    'nvim-telescope/telescope.nvim',
-    tag = '0.1.8',
-    dependencies = { 'nvim-lua/plenary.nvim' },
-  },
-
   -- LazyGit integration
   {
     'kdheepak/lazygit.nvim',
@@ -175,6 +168,27 @@ return {
         end,
       }
     end,
+  },
+  -- Database (SQL) integrations
+  {
+    'tpope/vim-dadbod',
+    event = 'VeryLazy',
+  },
+  {
+    'kristijanhusak/vim-dadbod-ui',
+    dependencies = { 'tpope/vim-dadbod' },
+    cmd = { 'DBUI', 'DBUIToggle', 'DBUIAddConnection', 'DBUIFindBuffer' },
+    init = function()
+      vim.g.db_ui_use_nerd_fonts = 1
+    end,
+  },
+
+  -- Docker workflow integration
+  {
+    'skanehira/docker.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    ft = { 'dockerfile', 'yaml' },
+    opts = {},
   },
   -- UndoTree plugin
   {

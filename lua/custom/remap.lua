@@ -1,10 +1,6 @@
 -- remap.lua: General/documented keymaps for navigation, editing, and utilities.
 -- Do NOT register project/UV (<leader>p), terminal (<leader>t), or debug (<leader>d) mappings here. Those belong in whichkey_mece.lua only.
 
--- Set leader and localleader keys (do this only once, at the top)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ','
-
 -- Option table for silent, noremap mappings
 local opts = { noremap = true, silent = true }
 
@@ -21,23 +17,15 @@ vim.keymap.set('n', '=ap', "ma=ap'a", { desc = 'Reindent paragraph' })
 -- Clipboard & Deletion
 vim.keymap.set({ 'n', 'v' }, '<leader>y', [[$'+y]], { desc = 'Yank to system clipboard' })
 vim.keymap.set('n', '<leader>Y', [[$'+Y]], { desc = 'Yank line to system clipboard' })
-vim.keymap.set({ 'n', 'v' }, '<leader>d', '"_d', { desc = 'Delete without yanking' })
 vim.keymap.set('x', '<leader>p', '"_dP', { desc = 'Paste without yanking' })
 vim.keymap.set('n', 'x', '"_x', { desc = 'Delete char without yanking' })
 
 -- Buffer/Window/Tab Management
 vim.keymap.set('n', '<Tab>', ':bnext<CR>', opts)
 vim.keymap.set('n', '<S-Tab>', ':bprevious<CR>', opts)
-vim.keymap.set('n', '<leader>x', ':Bdelete!<CR>', opts)   -- close buffer
 vim.keymap.set('n', '<leader>b', '<cmd> enew <CR>', opts) -- new buffer
 vim.keymap.set('n', '<leader>+', '<C-a>', opts) -- increment
 vim.keymap.set('n', '<leader>-', '<C-x>', opts) -- decrement
-
--- Window management
-vim.keymap.set('n', '<C-k>', ':wincmd k<CR>', opts)
-vim.keymap.set('n', '<C-j>', ':wincmd j<CR>', opts)
-vim.keymap.set('n', '<C-h>', ':wincmd h<CR>', opts)
-vim.keymap.set('n', '<C-l>', ':wincmd l<CR>', opts)
 
 -- Tabs
 vim.keymap.set('n', '<leader>to', ':tabnew<CR>', opts)   -- open new tab
@@ -49,15 +37,10 @@ vim.keymap.set('n', '<leader>tp', ':tabp<CR>', opts)     --  go to previous tab
 vim.keymap.set('n', '<leader>tf', '<Plug>PlenaryTestFile', { noremap = false, silent = false, desc = 'Run Plenary test file' })
 vim.keymap.set('n', '<leader>zig', '<cmd>LspRestart<cr>', { desc = 'Restart LSP' })
 vim.keymap.set('n', '<leader>s', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'Substitute word under cursor' })
-vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { silent = true, desc = 'Make file executable' })
+vim.keymap.set('n', '<leader>xx', '<cmd>!chmod +x %<CR>', { silent = true, desc = 'Make file executable' })
 vim.keymap.set('n', '<leader><leader>', function() vim.cmd('so') end, { desc = 'Source current file' })
 
--- UndoTree
-vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = 'Toggle UndoTree' })
-
--- Quickfix/Location List
-vim.keymap.set('n', '<C-k>', '<cmd>cnext<CR>zz', { desc = 'Next quickfix' })
-vim.keymap.set('n', '<C-j>', '<cmd>cprev<CR>zz', { desc = 'Prev quickfix' })
+-- Location List
 vim.keymap.set('n', '<leader>k', '<cmd>lnext<CR>zz', { desc = 'Next location list' })
 vim.keymap.set('n', '<leader>j', '<cmd>lprev<CR>zz', { desc = 'Prev location list' })
 

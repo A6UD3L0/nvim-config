@@ -47,13 +47,76 @@ require("lazy").setup({
       vim.cmd[[colorscheme tokyonight]]
     end},
     
-    -- Utility plugins
-    {"mbbill/undotree"},
-    {"ThePrimeagen/harpoon", dependencies = { "nvim-lua/plenary.nvim" }},
-    {"kdheepak/lazygit.nvim", dependencies = { "nvim-lua/plenary.nvim" }},
-    {"akinsho/toggleterm.nvim", version = "*"},
+    -- Utility plugins with their configurations
+    {
+      "mbbill/undotree",
+      cmd = "UndotreeToggle",
+      config = function()
+        vim.g.undotree_WindowLayout = 3
+        vim.g.undotree_SetFocusWhenToggle = 1
+        vim.g.undotree_ShortIndicators = 1
+        vim.g.undotree_DiffpanelHeight = 10
+        vim.g.undotree_SplitWidth = 40
+      end,
+    },
+    {
+      "ThePrimeagen/harpoon",
+      dependencies = { "nvim-lua/plenary.nvim" },
+      config = function()
+        require('harpoon').setup({
+          global_settings = {
+            save_on_toggle = false,
+            save_on_change = true,
+            enter_on_sendcmd = false,
+            tmux_autoclose_windows = false,
+            excluded_filetypes = { 'harpoon' },
+            mark_branch = false,
+          },
+        })
+      end,
+    },
+    {
+      "kdheepak/lazygit.nvim",
+      dependencies = { "nvim-lua/plenary.nvim" },
+      config = function()
+        vim.g.lazygit_floating_window_winblend = 0
+        vim.g.lazygit_floating_window_scaling_factor = 0.9
+        vim.g.lazygit_floating_window_border_chars = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
+        vim.g.lazygit_floating_window_use_plenary = 0
+        vim.g.lazygit_use_neovim_remote = 1
+      end,
+      cmd = { "LazyGit", "LazyGitConfig" },
+    },
+    {
+      "akinsho/toggleterm.nvim",
+      version = "*",
+      config = function()
+        require('toggleterm').setup({
+          size = 20,
+          open_mapping = [[<c-\\>]],
+          hide_numbers = true,
+          shade_filetypes = {},
+          shade_terminals = true,
+          shading_factor = 2,
+          start_in_insert = true,
+          insert_mappings = true,
+          persist_size = true,
+          direction = 'float',
+          close_on_exit = true,
+          shell = vim.o.shell,
+          float_opts = {
+            border = 'curved',
+            winblend = 0,
+            highlights = {
+              border = 'Normal',
+              background = 'Normal',
+            },
+          },
+        })
+      end,
+    },
     
-    -- Custom utilities
+    -- Custom utilities keymaps
     {
       dir = "lua/plugins/utilities.lua",
       name = "utilities",
@@ -63,6 +126,7 @@ require("lazy").setup({
         "kdheepak/lazygit.nvim",
         "akinsho/toggleterm.nvim",
       },
+      event = "VeryLazy",
       config = function()
         require("utilities").config()
       end,

@@ -1,55 +1,25 @@
 local M = {}
 
 function M.config()
-  -- Undotree configuration
-  vim.g.undotree_WindowLayout = 3
-  vim.g.undotree_SetFocusWhenToggle = 1
-  vim.g.undotree_ShortIndicators = 1
-  vim.g.undotree_DiffpanelHeight = 10
-  vim.g.undotree_SplitWidth = 40
-
-  -- Harpoon configuration
-  require('harpoon').setup({
-    global_settings = {
-      save_on_toggle = false,
-      save_on_change = true,
-      enter_on_sendcmd = false,
-      tmux_autoclose_windows = false,
-      excluded_filetypes = { 'harpoon' },
-      mark_branch = false,
-    },
-  })
-
-  -- LazyGit configuration
-  vim.g.lazygit_floating_window_winblend = 0
-  vim.g.lazygit_floating_window_scaling_factor = 0.9
-  vim.g.lazygit_floating_window_border_chars = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
-  vim.g.lazygit_floating_window_use_plenary = 0
-  vim.g.lazygit_use_neovim_remote = 1
-
-  -- ToggleTerm configuration
-  require('toggleterm').setup({
-    size = 20,
-    open_mapping = [[<c-\\>]],
-    hide_numbers = true,
-    shade_filetypes = {},
-    shade_terminals = true,
-    shading_factor = 2,
-    start_in_insert = true,
-    insert_mappings = true,
-    persist_size = true,
+  -- Set up LazyGit toggle function
+  local Terminal = require('toggleterm.terminal').Terminal
+  local lazygit = Terminal:new({
+    cmd = 'lazygit',
+    dir = 'git_dir',
     direction = 'float',
-    close_on_exit = true,
-    shell = vim.o.shell,
-    float_opts = {
-      border = 'curved',
-      winblend = 0,
-      highlights = {
-        border = 'Normal',
-        background = 'Normal',
-      },
-    },
+    float_opts = { border = 'double' },
+    on_open = function(term)
+      vim.cmd('startinsert!')
+      vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 'q', '<cmd>close<CR>', {noremap = true, silent = true})
+    end,
+    on_close = function()
+      vim.cmd('startinsert!')
+    end,
   })
+
+  _G._lazygit_toggle = function()
+    lazygit:toggle()
+  end
 
   -- Set up keymaps
   local keymaps = {
@@ -73,9 +43,9 @@ function M.config()
     { 'n', '<leader>gl', '<cmd>lua _lazygit_toggle()<cr>', { desc = 'LazyGit Toggle' } },
     
     -- ToggleTerm
-    { 'n', '<leader>gt', '<cmd>ToggleTerm<CR>', { noremap = true, silent = true, desc = 'Toggle Terminal' }},
+    { 'n', '<leader>gt', '<cmd>ToggleTerm<CR>', { desc = 'Toggle Terminal' }},
   }
-
+  
   -- Terminal mode keymaps
   local term_keymaps = {
     { 't', '<esc>', [[<C-\\><C-n>]], { noremap = true, silent = true } },
@@ -85,7 +55,7 @@ function M.config()
     { 't', '<C-k>', [[<C-\\><C-n><C-W>k]], { noremap = true, silent = true } },
     { 't', '<C-l>', [[<C-\\><C-n><C-W>l]], { noremap = true, silent = true } },
   }
-
+  
   -- Apply keymaps
   for _, map in ipairs(keymaps) do
     vim.keymap.set(unpack(map))
@@ -94,26 +64,6 @@ function M.config()
   for _, map in ipairs(term_keymaps) do
     vim.keymap.set(unpack(map))
   end
-end
-
--- Set up LazyGit toggle function
-local Terminal = require('toggleterm.terminal').Terminal
-local lazygit = Terminal:new({
-  cmd = 'lazygit',
-  dir = 'git_dir',
-  direction = 'float',
-  float_opts = { border = 'double' },
-  on_open = function(term)
-    vim.cmd('startinsert!')
-    vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 'q', '<cmd>close<CR>', {noremap = true, silent = true})
-  end,
-  on_close = function()
-    vim.cmd('startinsert!')
-  end,
-})
-
-function _lazygit_toggle()
-  lazygit:toggle()
 end
 
 return M

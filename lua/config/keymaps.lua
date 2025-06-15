@@ -43,7 +43,7 @@ map('n', 'n', 'nzzzv')
 map('n', 'N', 'Nzzzv')
 
 -- Better tabbing
-map('v', '<', '<gv'
+map('v', '<', '<gv')
 map('v', '>', '>gv')
 
 -- Terminal mappings

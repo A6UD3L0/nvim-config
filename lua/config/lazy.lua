@@ -46,6 +46,27 @@ require("lazy").setup({
     {"folke/tokyonight.nvim", lazy = false, priority = 1000, config = function()
       vim.cmd[[colorscheme tokyonight]]
     end},
+    
+    -- Utility plugins
+    {"mbbill/undotree"},
+    {"ThePrimeagen/harpoon", dependencies = { "nvim-lua/plenary.nvim" }},
+    {"kdheepak/lazygit.nvim", dependencies = { "nvim-lua/plenary.nvim" }},
+    {"akinsho/toggleterm.nvim", version = "*"},
+    
+    -- Custom utilities
+    {
+      dir = "lua/plugins/utilities.lua",
+      name = "utilities",
+      dependencies = {
+        "mbbill/undotree",
+        "ThePrimeagen/harpoon",
+        "kdheepak/lazygit.nvim",
+        "akinsho/toggleterm.nvim",
+      },
+      config = function()
+        require("utilities").config()
+      end,
+    },
   },
   
   defaults = {

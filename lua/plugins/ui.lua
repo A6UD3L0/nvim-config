@@ -245,8 +245,9 @@ return {
       
       -- Set footer
       local function footer()
-        local datetime = os.date('  %Y-%m-%d   %H:%M:%S')
-        local plugins_text = '⚡ Neovim loaded in ' .. tostring(vim.fn.stdpath('data') .. '/site/pack/packer/start')
+        local datetime = os.date('  %Y-%m-%d   %H:%M:%S')
+        local plugins_loaded = #vim.tbl_keys(require('lazy').plugins())
+        local plugins_text = '⚡ ' .. plugins_loaded .. ' plugins loaded'
         return datetime .. '  |  ' .. plugins_text
       end
       

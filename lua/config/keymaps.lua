@@ -50,21 +50,20 @@ map('v', '>', '>gv')
 map('t', '<Esc>', '<C-\><C-n>', { desc = 'Exit terminal mode' })
 
 -- LSP and completion
-map('n', 'gd', vim.lsp.buf.definition, { desc = 'Go to definition' })
-map('n', 'gD', vim.lsp.buf.declaration, { desc = 'Go to declaration' })
-map('n', 'gr', vim.lsp.buf.references, { desc = 'Show references' })
-map('n', 'gI', vim.lsp.buf.implementation, { desc = 'Go to implementation' })
-map('n', 'K', vim.lsp.buf.hover, { desc = 'Show documentation' })
-map('n', '<leader>ca', vim.lsp.buf.code_action, { desc = 'Code action' })
-map('n', '<leader>rn', vim.lsp.buf.rename, { desc = 'Rename symbol' })
+map('n', 'gd', function() vim.lsp.buf.definition() end, { desc = 'Go to definition' })
+map('n', 'gD', function() vim.lsp.buf.declaration() end, { desc = 'Go to declaration' })
+map('n', 'gr', function() vim.lsp.buf.references() end, { desc = 'Show references' })
+map('n', 'gI', function() vim.lsp.buf.implementation() end, { desc = 'Go to implementation' })
+map('n', 'K', function() vim.lsp.buf.hover() end, { desc = 'Show documentation' })
+map('n', '<leader>ca', function() vim.lsp.buf.code_action() end, { desc = 'Code action' })
+map('n', '<leader>rn', function() vim.lsp.buf.rename() end, { desc = 'Rename symbol' })
 map('n', '<leader>fm', function() vim.lsp.buf.format { async = true } end, { desc = 'Format buffer' })
 
 -- Telescope
-local builtin = require('telescope.builtin')
-map('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
-map('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
-map('n', '<leader>fb', builtin.buffers, { desc = 'Find buffers' })
-map('n', '<leader>fh', builtin.help_tags, { desc = 'Help tags' })
+map('n', '<leader>ff', function() require('telescope.builtin').find_files() end, { desc = 'Find files' })
+map('n', '<leader>fg', function() require('telescope.builtin').live_grep() end, { desc = 'Live grep' })
+map('n', '<leader>fb', function() require('telescope.builtin').buffers() end, { desc = 'Find buffers' })
+map('n', '<leader>fh', function() require('telescope.builtin').help_tags() end, { desc = 'Help tags' })
 
 -- Toggle diagnostics
 map('n', '<leader>td', function()

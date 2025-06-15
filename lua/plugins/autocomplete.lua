@@ -1,91 +1,61 @@
 return {
-  -- Main completion plugin
+  -- Main completion plugin and dependencies
   {
     "hrsh7th/nvim-cmp",
-    version = false, -- last release is way too old
-    event = "VeryLazy", -- Load earlier to ensure it's available
-    priority = 1000, -- Higher priority to load first
-    lazy = false, -- Load immediately instead of lazy-loading
+    event = "InsertEnter",
     dependencies = {
+      -- Snippet Engine & its associated nvim-cmp source
       "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
+
+      -- Sources
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-cmdline",
+
+      -- Useful snippets
       "rafamadriz/friendly-snippets",
     },
     config = function()
       local cmp = require("cmp")
       local luasnip = require("luasnip")
       
-      -- Load friendly-snippets
+      -- Load snippet collections
       require("luasnip.loaders.from_vscode").lazy_load()
       
-      local check_backspace = function()
-        local col = vim.fn.col(".") - 1
-        return col == 0 or vim.fn.getline("."):sub(col, col):match("%s")
+      local has_words_before = function()
+        unpack = unpack or table.unpack
+        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+        return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
       end
-
-      local kind_icons = {
-        Text = "",
-        Method = "m",
-        Function = "",
-        Constructor = "",
-        Field = "",
-        Variable = "",
-        Class = "",
-        Interface = "",
-        Module = "",
-        Property = "",
-        Unit = "",
-        Value = "",
-        Enum = "",
-        Keyword = "",
-        Snippet = "",
-        Color = "",
-        File = "",
-        Reference = "",
-        Folder = "",
-        EnumMember = "",
-        Constant = "",
-        Struct = "",
-        Event = "",
-        Operator = "",
-        TypeParameter = "",
-      }
 
       cmp.setup({
         snippet = {
           expand = function(args)
-            luasnip.lsp_expand(args.body) -- For `luasnip` users.
+            luasnip.lsp_expand(args.body)
           end,
         },
-        mapping = {
-          ["<C-k>"] = cmp.mapping.select_prev_item(),
-          ["<C-j>"] = cmp.mapping.select_next_item(),
-          ["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-1), { "i", "c" }),
-          ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(1), { "i", "c" }),
-          ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
-          ["<C-y>"] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
-          ["<C-e>"] = cmp.mapping({
-            i = cmp.mapping.abort(),
-            c = cmp.mapping.close(),
-          }),
-          -- Accept currently selected item. If none selected, `select` first item.
-          -- Set `select` to `false` to only confirm explicitly selected items.
+        mapping = cmp.mapping.preset.insert({
+          ["<C-b>"] = cmp.mapping.scroll_docs(-4),
+          ["<C-f>"] = cmp.mapping.scroll_docs(4),
+          ["<C-Space>"] = cmp.mapping.complete(),
+          ["<C-e>"] = cmp.mapping.abort(),
           ["<CR>"] = cmp.mapping.confirm({ select = true }),
+          
+          -- Tab completion
           ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_next_item()
-            elseif luasnip.expandable() then
-              luasnip.expand()
             elseif luasnip.expand_or_jumpable() then
               luasnip.expand_or_jump()
-            elseif check_backspace() then
-              fallback()
+            elseif has_words_before() then
+              cmp.complete()
             else
               fallback()
             end
-          end, {
-            "i",
-            "s",
-          }),
+          end, { "i", "s" }),
+
           ["<S-Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
               cmp.select_prev_item()
@@ -94,17 +64,18 @@ return {
             else
               fallback()
             end
-          end, {
-            "i",
-            "s",
-          }),
-        },
+          end, { "i", "s" }),
+        }),
+
+        sources = cmp.config.sources({
+          { name = "nvim_lsp" },
+          { name = "luasnip" },
+          { name = "buffer" },
+          { name = "path" },
+        }),
+
         formatting = {
-          fields = { "kind", "abbr", "menu" },
           format = function(entry, vim_item)
-            -- Kind icons
-            vim_item.kind = string.format("%s", kind_icons[vim_item.kind])
-            -- vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind) -- This concatonates the icons with the name of the item kind
             vim_item.menu = ({
               nvim_lsp = "[LSP]",
               luasnip = "[Snippet]",
@@ -114,86 +85,66 @@ return {
             return vim_item
           end,
         },
-        sources = {
-          { name = "nvim_lsp" },
-          { name = "luasnip" },
-          { name = "buffer" },
-          { name = "path" },
-        },
-        confirm_opts = {
-          behavior = cmp.ConfirmBehavior.Replace,
-          select = false,
-        },
+
         window = {
+          completion = {
+            border = "rounded",
+            winhighlight = "Normal:Normal,FloatBorder:BorderBG,CursorLine:PmenuSel,Search:None",
+          },
           documentation = {
-            border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+            border = "rounded",
           },
         },
-        experimental = {
-          ghost_text = true,
-          native_menu = false,
-        },
+      })
+
+      -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+      cmp.setup.cmdline({ "/", "?" }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = "buffer" }
+        }
+      })
+
+      -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+      cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = "path" },
+          { name = "cmdline" }
+        })
       })
     end,
   },
-  -- CMP sources and extensions
-  {
-    "hrsh7th/cmp-nvim-lsp",
-    dependencies = { "hrsh7th/nvim-cmp" },
-  },
-  {
-    "hrsh7th/cmp-buffer",
-    dependencies = { "hrsh7th/nvim-cmp" },
-  },
-  {
-    "hrsh7th/cmp-path",
-    dependencies = { "hrsh7th/nvim-cmp" },
-  },
-  {
-    "hrsh7th/cmp-cmdline",
-    dependencies = { "hrsh7th/nvim-cmp" },
-  },
-  {
-    "saadparwaiz1/cmp_luasnip",
-    dependencies = { "hrsh7th/nvim-cmp", "L3MON4D3/LuaSnip" },
-  },
-
-  -- Snippets
+  
+  -- LuaSnip configuration
   {
     "L3MON4D3/LuaSnip",
-    build = "make install_jsregexp",
-    dependencies = {
-      "rafamadriz/friendly-snippets",
-      config = function()
-        require("luasnip.loaders.from_vscode").lazy_load()
-      end,
-    },
-    opts = {
-      history = true,
-      delete_check_events = "TextChanged",
-    },
-  },
-  {
-    "rafamadriz/friendly-snippets",
+    dependencies = { "rafamadriz/friendly-snippets" },
     config = function()
-      require("luasnip.loaders.from_vscode").lazy_load()
+      require("luasnip").setup({
+        history = true,
+        update_events = "TextChanged,TextChangedI",
+        delete_check_events = "TextChanged,InsertLeave",
+      })
     end,
   },
+  
+  -- Auto-pairs
   {
     "windwp/nvim-autopairs",
+    event = "InsertEnter",
     config = function()
       require("nvim-autopairs").setup({
         check_ts = true,
         ts_config = {
-          lua = { "string", "source" },
-          javascript = { "string", "template_string" },
-          java = false,
+          lua = {'string'}, -- don't add pairs in lua string treesitter nodes
+          javascript = {'template_string'}, -- don't add pairs in javascript template_string
         },
         disable_filetype = { "TelescopePrompt", "spectre_panel" },
         fast_wrap = {
           map = "<M-e>",
-          chars = { "{", "[", "(", '"', "'" },
-          pattern = string.gsub([[ [\'\"\(\)\{\}\[\]\<\>] ]], "%s+", ""),
+          chars = { "{" , "[", "(", '"', "'" },
+          pattern = string.gsub([[ [%'%"%)%>%]%)%}%,] ]], "%s+", ""),
           offset = 0, -- Offset from pattern match
           end_key = "$",
           keys = "qwertyuiopzxcvbnmasdfghjkl",
@@ -202,11 +153,14 @@ return {
           highlight_grey = "LineNr",
         },
       })
-
-      -- If you want to automatically add `(` after selecting a function or method
+      
+      -- Make autopairs work with completion
       local cmp_autopairs = require("nvim-autopairs.completion.cmp")
       local cmp = require("cmp")
-      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+      cmp.event:on(
+        "confirm_done",
+        cmp_autopairs.on_confirm_done()
+      )
     end,
-  },
+  }
 }

@@ -118,7 +118,7 @@ require("lazy").setup({
     
     -- Custom utilities keymaps
     {
-      dir = "lua/plugins/utilities.lua",
+      dir = "lua/plugins/utilities",
       name = "utilities",
       dependencies = {
         "mbbill/undotree",
@@ -128,7 +128,7 @@ require("lazy").setup({
       },
       event = "VeryLazy",
       config = function()
-        require("utilities").config()
+        require("plugins.utilities").config()
       end,
     },
   },

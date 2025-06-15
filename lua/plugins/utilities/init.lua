@@ -13,7 +13,7 @@ function M.config()
       vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 'q', '<cmd>close<CR>', {noremap = true, silent = true})
     end,
     on_close = function()
-      vim.cmd('startinsert!')
+      vim.cmd('startinsert!') 
     end,
   })
 
@@ -48,12 +48,12 @@ function M.config()
   
   -- Terminal mode keymaps
   local term_keymaps = {
-    { 't', '<esc>', [[<C-\\><C-n>]], { noremap = true, silent = true } },
-    { 't', 'jk', [[<C-\\><C-n>]], { noremap = true, silent = true } },
-    { 't', '<C-h>', [[<C-\\><C-n><C-W>h]], { noremap = true, silent = true } },
-    { 't', '<C-j>', [[<C-\\><C-n><C-W>j]], { noremap = true, silent = true } },
-    { 't', '<C-k>', [[<C-\\><C-n><C-W>k]], { noremap = true, silent = true } },
-    { 't', '<C-l>', [[<C-\\><C-n><C-W>l]], { noremap = true, silent = true } },
+    { 't', '<esc>', [[<C-\><C-n>]], { noremap = true, silent = true } },
+    { 't', 'jk', [[<C-\><C-n>]], { noremap = true, silent = true } },
+    { 't', '<C-h>', [[<C-\><C-n><C-W>h]], { noremap = true, silent = true } },
+    { 't', '<C-j>', [[<C-\><C-n><C-W>j]], { noremap = true, silent = true } },
+    { 't', '<C-k>', [[<C-\><C-n><C-W>k]], { noremap = true, silent = true } },
+    { 't', '<C-l>', [[<C-\><C-n><C-W>l]], { noremap = true, silent = true } },
   }
   
   -- Apply keymaps

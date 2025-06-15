@@ -1,13 +1,12 @@
 return {
+  -- Main completion plugin
   {
     "hrsh7th/nvim-cmp",
     version = false, -- last release is way too old
-    event = "InsertEnter",
+    event = "VeryLazy", -- Load earlier to ensure it's available
+    priority = 1000, -- Higher priority to load first
+    lazy = false, -- Load immediately instead of lazy-loading
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
-      "saadparwaiz1/cmp_luasnip",
       "L3MON4D3/LuaSnip",
       "rafamadriz/friendly-snippets",
     },
@@ -137,6 +136,29 @@ return {
       })
     end,
   },
+  -- CMP sources and extensions
+  {
+    "hrsh7th/cmp-nvim-lsp",
+    dependencies = { "hrsh7th/nvim-cmp" },
+  },
+  {
+    "hrsh7th/cmp-buffer",
+    dependencies = { "hrsh7th/nvim-cmp" },
+  },
+  {
+    "hrsh7th/cmp-path",
+    dependencies = { "hrsh7th/nvim-cmp" },
+  },
+  {
+    "hrsh7th/cmp-cmdline",
+    dependencies = { "hrsh7th/nvim-cmp" },
+  },
+  {
+    "saadparwaiz1/cmp_luasnip",
+    dependencies = { "hrsh7th/nvim-cmp", "L3MON4D3/LuaSnip" },
+  },
+
+  -- Snippets
   {
     "L3MON4D3/LuaSnip",
     build = "make install_jsregexp",

@@ -83,12 +83,17 @@ return {
         sort_by = "case_sensitive",
         view = {
           width = 30,
-          mappings = {
-            list = {
-              { key = "<C-e>", action = "edit_in_place" },
-            },
-          },
         },
+        on_attach = function(bufnr)
+          local api = require('nvim-tree.api')
+          
+          local function opts(desc)
+            return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+          end
+          
+          -- Apply custom mappings
+          vim.keymap.set('n', '<C-e>', api.node.open.replace, opts('Open: In Place'))
+        end,
         renderer = {
           group_empty = true,
         },

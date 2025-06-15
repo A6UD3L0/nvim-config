@@ -23,29 +23,14 @@ require("lazy").setup({
     -- Import your custom plugins
     { import = "plugins" },
     
-    -- Additional plugins
+    -- Core plugins that aren't defined in separate files
     {"nvim-treesitter/nvim-treesitter", build = ":TSUpdate"},
     {"williamboman/mason.nvim"},
     {"williamboman/mason-lspconfig.nvim"},
     {"neovim/nvim-lspconfig"},
-    {"hrsh7th/nvim-cmp"},
-    {"hrsh7th/cmp-nvim-lsp"},
-    {"hrsh7th/cmp-buffer"},
-    {"hrsh7th/cmp-path"},
-    {"hrsh7th/cmp-cmdline"},
-    {"L3MON4D3/LuaSnip"},
-    {"saadparwaiz1/cmp_luasnip"},
-    {"rafamadriz/friendly-snippets"},
-    {"windwp/nvim-autopairs", config = function() require("nvim-autopairs").setup {} end},
     {"numToStr/Comment.nvim", config = true},
     {"lewis6991/gitsigns.nvim", config = true},
-    {"nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" }},
-    {"akinsho/bufferline.nvim", version = "*", dependencies = "nvim-tree/nvim-web-devicons"},
-    {"lukas-reineke/indent-blankline.nvim", main = "ibl", config = true},
     {"folke/which-key.nvim", config = true},
-    {"folke/tokyonight.nvim", lazy = false, priority = 1000, config = function()
-      vim.cmd[[colorscheme tokyonight]]
-    end},
     
     -- Utility plugins with their configurations
     {

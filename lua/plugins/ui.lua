@@ -91,8 +91,14 @@ return {
             return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
           end
           
-          -- Apply custom mappings
-          vim.keymap.set('n', '<C-e>', api.node.open.replace, opts('Open: In Place'))
+          -- Apply default mappings
+          api.config.mappings.default_on_attach(bufnr)
+          
+          -- Add custom mappings
+          vim.keymap.set('n', '<C-e>', function() 
+            api.node.open.edit()
+            api.tree.close()
+          end, opts('Open: In Place'))
         end,
         renderer = {
           group_empty = true,

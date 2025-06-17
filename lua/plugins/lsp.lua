@@ -304,23 +304,8 @@ return {
   -- Better wildmenu
   {
     'gelguy/wilder.nvim',
-    config = function()
-      local wilder = require('wilder')
-      wilder.setup({ modes = { ':', '/', '?' } })
-      wilder.set_option('pipeline', {
-        wilder.branch(
-          wilder.cmdline_pipeline({
-            fuzzy = 1,
-            fuzzy_filter = wilder.vim_fuzzy_filter(),
-          }),
-          wilder.vim_search_pipeline()
-        ),
-      })
-      wilder.set_option('renderer', wilder.wildmenu_renderer({
-        highlighter = wilder.basic_highlighter(),
-      }))
-    end,
-  },
+    enabled = false, -- duplicated in plugins/ui.lua
+  }
 
   -- Better quickfix list
   {

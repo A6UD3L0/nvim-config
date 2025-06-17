@@ -49,6 +49,10 @@ map('v', '>', '>gv')
 -- Terminal mappings
 map('t', '<Esc>', '<C-\><C-n>', { desc = 'Exit terminal mode' })
 
+-- Exit insert mode with jk or kj
+map('i', 'jk', '<Esc>', { desc = 'Exit insert mode' })
+map('i', 'kj', '<Esc>', { desc = 'Exit insert mode' })
+
 -- LSP and completion
 map('n', 'gd', function() vim.lsp.buf.definition() end, { desc = 'Go to definition' })
 map('n', 'gD', function() vim.lsp.buf.declaration() end, { desc = 'Go to declaration' })
